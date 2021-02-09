@@ -1,3 +1,4 @@
+[![dummy](https://github.com/GlynLeine/RealisticPlantSim/workflows/analyze-action/badge.svg)](https://github.com/GlynLeine/RealisticPlantSim/actions?query=workflow%3Aanalyze-action)
 # REALISTIC PLANT SIMULATION
 #### MECHATRONICA
 Simulation can significantly speed up the development of new robots. Simulation can for example be used to test hardware that is physically not available yet. It can also be used to generate sensor data that can be used during development. In this project we primarily focus on generating sensor data.
