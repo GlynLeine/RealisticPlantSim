@@ -11,4 +11,4 @@ jobs:
 
     - name: dummy
       run: |
-        test (0 = 0) && echo "This is a dummy test!"
+        echo "This is a dummy test!"
