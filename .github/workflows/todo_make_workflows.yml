@@ -1,0 +1,14 @@
+name: analyze-action
+on:
+  pull_request:
+    branches: [main, develop, develop/* ]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: dummy
+      run: |
+        test (true)
