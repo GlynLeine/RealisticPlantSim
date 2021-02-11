@@ -17,7 +17,7 @@ jobs:
         projectPath:
           - RealisticPlantSim
         unityVersion:
-          - auto
+          - 2020.2.3f1
         targetPlatform:
           - StandaloneOSX # Build a macOS standalone (Intel 64-bit).
           - StandaloneWindows64 # Build a Windows 64-bit standalone.
