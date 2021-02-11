@@ -38,7 +38,6 @@ jobs:
           projectPath: ${{ matrix.projectPath }}
           unityVersion: ${{ matrix.unityVersion }}
           targetPlatform: ${{ matrix.targetPlatform }}
-          customParameters:
       - uses: actions/upload-artifact@v1
         with:
           name: Build
