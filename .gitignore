@@ -14,3 +14,11 @@ Export/
 *.data
 *.csproj
 *.log
+UserSettings/
+**/Library/Artifacts/
+**/ArtifactDB*
+**/Library/UIElements
+**/Library/CurrentLayout-default.dwlt
+**/Library/InspectorExpandedItems.asset
+**/Library/LastSceneManagerSetup.txt
+**/Library/SceneVisibilityState.asset
