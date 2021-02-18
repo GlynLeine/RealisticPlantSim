@@ -14,6 +14,13 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.unity.editorcoroutines": {
+      "version": "1.0.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
       "depth": 1,
@@ -73,6 +80,20 @@
         "com.unity.render-pipelines.core": "10.2.2"
       },
       "url": "https://packages.unity.com"
+    },
+    "com.unity.robotics.ros-tcp-connector": {
+      "version": "file:C:/Users/robin/Desktop/com.unity.robotics.ros-tcp-connector",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.unity.robotics.urdf-importer": {
+      "version": "file:C:/Users/robin/Desktop/com.unity.robotics.urdf-importer",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.editorcoroutines": "1.0.0"
+      }
     },
     "com.unity.searcher": {
       "version": "4.3.1",
