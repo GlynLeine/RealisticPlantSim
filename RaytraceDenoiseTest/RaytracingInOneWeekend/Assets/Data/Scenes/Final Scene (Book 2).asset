@@ -1,0 +1,339 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4eba0b43da3476bb4ab147b5a2f80fa, type: 3}
+  m_Name: Final Scene (Book 2)
+  m_EditorClassIdentifier: 
+  cameraPosition: {x: 78, y: 278, z: -600}
+  cameraTarget: {x: 278, y: 278, z: 0}
+  cameraAperture: 0
+  cameraFieldOfView: 40
+  entities:
+  - name: Planet
+    type: 1
+    enabled: 1
+    position: {x: 156, y: 200, z: 400}
+    rotation: {x: 0, y: 0, z: 0}
+    moving: 0
+    destinationOffset: {x: 0, y: 0, z: 0}
+    timeRange: {x: 0, y: 0}
+    sphereData:
+      radius: 100
+      excludeFromOverlapTest: 0
+    rectData:
+      size: {x: 0, y: 0}
+    boxData:
+      size: {x: 0, y: 0, z: 0}
+    material: {fileID: 11400000, guid: cb0a5dd9d92d1254994ba0079ffa3fde, type: 2}
+  - name: Marble Ball
+    type: 1
+    enabled: 1
+    position: {x: 336, y: 280, z: 300}
+    rotation: {x: 0, y: 0, z: 0}
+    moving: 0
+    destinationOffset: {x: 0, y: 0, z: 0}
+    timeRange: {x: 0, y: 0}
+    sphereData:
+      radius: 80
+      excludeFromOverlapTest: 0
+    rectData:
+      size: {x: 0, y: 0}
+    boxData:
+      size: {x: 0, y: 0, z: 0}
+    material: {fileID: 11400000, guid: ebeebfea998bf4a1aa412de14835824b, type: 2}
+  - name: Glass Ball
+    type: 1
+    enabled: 1
+    position: {x: 300, y: 150, z: 45}
+    rotation: {x: 0, y: 0, z: 0}
+    moving: 0
+    destinationOffset: {x: 0, y: 0, z: 0}
+    timeRange: {x: 0, y: 0}
+    sphereData:
+      radius: 50
+      excludeFromOverlapTest: 0
+    rectData:
+      size: {x: 0, y: 0}
+    boxData:
+      size: {x: 0, y: 0, z: 0}
+    material: {fileID: 11400000, guid: 708a8b9c4d228461ab8d935dc07149cd, type: 2}
+  - name: Silver Ball
+    type: 1
+    enabled: 1
+    position: {x: 556, y: 150, z: 145}
+    rotation: {x: 0, y: 0, z: 0}
+    moving: 0
+    destinationOffset: {x: 0, y: 0, z: 0}
+    timeRange: {x: 0, y: 0}
+    sphereData:
+      radius: 50
+      excludeFromOverlapTest: 0
+    rectData:
+      size: {x: 0, y: 0}
+    boxData:
+      size: {x: 0, y: 0, z: 0}
+    material: {fileID: 11400000, guid: 9124d4705856b43e099420dc6c136019, type: 2}
+  - name: Area Light
+    type: 2
+    enabled: 1
+    position: {x: 273, y: 554, z: 279.5}
+    rotation: {x: 90, y: 0, z: 0}
+    moving: 0
+    destinationOffset: {x: 0, y: 0, z: 0}
+    timeRange: {x: 0, y: 0}
+    sphereData:
+      radius: 0
+      excludeFromOverlapTest: 0
+    rectData:
+      size: {x: 300, y: 265}
+    boxData:
+      size: {x: 0, y: 0, z: 0}
+    material: {fileID: 11400000, guid: 21917e64af32b624bb64fb3764a7a789, type: 2}
+  - name: Moving Copper Ball
+    type: 1
+    enabled: 1
+    position: {x: 156, y: 400, z: 200}
+    rotation: {x: 0, y: 0, z: 0}
+    moving: 1
+    destinationOffset: {x: 30, y: 0, z: 0}
+    timeRange: {x: 0, y: 1}
+    sphereData:
+      radius: 50
+      excludeFromOverlapTest: 0
+    rectData:
+      size: {x: 0, y: 0}
+    boxData:
+      size: {x: 0, y: 0, z: 0}
+    material: {fileID: 11400000, guid: 7910be79d30ac4666b51d31a0bd07e8b, type: 2}
+  - name: Blue Smoke Container
+    type: 1
+    enabled: 1
+    position: {x: 196, y: 150, z: 145}
+    rotation: {x: 0, y: 0, z: 0}
+    moving: 0
+    destinationOffset: {x: 0, y: 0, z: 0}
+    timeRange: {x: 0, y: 0}
+    sphereData:
+      radius: 70
+      excludeFromOverlapTest: 0
+    rectData:
+      size: {x: 0, y: 0}
+    boxData:
+      size: {x: 0, y: 0, z: 0}
+    material: {fileID: 11400000, guid: 708a8b9c4d228461ab8d935dc07149cd, type: 2}
+  - name: Haze
+    type: 1
+    enabled: 1
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0}
+    moving: 0
+    destinationOffset: {x: 0, y: 0, z: 0}
+    timeRange: {x: 0, y: 0}
+    sphereData:
+      radius: 5000
+      excludeFromOverlapTest: 1
+    rectData:
+      size: {x: 0, y: 0}
+    boxData:
+      size: {x: 0, y: 0, z: 0}
+    material: {fileID: 11400000, guid: f8c2f64346b72464a92f909e0220bfe4, type: 2}
+  - name: Blue Smoke
+    type: 1
+    enabled: 1
+    position: {x: 196, y: 150, z: 145}
+    rotation: {x: 0, y: 0, z: 0}
+    moving: 0
+    destinationOffset: {x: 0, y: 0, z: 0}
+    timeRange: {x: 0, y: 0}
+    sphereData:
+      radius: 70
+      excludeFromOverlapTest: 0
+    rectData:
+      size: {x: 0, y: 0}
+    boxData:
+      size: {x: 0, y: 0, z: 0}
+    material: {fileID: 11400000, guid: daa9f1f9567a2458f947f457da77da6a, type: 2}
+  randomSeed: 1998
+  randomEntityGroups:
+  - Type: 1
+    Distribution: 0
+    PeriodX: 1
+    PeriodY: 1
+    PeriodZ: 1
+    PositionVariation: 0
+    ScaleVariationX: {x: 0, y: 0}
+    ScaleVariationY: {x: 0, y: 0}
+    ScaleVariationZ: {x: 0, y: 0}
+    TentativeCount: 1000
+    SkipOverlapTest: 1
+    SpreadX: 165
+    SpreadY: 165
+    SpreadZ: 165
+    Offset: {x: 573.5, y: 352.5, z: 477.5}
+    Rotation: {x: 0, y: 75, z: 0}
+    MovementChance: 0
+    MovementXOffset: {x: 0, y: 0}
+    MovementYOffset: {x: 0, y: 0}
+    MovementZOffset: {x: 0, y: 0}
+    Radius: {x: 10, y: 10}
+    MinDistance: 0
+    LambertChance: 1
+    MetalChance: 0
+    DieletricChance: 0
+    DiffuseAlbedo:
+      serializedVersion: 2
+      key0: {r: 0.73, g: 0.73, b: 0.73, a: 1}
+      key1: {r: 0.7294118, g: 0.7294118, b: 0.7294118, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    DoubleSampleDiffuseAlbedo: 0
+    MetalAlbedo:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    Fuzz: {x: 0, y: 0}
+    RefractiveIndex: {x: 0, y: 0}
+  - Type: 3
+    Distribution: 1
+    PeriodX: 100
+    PeriodY: 100
+    PeriodZ: 100
+    PositionVariation: 0
+    ScaleVariationX: {x: 1, y: 1}
+    ScaleVariationY: {x: 0.01, y: 2}
+    ScaleVariationZ: {x: 1, y: 1}
+    TentativeCount: 1
+    SkipOverlapTest: 1
+    SpreadX: 2000
+    SpreadY: 0
+    SpreadZ: 2000
+    Offset: {x: 500, y: 0, z: 500}
+    Rotation: {x: 0, y: 0, z: 0}
+    MovementChance: 0
+    MovementXOffset: {x: 0, y: 0}
+    MovementYOffset: {x: 0, y: 0}
+    MovementZOffset: {x: 0, y: 0}
+    Radius: {x: 100, y: 100}
+    MinDistance: 0
+    LambertChance: 1
+    MetalChance: 0
+    DieletricChance: 0
+    DiffuseAlbedo:
+      serializedVersion: 2
+      key0: {r: 0.48, g: 0.83, b: 0.53, a: 1}
+      key1: {r: 0.47843137, g: 0.83137256, b: 0.5294118, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    DoubleSampleDiffuseAlbedo: 0
+    MetalAlbedo:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    Fuzz: {x: 0, y: 0}
+    RefractiveIndex: {x: 0, y: 0}
+  skyBottomColor: {r: 0, g: 0, b: 0, a: 1}
+  skyTopColor: {r: 0, g: 0, b: 0, a: 1}
