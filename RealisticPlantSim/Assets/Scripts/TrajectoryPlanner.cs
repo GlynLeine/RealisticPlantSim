@@ -112,7 +112,7 @@ public class TrajectoryPlanner : MonoBehaviour
         // Pick Pose
         request.pick_pose = new RosMessageTypes.Geometry.Pose
         {
-            position = (target.transform.position + pickPoseOffset).To<FLU>(),
+            position = (target.transform.position + pickPoseOffset).To<FLU>(),//lets see if we can derive the game object position from a camera at some point.
             // The hardcoded x/z angles assure that the gripper is always positioned above the target cube before grasping.
             orientation = Quaternion.Euler(90, target.transform.eulerAngles.y, 0).To<FLU>()
         };
@@ -120,7 +120,7 @@ public class TrajectoryPlanner : MonoBehaviour
         // Place Pose
         request.place_pose = new RosMessageTypes.Geometry.Pose
         {
-            position = (targetPlacement.transform.position + pickPoseOffset).To<FLU>(),
+            position = (targetPlacement.transform.position + pickPoseOffset).To<FLU>(),//lets see if we can derive this position form a camera as well
             orientation = pickOrientation.To<FLU>()
         };
 

@@ -48,9 +48,15 @@ def plan_trajectory(move_group, destination_pose, start_joint_angles):
     if not plan:
         exception_str = """
             Trajectory could not be planned for a destination of {} with starting joint angles {}.
-            Please make sure target and destination are reachable by the robot.
+            Attempting to Adjust...
         """.format(destination_pose, destination_pose)
-        raise Exception(exception_str)
+            destination_pose.orientation = new Quaternion(destination_pose.orientation.x,-destination_pose.orientation.y,destination_pose.orientation.z,destination_pose.orientation.w)
+            move_group.set_pose_target(destination_pose)
+            plan = move_group.go(wait=True)
+             if not plan:
+                exception_str = """
+                Adjustment Failed."""
+                raise Exception(exception_str)
 
     return planCompat(move_group.plan())
 
