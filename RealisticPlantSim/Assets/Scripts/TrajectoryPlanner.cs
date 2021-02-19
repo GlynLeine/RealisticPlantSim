@@ -20,10 +20,12 @@ public class TrajectoryPlanner : MonoBehaviour
     private int numRobotJoints = 6;
     private readonly float jointAssignmentWait = 0.1f;
     private readonly float poseAssignmentWait = 0.5f;
-    private readonly Vector3 pickPoseOffset = Vector3.up * 0.1f;
-    
+    private readonly Vector3 pickPoseOffset = Vector3.up * 0.05f;
+    private readonly Vector3 placePoseOffset = Vector3.up * 0.1f;
+
+
     // Assures that the gripper is always positioned above the target cube before grasping.
-    private readonly Quaternion pickOrientation = Quaternion.Euler(90, 90, 0);
+    private readonly Quaternion pickOrientation = Quaternion.Euler(90, 0, 0);
 
     // Variables required for ROS communication
     public string rosServiceName = "niryo_moveit";
@@ -108,19 +110,21 @@ public class TrajectoryPlanner : MonoBehaviour
     {
         MoverServiceRequest request = new MoverServiceRequest();
         request.joints_input = CurrentJointConfig();
-        
+
+        var pickAngleOffset = Quaternion.AngleAxis(180, Vector3.up) * target.transform.forward * -0.06f;
+
         // Pick Pose
         request.pick_pose = new RosMessageTypes.Geometry.Pose
         {
-            position = (target.transform.position + pickPoseOffset).To<FLU>(),
+            position = (target.transform.position + pickAngleOffset + pickPoseOffset).To<FLU>(),
             // The hardcoded x/z angles assure that the gripper is always positioned above the target cube before grasping.
-            orientation = Quaternion.Euler(90, target.transform.eulerAngles.y, 0).To<FLU>()
+            orientation = Quaternion.Euler(0, target.transform.eulerAngles.y + 180, 0).To<FLU>()
         };
 
         // Place Pose
         request.place_pose = new RosMessageTypes.Geometry.Pose
         {
-            position = (targetPlacement.transform.position + pickPoseOffset).To<FLU>(),
+            position = (targetPlacement.transform.position + placePoseOffset).To<FLU>(),
             orientation = pickOrientation.To<FLU>()
         };
 
