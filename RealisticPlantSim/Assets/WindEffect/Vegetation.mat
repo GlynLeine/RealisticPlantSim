@@ -31,10 +31,9 @@ Material:
     MotionVector: User
     RenderType: TransparentCutout
   disabledShaderPasses:
-  - MOTIONVECTORS
+  - TransparentBackface
   - TransparentDepthPrepass
   - TransparentDepthPostpass
-  - TransparentBackface
   - RayTracingPrepass
   m_SavedProperties:
     serializedVersion: 3
