@@ -35,7 +35,7 @@ namespace FFmpegOut
                 + " -video_size " + width + "x" + height
                 + " -framerate " + frameRate
                 + " -loglevel warning -i - " + preset.GetOptions()
-                + " -f rtsp rtsp://localhost:8554/mystream1"
+                + " -crf 15 -preset fast -b:v 20000k -rtsp_transport tcp -f rtsp rtsp://localhost:8554/mystream1"
             );
         }
 

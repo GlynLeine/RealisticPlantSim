@@ -87,6 +87,9 @@ namespace FFmpegOut
             _copyQueue = null;
             _pipeQueue = _freeBuffer = null;
 
+            //Kill server
+            RTSPServerLoader.GetInstance().Kill();
+
             return error;
         }
 

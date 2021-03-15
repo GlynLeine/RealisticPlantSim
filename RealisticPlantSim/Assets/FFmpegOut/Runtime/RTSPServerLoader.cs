@@ -21,6 +21,7 @@ public class RTSPServerLoader
             process.EnableRaisingEvents = false;
             process.StartInfo.FileName = Application.dataPath + "./RTSPServer/rtsp-simple-server.exe";
             process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardInput = true;
             process.StartInfo.RedirectStandardError = true;
@@ -58,7 +59,7 @@ public class RTSPServerLoader
     }
 
 
-    void OnApplicationQuit()
+    public void Kill()
     {
         if (process != null && !process.HasExited)
         {
