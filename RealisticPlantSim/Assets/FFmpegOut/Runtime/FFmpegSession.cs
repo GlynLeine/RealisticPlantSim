@@ -30,12 +30,12 @@ namespace FFmpegOut
         {
 
             return new FFmpegSession(
-                "-y -f rawvideo -vcodec rawvideo -pixel_format rgba"
+                "-y -f rawvideo -fflags +genpts -vcodec rawvideo -pixel_format rgba"
                 + " -colorspace bt709"
                 + " -video_size " + width + "x" + height
                 + " -framerate " + frameRate
                 + " -loglevel warning -i - " + preset.GetOptions()
-                + " -crf 15 -preset fast -b:v 20000k -rtsp_transport tcp -f rtsp rtsp://localhost:8554/mystream1"
+                + " -preset fast -b:v 20000k -maxrate 40000k -bufsize 5000k -g " + frameRate + " -rtsp_transport udp -f rtsp rtsp://localhost:8554/mystream1"
             );
         }
 
