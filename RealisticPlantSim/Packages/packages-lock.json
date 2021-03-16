@@ -329,6 +329,14 @@
       },
       "url": "https://packages.unity.com"
     },
+    "jp.keijiro.kino.post-processing": {
+      "version": "file:jp.keijiro.kino.post-processing",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.render-pipelines.high-definition": "7.4.1"
+      }
+    },
     "nuget.castle-core": {
       "version": "1.0.1",
       "depth": 2,
