@@ -26,6 +26,7 @@ namespace FFmpegOut
             FFmpegPreset preset
         )
         {
+            string m_Path = Application.dataPath;
 
             return new FFmpegSession(
                 "-y -f rawvideo -fflags +genpts -vcodec rawvideo -pixel_format rgba"
@@ -33,7 +34,9 @@ namespace FFmpegOut
                 + " -video_size " + width + "x" + height
                 + " -framerate " + frameRate
                 + " -loglevel warning -i - " + preset.GetOptions()
-                + " -preset fast -b:v 20000k -maxrate 20000k -bufsize 20000k -g " + frameRate + " -rtsp_transport udp -f rtsp " + streamURL
+                //+ " -preset fast -b:v 20000k -maxrate 20000k -bufsize 20000k -g " + frameRate + " -rtsp_transport udp -f rtsp " + streamURL
+                + " -an -vpre x264-preset -g " + frameRate + " -rtsp_transport udp -f rtsp " + streamURL
+
             );
         }
 
