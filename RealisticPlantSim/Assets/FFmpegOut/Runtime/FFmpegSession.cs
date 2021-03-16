@@ -33,7 +33,7 @@ namespace FFmpegOut
                 + " -video_size " + width + "x" + height
                 + " -framerate " + frameRate
                 + " -loglevel warning -i - " + preset.GetOptions()
-                + " -preset fast -b:v 6000k -maxrate 6000k -bufsize 6000k -g " + frameRate + " -rtsp_transport udp -f rtsp " + streamURL
+                + " -preset fast -b:v 20000k -maxrate 20000k -bufsize 20000k -g " + frameRate + " -rtsp_transport udp -f rtsp " + streamURL
             );
         }
 
