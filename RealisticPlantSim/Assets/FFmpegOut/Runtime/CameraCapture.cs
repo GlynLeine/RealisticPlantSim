@@ -32,11 +32,19 @@ namespace FFmpegOut
             set { _preset = value; }
         }
 
-        [SerializeField] float _frameRate = 60;
+        [SerializeField] float _frameRate = 30;
 
         public float frameRate {
             get { return _frameRate; }
             set { _frameRate = value; }
+        }
+
+        [SerializeField] string _streamURL = "rtsp://localhost:8554/mystream";
+
+        public string streamURL
+        {
+            get { return _streamURL; }
+            set { _streamURL = value; }
         }
 
         #endregion
@@ -146,7 +154,7 @@ namespace FFmpegOut
 
                 // Start an FFmpeg session.
                 _session = FFmpegSession.Create(
-                    gameObject.name,
+                    _streamURL,
                     camera.targetTexture.width,
                     camera.targetTexture.height,
                     _frameRate, preset

@@ -12,18 +12,16 @@ namespace FFmpegOut
         #region Factory methods
 
         public static FFmpegSession Create(
-            string name,
+            string streamURL,
             int width, int height, float frameRate,
             FFmpegPreset preset
         )
         {
-            name += System.DateTime.Now.ToString(" yyyy MMdd HHmmss");
-            var path = name.Replace(" ", "_") + preset.GetSuffix();
-            return CreateWithOutputPath(path, width, height, frameRate, preset);
+            return CreateWithOutputPath(streamURL, width, height, frameRate, preset);
         }
 
         public static FFmpegSession CreateWithOutputPath(
-            string outputPath,
+            string streamURL,
             int width, int height, float frameRate,
             FFmpegPreset preset
         )
@@ -35,7 +33,7 @@ namespace FFmpegOut
                 + " -video_size " + width + "x" + height
                 + " -framerate " + frameRate
                 + " -loglevel warning -i - " + preset.GetOptions()
-                + " -preset fast -b:v 20000k -maxrate 40000k -bufsize 5000k -g " + frameRate + " -rtsp_transport udp -f rtsp rtsp://localhost:8554/mystream1"
+                + " -preset fast -b:v 6000k -maxrate 6000k -bufsize 6000k -g " + frameRate + " -rtsp_transport udp -f rtsp " + streamURL
             );
         }
 
