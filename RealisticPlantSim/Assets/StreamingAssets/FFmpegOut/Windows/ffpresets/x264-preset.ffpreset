@@ -3,8 +3,8 @@ thread_type=slice
 slices=1
 # x264
 profile=baseline
-preset=ultrafast
+preset=veryfast
 tune=zerolatency
 intra-refresh=1
-crf=5
+crf=25
 # x264-params=vbv-maxrate=20000:vbv-bufsize=20000:slice-max-size=20000:keyint=60
