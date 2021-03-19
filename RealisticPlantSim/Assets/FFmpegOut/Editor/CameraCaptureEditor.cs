@@ -16,6 +16,9 @@ namespace FFmpegOut
         SerializedProperty _preset;
         SerializedProperty _frameRate;
         SerializedProperty _streamURL;
+        SerializedProperty _crfValue;
+        SerializedProperty _maxBitrate;
+
 
         GUIContent[] _presetLabels;
         int[] _presetOptions;
@@ -39,6 +42,9 @@ namespace FFmpegOut
             _preset = serializedObject.FindProperty("_preset");
             _frameRate = serializedObject.FindProperty("_frameRate");
             _streamURL = serializedObject.FindProperty("_streamURL");
+            _crfValue = serializedObject.FindProperty("_crfValue");
+            _maxBitrate = serializedObject.FindProperty("_maxBitrate");
+
 
 
             var presets = FFmpegPreset.GetValues(typeof(FFmpegPreset));
@@ -60,6 +66,8 @@ namespace FFmpegOut
             EditorGUILayout.IntPopup(_preset, _presetLabels, _presetOptions);
             EditorGUILayout.PropertyField(_frameRate);
             EditorGUILayout.PropertyField(_streamURL);
+            EditorGUILayout.PropertyField(_crfValue, new GUIContent("CRF Value (0-51) higher is lower quality"));
+            EditorGUILayout.PropertyField(_maxBitrate, new GUIContent("Max bitrate (Kbps)"));
 
 
             serializedObject.ApplyModifiedProperties();

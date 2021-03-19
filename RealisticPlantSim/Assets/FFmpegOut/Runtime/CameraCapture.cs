@@ -47,6 +47,22 @@ namespace FFmpegOut
             set { _streamURL = value; }
         }
 
+        [SerializeField] int _crfValue = 23;
+
+        public int crfValue
+        {
+            get { return _crfValue; }
+            set { _crfValue = value; }
+        }
+
+        [SerializeField] int _maxBitrate = 20000;
+
+        public int maxBitrate
+        {
+            get { return _maxBitrate; }
+            set { _maxBitrate = value; }
+        }
+
         #endregion
 
         #region Private members
@@ -157,7 +173,9 @@ namespace FFmpegOut
                     _streamURL,
                     camera.targetTexture.width,
                     camera.targetTexture.height,
-                    _frameRate, preset
+                    _frameRate, preset,
+                    _crfValue,
+                    _maxBitrate
                 );
 
                 _startTime = Time.time;

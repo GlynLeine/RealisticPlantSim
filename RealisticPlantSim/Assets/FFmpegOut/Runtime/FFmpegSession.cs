@@ -14,16 +14,20 @@ namespace FFmpegOut
         public static FFmpegSession Create(
             string streamURL,
             int width, int height, float frameRate,
-            FFmpegPreset preset
+            FFmpegPreset preset,
+            int CrfValue,
+            int maxBitrate
         )
         {
-            return CreateWithOutputPath(streamURL, width, height, frameRate, preset);
+            return CreateWithOutputPath(streamURL, width, height, frameRate, preset, CrfValue, maxBitrate);
         }
 
         public static FFmpegSession CreateWithOutputPath(
             string streamURL,
             int width, int height, float frameRate,
-            FFmpegPreset preset
+            FFmpegPreset preset,
+            int CrfValue,
+            int maxBitrate
         )
         {
             string m_Path = Application.dataPath;
@@ -34,7 +38,7 @@ namespace FFmpegOut
                 + " -video_size " + width + "x" + height
                 + " -framerate " + frameRate
                 + " -loglevel warning -i - " + preset.GetOptions()
-                + " -an -vpre x264-preset -g " + frameRate + " -rtsp_transport tcp -f rtsp " + streamURL
+                + " -an -vpre x264-preset -crf " + CrfValue + " -maxrate " + maxBitrate + "k -bufsize " + maxBitrate + "k -g " + frameRate*2 + " -rtsp_transport tcp -f rtsp " + streamURL
 
             );
         }
