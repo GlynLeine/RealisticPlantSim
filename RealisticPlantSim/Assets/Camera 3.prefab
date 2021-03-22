@@ -142,7 +142,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   volumeAnchorOverride: {fileID: 0}
-  antialiasing: 3
+  antialiasing: 1
   SMAAQuality: 2
   dithering: 0
   stopNaNs: 0
@@ -204,6 +204,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _width: 1920
   _height: 1080
-  _preset: 5
+  _preset: 0
   _frameRate: 20
   _streamURL: rtsp://localhost:8554/cam3
+  _crfValue: 23
+  _maxBitrate: 20000
