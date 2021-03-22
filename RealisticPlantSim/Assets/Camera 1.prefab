@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4432254068643149025}
   - component: {fileID: 4432254068643149026}
   - component: {fileID: 4432254068643149020}
+  - component: {fileID: 5786146989218582631}
   m_Layer: 9
   m_Name: Camera 1
   m_TagString: Untagged
@@ -189,3 +190,20 @@ MonoBehaviour:
       data1: 0
       data2: 0
   defaultFrameSettings: 0
+--- !u!114 &5786146989218582631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4432254068643149022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a66fbd5ffe9b9d64da304996f1919f40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _width: 1920
+  _height: 1080
+  _preset: 5
+  _frameRate: 20
+  _streamURL: rtsp://localhost:8554/cam1
