@@ -40,7 +40,6 @@ public class SimpleSmoothMouseLook : MonoBehaviour
             mouseCaptured = false;
         }
 
-
         if(!mouseCaptured)
         {
             return;
