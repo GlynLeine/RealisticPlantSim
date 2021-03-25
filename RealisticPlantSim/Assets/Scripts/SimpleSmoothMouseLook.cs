@@ -5,6 +5,7 @@ public class SimpleSmoothMouseLook : MonoBehaviour
 {
     Vector2 _mouseAbsolute;
     Vector2 _smoothMouse;
+    bool mouseCaptured = false;
 
     public Vector2 clampInDegrees = new Vector2(360, 180);
     public bool lockCursor;
@@ -29,6 +30,21 @@ public class SimpleSmoothMouseLook : MonoBehaviour
 
     void Update()
     {
+        if(Input.GetMouseButtonDown(0))
+        {
+            mouseCaptured = true;
+        }
+
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            mouseCaptured = false;
+        }
+
+
+        if(!mouseCaptured)
+        {
+            return;
+        }
         // Ensure the cursor is always locked when set
         if (lockCursor)
         {
