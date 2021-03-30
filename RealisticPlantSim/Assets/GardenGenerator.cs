@@ -33,7 +33,7 @@ public class GardenGenerator : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown("space"))
+        if(Input.GetKeyDown("e"))
         {
             AddEntities(spawnRate);
             spawnedEntities += spawnRate;
