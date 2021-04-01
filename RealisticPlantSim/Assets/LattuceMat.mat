@@ -46,11 +46,12 @@ Material:
     MotionVector: User
     RenderType: TransparentCutout
   disabledShaderPasses:
-  - MOTIONVECTORS
+  - DistortionVectors
   - RayTracingPrepass
   - TransparentDepthPrepass
   - TransparentDepthPostpass
   - TransparentBackface
+  - MOTIONVECTORS
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:

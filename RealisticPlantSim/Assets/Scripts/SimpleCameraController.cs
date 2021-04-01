@@ -161,7 +161,7 @@ namespace UnityTemplateProjects
         
         void Update()
         {
-            // Exit Sample
+            // Exit Sample  
 
             if (IsEscapePressed())
             {
