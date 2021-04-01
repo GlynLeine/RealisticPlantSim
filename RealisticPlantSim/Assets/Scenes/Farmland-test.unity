@@ -350,6 +350,7 @@ GameObject:
   - component: {fileID: 429488306}
   - component: {fileID: 429488305}
   - component: {fileID: 429488307}
+  - component: {fileID: 429488308}
   m_Layer: 0
   m_Name: TerrainGenerator
   m_TagString: Untagged
@@ -416,6 +417,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 608089382d29c4947aa6fcc55527e13f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &429488308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429488304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 516f070ae6ebb2643bb87a5e470e367d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  plantsPerChunk: 3
+  plantSpawnSettings:
+  - plant: {fileID: 102900000, guid: 78476cd14642892418e324fc3f46456c, type: 3}
+    generations: 0
 --- !u!1 &474011625
 GameObject:
   m_ObjectHideFlags: 0
