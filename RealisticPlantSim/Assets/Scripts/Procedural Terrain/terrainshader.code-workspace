@@ -1,7 +1,7 @@
 {
 	"folders": [
 		{
-			"path": "..\\..\\..\\Library\\PackageCache\\com.unity.render-pipelines.high-definition@10.3.1\\Runtime"
+			"path": "shader"
 		}
 	],
 	"settings": {}
