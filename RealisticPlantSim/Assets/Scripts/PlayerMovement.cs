@@ -11,15 +11,9 @@ public class PlayerMovement : MonoBehaviour
 
     public CharacterController controller;
 
-    public float speed = 12f;
-    public float gravity = -10f;
-    public float jumpHeight = 2f;
-
-    public Transform groundCheck;
-    public float groundDistance = 0.4f;
-    public LayerMask groundMask;
+    public float speed = 6f;
+    public float verticalSpeed = 4f;
     
-
     Vector3 velocity;
     bool isGrounded;
 
@@ -54,6 +48,7 @@ public class PlayerMovement : MonoBehaviour
         float x;
         float z;
         bool jumpPressed = false;
+        bool shiftPressed = false;
 
 #if ENABLE_INPUT_SYSTEM
         var delta = movement.ReadValue<Vector2>();
@@ -63,27 +58,25 @@ public class PlayerMovement : MonoBehaviour
 #else
         x = Input.GetAxis("Horizontal");
         z = Input.GetAxis("Vertical");
-        jumpPressed = Input.GetButtonDown("Jump");
+        jumpPressed = Input.GetKey(KeyCode.Space);
+        shiftPressed = Input.GetKey(KeyCode.LeftShift);
 #endif
-
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-
-        if (isGrounded && velocity.y < 0)
-        {
-            velocity.y = -2f;
-        }
 
         Vector3 move = transform.right * x + transform.forward * z;
 
         controller.Move(move * speed * Time.deltaTime);
 
-        if(jumpPressed && isGrounded)
+        velocity.y = 0f;
+
+        if (jumpPressed)
         {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            velocity.y += 1f;
+        }
+        if(shiftPressed)
+        {
+            velocity.y -= 1f;
         }
 
-        velocity.y += gravity * Time.deltaTime;
-
-        controller.Move(velocity * Time.deltaTime);
+        controller.Move(velocity * verticalSpeed * Time.deltaTime);
     }
 }

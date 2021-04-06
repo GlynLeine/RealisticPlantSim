@@ -208,7 +208,7 @@ public class TerrainChunk
                 {
                     //combining sine wave with perlin noise
                     float sin = TerrainGenerator.instance.sinAmplitude * Mathf.Sin(TerrainGenerator.instance.sinPeriod * (x + offsetX));
-                    value =  sin + value * TerrainGenerator.instance.perlinNoiseWeight;
+                    value = Mathf.Clamp(sin + (value * TerrainGenerator.instance.perlinNoiseWeight), 0, int.MaxValue);
                 }
 
                 Color color = new Color(value, value, value);
