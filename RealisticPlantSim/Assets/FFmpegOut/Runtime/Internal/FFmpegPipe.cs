@@ -161,18 +161,6 @@ namespace FFmpegOut
         public static string ExecutablePath
         {
             get {
-                //var basePath = UnityEngine.Application.streamingAssetsPath;
-                //var platform = UnityEngine.Application.platform;
-
-                //if (platform == UnityEngine.RuntimePlatform.OSXPlayer ||
-                //    platform == UnityEngine.RuntimePlatform.OSXEditor)
-                //    return basePath + "/FFmpegOut/macOS/ffmpeg";
-
-                //if (platform == UnityEngine.RuntimePlatform.LinuxPlayer ||
-                //    platform == UnityEngine.RuntimePlatform.LinuxEditor)
-                //    return basePath + "/FFmpegOut/Linux/ffmpeg";
-
-                //return basePath + "/FFmpegOut/Windows/ffmpeg.exe";
                 return "ffmpeg";
             }
         }
