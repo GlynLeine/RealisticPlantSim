@@ -51,8 +51,6 @@ namespace FFmpegOut
 
             ffpresetPath += "/FFmpegOut/ffpresets";
 
-            UnityEngine.Debug.Log(ffpresetPath);
-
             processStartInfo.EnvironmentVariables.Add("FFMPEG_DATADIR", ffpresetPath);
 
             _subprocess = Process.Start(processStartInfo);
