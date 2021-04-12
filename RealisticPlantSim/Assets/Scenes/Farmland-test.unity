@@ -838,6 +838,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 595697608}
+  - component: {fileID: 595697609}
   m_Layer: 0
   m_Name: robotTransform
   m_TagString: Untagged
@@ -862,6 +863,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &595697609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 595697607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2fa8455b88ac9848bc48fc359deec9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  forwardKey: 105
+  backwardKey: 107
+  leftKey: 106
+  rightKey: 108
+  superSecretKartMode: 0
+  terrainGenerator: {fileID: 429488304}
+  moveSpeed: 5
+  turnSpeed: 20
 --- !u!1001 &800775766
 PrefabInstance:
   m_ObjectHideFlags: 0

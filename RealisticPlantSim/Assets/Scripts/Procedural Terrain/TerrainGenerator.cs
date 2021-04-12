@@ -50,7 +50,7 @@ public class TerrainGenerator : MonoBehaviour
         {
             foreach(TerrainChunk chunk in loadedChunks)
             {
-                GameObject.Destroy(chunk.chunkObject);
+                Destroy(chunk.chunkObject);
             }
             loadedChunks = new List<TerrainChunk>();
         }
@@ -76,7 +76,7 @@ public class TerrainGenerator : MonoBehaviour
                     loadedChunks.Add(newChunk);
                     currentChunks.Add(newChunk);
 
-                    PlantGenerator.instance.spawnPlantsOnChunk(newChunk);
+                    //PlantGenerator.instance.spawnPlantsOnChunk(newChunk);
                 }
             }
         }
