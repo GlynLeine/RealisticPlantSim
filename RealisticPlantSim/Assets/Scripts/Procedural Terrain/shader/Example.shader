@@ -251,6 +251,7 @@ Shader "HDRP/Custom/Example"
     // Report what features this shader supports.
     
     #pragma shader_feature_local _ALPHATEST_ON
+    #pragma shader_feature_local _ALPHATOMASK_ON
     #pragma shader_feature_local _DEPTHOFFSET_ON
     #pragma shader_feature_local _DOUBLESIDED_ON
     #pragma shader_feature_local _ _TESSELLATION_DISPLACEMENT _PIXEL_DISPLACEMENT
@@ -258,7 +259,6 @@ Shader "HDRP/Custom/Example"
     #pragma shader_feature_local _DISPLACEMENT_LOCK_TILING_SCALE
     #pragma shader_feature_local _PIXEL_DISPLACEMENT_LOCK_OBJECT_SCALE
     #pragma shader_feature_local _TESSELLATION_PHONG
-    #pragma shader_feature_local _ _REFRACTION_PLANE _REFRACTION_SPHERE _REFRACTION_THIN
 
     #pragma shader_feature_local _ _EMISSIVE_MAPPING_PLANAR _EMISSIVE_MAPPING_TRIPLANAR
     #pragma shader_feature_local _ _MAPPING_PLANAR _MAPPING_TRIPLANAR
@@ -309,6 +309,10 @@ Shader "HDRP/Custom/Example"
     #pragma instancing_options renderinglayer
     #pragma multi_compile _ DOTS_INSTANCING_ON
 
+    #if defined(_SURFACE_TYPE_TRANSPARENT)
+    #error transparent_surface_type_not_supported
+    #endif
+
     // Shader defines
     #define TESSELLATION_ON
 
@@ -328,7 +332,6 @@ Shader "HDRP/Custom/Example"
     #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitProperties.hlsl"
 
     #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"    
-    #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
 
     ENDHLSL
 
@@ -349,8 +352,8 @@ Shader "HDRP/Custom/Example"
             Tags{"LightMode" = "GBuffer"}
 
             // Apply default face culling and depth testing behaviour.
-            Cull[_Cull]
-            ZTest[_ZWrite]
+            Cull[_CullMode]
+            ZTest[_ZTestGBuffer]
 
             // Setup stencil buffer to write "disableSSR" to prevent SSR in the forward pass.
             Stencil
@@ -363,6 +366,7 @@ Shader "HDRP/Custom/Example"
 
             HLSLPROGRAM
 
+            #pragma multi_compile _ DEBUG_DISPLAY
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ DYNAMICLIGHTMAP_ON
@@ -371,12 +375,24 @@ Shader "HDRP/Custom/Example"
             #pragma multi_compile DECALS_OFF DECALS_3RT DECALS_4RT
             #pragma multi_compile _ LIGHT_LAYERS
 
+        #ifndef DEBUG_DISPLAY
+            // When we have alpha test, we will force a depth prepass so we always bypass the clip instruction in the GBuffer
+            // Don't do it with debug display mode as it is possible there is no depth prepass in this case
+            #define SHADERPASS_GBUFFER_BYPASS_ALPHA_TEST
+        #endif
+
             #define SHADERPASS SHADERPASS_GBUFFER
 
+        #ifdef DEBUG_DISPLAY
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Debug/DebugDisplay.hlsl"
+        #endif
+
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"    
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitSharePass.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
 
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/ShaderPass/MotionVectorVertexShaderCommon.hlsl"
+            //#include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/ShaderPass/MotionVectorVertexShaderCommon.hlsl"
 
             #include "GBufferPass.hlsl"
 
@@ -407,10 +423,12 @@ Shader "HDRP/Custom/Example"
 
             #define SHADERPASS SHADERPASS_SHADOWS
 
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"    
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitDepthPass.hlsl"
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
 
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/ShaderPass/MotionVectorVertexShaderCommon.hlsl"
+            //#include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/ShaderPass/MotionVectorVertexShaderCommon.hlsl"
 
             #include "DepthOnlyPass.hlsl"
 
@@ -422,6 +440,58 @@ Shader "HDRP/Custom/Example"
             ENDHLSL
         }
         
+        Pass
+        {
+            Name "DepthOnly"
+            Tags{ "LightMode" = "DepthOnly" }
+
+            Cull[_CullMode]
+            AlphaToMask [_AlphaToMask]
+
+            // To be able to tag stencil with disableSSR information for forward
+            Stencil
+            {
+                WriteMask [_StencilWriteMaskDepth]
+                Ref [_StencilRefDepth]
+                Comp Always
+                Pass Replace
+            }
+
+            ZWrite On
+
+            HLSLPROGRAM
+
+            // In deferred, depth only pass don't output anything.
+            // In forward it output the normal buffer
+            #pragma multi_compile _ WRITE_NORMAL_BUFFER
+            #pragma multi_compile _ WRITE_DECAL_BUFFER
+            #pragma multi_compile _ WRITE_MSAA_DEPTH
+
+            #define SHADERPASS SHADERPASS_DEPTH_ONLY
+
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
+
+            #ifdef WRITE_NORMAL_BUFFER // If enabled we need all regular interpolator
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitSharePass.hlsl"
+            #else
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitDepthPass.hlsl"
+            #endif
+
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
+
+           // #include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/ShaderPass/MotionVectorVertexShaderCommon.hlsl"
+
+            #include "DepthOnlyPass.hlsl"
+
+            #pragma vertex Vert
+            #pragma fragment Frag
+            #pragma hull Hull
+            #pragma domain Domain
+
+            ENDHLSL
+        }
+
         Pass
         {
             Name "MotionVectors"
@@ -448,6 +518,9 @@ Shader "HDRP/Custom/Example"
 
             #define SHADERPASS SHADERPASS_MOTION_VECTORS
 
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Material.hlsl"
+            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/Lit.hlsl"
+
             #ifdef WRITE_NORMAL_BUFFER // If enabled we need all regular interpolator
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/ShaderPass/LitSharePass.hlsl"
             #else
@@ -455,8 +528,6 @@ Shader "HDRP/Custom/Example"
             #endif
             #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
             
-            #include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/ShaderPass/MotionVectorVertexShaderCommon.hlsl"
-
             #include "MotionVectorsPass.hlsl"
 
             #pragma vertex Vert

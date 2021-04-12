@@ -1,14 +1,14 @@
 
 // Vertex shader main function
 PackedVaryingsType Vert(    AttributesMesh inputMesh
-                            #if (SHADERPASS != SHADERPASS_MOTION_VECTORS)
+                            #if (SHADERPASS == SHADERPASS_MOTION_VECTORS)
                             , AttributesPass inputPass
                             #endif
                     )
 {
     VaryingsType varyingsType;
 
-#if defined(HAVE_RECURSIVE_RENDERING) && (SHADERPASS != SHADERPASS_MOTION_VECTORS)
+#if defined(HAVE_RECURSIVE_RENDERING) && (SHADERPASS == SHADERPASS_DEPTH_ONLY || SHADERPASS == SHADERPASS_GBUFFER)
     // If we have a recursive raytrace object, we will not render it.
     // As we don't want to rely on renderqueue to exclude the object from the list,
     // we cull it by settings position to NaN value.
@@ -23,7 +23,7 @@ PackedVaryingsType Vert(    AttributesMesh inputMesh
         varyingsType.vmesh = VertMesh(VertexProgram(inputMesh));
     }
 
-#if (SHADERPASS != SHADERPASS_MOTION_VECTORS)
+#if (SHADERPASS == SHADERPASS_MOTION_VECTORS)
     return MotionVectorVS(varyingsType, inputMesh, inputPass);
 #else
     return PackVaryingsType(varyingsType);
