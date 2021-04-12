@@ -391,6 +391,7 @@ MonoBehaviour:
   perlinNoiseWeight: 0.3
   robotTransform: {fileID: 595697608}
   updateEveryFrame: 0
+  spawnPlants: 0
 --- !u!4 &429488306
 Transform:
   m_ObjectHideFlags: 0
@@ -429,7 +430,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 516f070ae6ebb2643bb87a5e470e367d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  plantsPerChunk: 3
+  plantsPerChunk: 2
   plantSpawnSettings:
   - plant: {fileID: 102900000, guid: 78476cd14642892418e324fc3f46456c, type: 3}
     generations: 0
@@ -443,7 +444,6 @@ GameObject:
   m_Component:
   - component: {fileID: 474011626}
   - component: {fileID: 474011629}
-  - component: {fileID: 474011628}
   - component: {fileID: 474011627}
   m_Layer: 0
   m_Name: Camera (1)
@@ -580,14 +580,6 @@ MonoBehaviour:
       data1: 0
       data2: 0
   defaultFrameSettings: 0
---- !u!81 &474011628
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 474011625}
-  m_Enabled: 1
 --- !u!20 &474011629
 Camera:
   m_ObjectHideFlags: 0
@@ -641,7 +633,6 @@ GameObject:
   m_Component:
   - component: {fileID: 487032527}
   - component: {fileID: 487032530}
-  - component: {fileID: 487032529}
   - component: {fileID: 487032528}
   m_Layer: 0
   m_Name: Camera
@@ -778,14 +769,6 @@ MonoBehaviour:
       data1: 0
       data2: 0
   defaultFrameSettings: 0
---- !u!81 &487032529
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 487032526}
-  m_Enabled: 1
 --- !u!20 &487032530
 Camera:
   m_ObjectHideFlags: 0
@@ -1170,7 +1153,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1273525362}
   - component: {fileID: 1273525361}
-  - component: {fileID: 1273525360}
   - component: {fileID: 1273525359}
   m_Layer: 0
   m_Name: Camera
@@ -1293,14 +1275,6 @@ MonoBehaviour:
       data1: 0
       data2: 0
   defaultFrameSettings: 0
---- !u!81 &1273525360
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1273525358}
-  m_Enabled: 1
 --- !u!20 &1273525361
 Camera:
   m_ObjectHideFlags: 0
