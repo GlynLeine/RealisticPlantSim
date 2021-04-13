@@ -43,6 +43,8 @@ public class TerrainGenerator : MonoBehaviour
     public List<TerrainChunk> loadedChunks = new List<TerrainChunk>();
 
     public bool updateEveryFrame = false;
+
+    public bool spawnPlants = true;
     private void Update()
     {
         //remove all caches causeor noise changes so our maps change aswell.
@@ -50,7 +52,7 @@ public class TerrainGenerator : MonoBehaviour
         {
             foreach(TerrainChunk chunk in loadedChunks)
             {
-                GameObject.Destroy(chunk.chunk);
+                Destroy(chunk.chunkObject);
             }
             loadedChunks = new List<TerrainChunk>();
         }
@@ -72,9 +74,14 @@ public class TerrainGenerator : MonoBehaviour
                 else
                 {
                     TerrainChunk newChunk = new TerrainChunk(x* terrainSize, y* terrainSize);
-                    newChunk.chunk.transform.SetParent(this.transform);
+                    newChunk.chunkObject.transform.SetParent(this.transform);
                     loadedChunks.Add(newChunk);
                     currentChunks.Add(newChunk);
+                    if(spawnPlants)
+                    {
+                        PlantGenerator.instance.spawnPlantsOnChunk(newChunk);
+
+                    }
                 }
             }
         }
@@ -85,7 +92,7 @@ public class TerrainGenerator : MonoBehaviour
             {
                 if (!cacheGeneratedChunks)
                 {
-                    DestroyImmediate(chunk.chunk);
+                    DestroyImmediate(chunk.chunkObject);
                     loadedChunks.Remove(chunk);
                 }
                 else
@@ -102,20 +109,20 @@ public class TerrainChunk
     public Texture2D heightMap;
     public int gridXpos;
     public int gridYPos;
-    public GameObject chunk;
+    public GameObject chunkObject;
 
     public TerrainChunk(int x, int y)
     {
         this.gridXpos = x;
         this.gridYPos = y;
         this.heightMap = CreateHeightmap(x/ TerrainGenerator.instance.terrainSize, y/ TerrainGenerator.instance.terrainSize);
-        chunk = createTerrain();
+        chunkObject = createTerrain();
         this.SetActive(true);
     }
 
     public void SetActive(bool value)
     {
-        chunk.SetActive(value);
+        chunkObject.SetActive(value);
     }
 
     public GameObject createTerrain()
