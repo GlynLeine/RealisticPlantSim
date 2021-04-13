@@ -79,7 +79,10 @@ public class TerrainGenerator : MonoBehaviour
                     currentChunks.Add(newChunk);
                     if(spawnPlants)
                     {
-                        PlantGenerator.instance.spawnPlantsOnChunk(newChunk);
+                        if(PlantGenerator.instance != null)
+                        {
+                            PlantGenerator.instance.spawnPlantsOnChunk(newChunk);
+                        }
 
                     }
                 }
