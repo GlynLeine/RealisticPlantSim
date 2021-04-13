@@ -71,10 +71,14 @@ public class PlantGenerator : MonoBehaviour
     private GameObject generateNewPlantVariant(PlantSpawnSettings spawnSettings)
     {
         HEU_HoudiniAssetRoot assetRoot = spawnSettings.mainHoudiniPlant.GetComponent<HEU_HoudiniAssetRoot>();
-        randomizeHoudiniVars(assetRoot);
+        if(assetRoot != null)
+        {
+            randomizeHoudiniVars(assetRoot);
+        }
 
         GameObject clonedPlant = Instantiate(spawnSettings.mainHoudiniPlant);
         Destroy(clonedPlant.GetComponent<HEU_HoudiniAssetRoot>());
+        Destroy(clonedPlant.transform.Find("HDA_Data"));
         return clonedPlant;
     }
 
