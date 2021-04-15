@@ -23,6 +23,7 @@ AttributesMesh VertexProgram(AttributesMesh input)
 
 void TesselationVertexProgram(inout VaryingsMeshToDS input, const OutputPatch<PackedVaryingsToDS, 3> patch, float3 baryCoords)
 {
+    // Tesselation Vertex shader.
 }
 
 void FragmentProgram(FragInputs input, float3 viewdir, inout PositionInputs posInput, inout SurfaceData surfaceData, inout BuiltinData builtinData)
@@ -30,11 +31,11 @@ void FragmentProgram(FragInputs input, float3 viewdir, inout PositionInputs posI
     // Fragment shader.
 }
 
-#include "base/Vertex.hlsl"
-#include "base/Tessellation.hlsl"
+#include "Assets/Simplified Custom Shaders/Base/HDRP/Vertex.hlsl"
+#include "Assets/Simplified Custom Shaders/Base/HDRP/Tessellation.hlsl"
 
 #if (SHADERPASS == SHADERPASS_FORWARD)
-    #include "base/FragmentForward.hlsl"
+#include "Assets/Simplified Custom Shaders/Base/HDRP/FragmentForward.hlsl"
 #else
-    #include "base/Fragment.hlsl"
+#include "Assets/Simplified Custom Shaders/Base/HDRP/Fragment.hlsl"
 #endif

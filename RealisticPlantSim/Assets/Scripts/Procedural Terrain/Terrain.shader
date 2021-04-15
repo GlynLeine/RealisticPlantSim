@@ -1,4 +1,4 @@
-Shader "HDRP/Custom/Example"
+Shader "HDRP/Custom/Terrain"
 {
     Properties
     {
@@ -393,7 +393,7 @@ Shader "HDRP/Custom/Example"
                 #include "Packages/com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/PickingSpaceTransforms.hlsl"
             //
 
-            #include "ExampleProgram.hlsl"
+            #include "Terrain Program.shaderprogram"
 
             // Set enty points
                 #pragma vertex Vert
@@ -429,7 +429,7 @@ Shader "HDRP/Custom/Example"
                 #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
             //
 
-            #include "ExampleProgram.hlsl"
+            #include "Terrain Program.shaderprogram"
 
             // Set enty points
                 #pragma vertex Vert
@@ -493,7 +493,7 @@ Shader "HDRP/Custom/Example"
                 #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
             //
 
-            #include "ExampleProgram.hlsl"
+            #include "Terrain Program.shaderprogram"
 
             // Set enty points
                 #pragma vertex Vert
@@ -531,7 +531,7 @@ Shader "HDRP/Custom/Example"
                 #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
             //
 
-            #include "ExampleProgram.hlsl"
+            #include "Terrain Program.shaderprogram"
 
             // Set enty points
                 #pragma vertex Vert
@@ -587,7 +587,7 @@ Shader "HDRP/Custom/Example"
                 #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
             //
 
-            #include "ExampleProgram.hlsl"
+            #include "Terrain Program.shaderprogram"
 
             // Set enty points
                 #pragma vertex Vert
@@ -640,7 +640,7 @@ Shader "HDRP/Custom/Example"
                 #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
             //
 
-            #include "ExampleProgram.hlsl"
+            #include "Terrain Program.shaderprogram"
 
             // Set enty points
                 #pragma vertex Vert
@@ -721,7 +721,7 @@ Shader "HDRP/Custom/Example"
                 #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
             //
 
-            #include "ExampleProgram.hlsl"
+            #include "Terrain Program.shaderprogram"
 
             // Set enty points
                 #pragma vertex Vert
@@ -754,7 +754,7 @@ Shader "HDRP/Custom/Example"
                 #include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitData.hlsl"
             //
 
-            #include "ExampleProgram.hlsl"
+            #include "Terrain Program.shaderprogram"
 
             // Set enty points
                 #pragma vertex Vert
