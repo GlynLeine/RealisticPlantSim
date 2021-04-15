@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TerrainTesselated
-  m_Shader: {fileID: 4800000, guid: 756bac9090102564582875f4c7e30202, type: 3}
+  m_Name: Terrain
+  m_Shader: {fileID: 4800000, guid: 8f885f976320b2c4a846cf9f13ca2b25, type: 3}
   m_ShaderKeywords: _DISPLACEMENT_LOCK_TILING_SCALE _HEIGHTMAP _NORMALMAP _NORMALMAP_TANGENT_SPACE
     _TESSELLATION_DISPLACEMENT _TESSELLATION_PHONG _VERTEX_DISPLACEMENT_LOCK_OBJECT_SCALE
   m_LightmapFlags: 4
