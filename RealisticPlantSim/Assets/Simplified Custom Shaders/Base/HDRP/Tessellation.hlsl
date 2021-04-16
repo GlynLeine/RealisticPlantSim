@@ -87,6 +87,6 @@ PackedVaryingsToPS Domain(TessellationFactors tessFactors, const OutputPatch<Pac
 #ifdef HAVE_TESSELLATION_MODIFICATION
     ApplyTessellationModification(varying.vmesh, varying.vmesh.normalWS, varying.vmesh.positionRWS);
 #endif
-    //TesselationVertexProgram(varying.vmesh, input, baryCoords);
+    TesselationVertexProgram(varying.vmesh, input, baryCoords);
     return VertTesselation(varying);
 }
