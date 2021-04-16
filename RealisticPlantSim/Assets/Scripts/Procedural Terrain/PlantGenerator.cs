@@ -6,6 +6,22 @@ using UnityEditor;
 
 public class PlantGenerator : MonoBehaviour
 {
+    [SerializeField]
+    bool editorTimeGeneration = false;
+
+    [SerializeField]
+    float minLimit = -50f;
+    [SerializeField]
+    float maxLimit = 50f;
+    [SerializeField]
+    float xMinVal = -10f;
+    [SerializeField]
+    float zMinVal = -10f;
+    [SerializeField]
+    float xMaxVal = 10f;
+    [SerializeField]
+    float zMaxVal = 10f;
+
 
     public static PlantGenerator instance;
     private void Awake()
@@ -19,13 +35,17 @@ public class PlantGenerator : MonoBehaviour
         public Object plant;
         public float generations = 1;
         public GameObject mainHoudiniPlant;
-
     }
 
     public int plantsPerChunk = 15;
 
     [SerializeField]
     public List<PlantSpawnSettings> plantSpawnSettings = new List<PlantSpawnSettings>();
+
+    public void spawnPlantsInXZRange()
+    {
+
+    }
 
     public void spawnPlantsOnChunk(TerrainChunk chunk)
     {
@@ -49,21 +69,6 @@ public class PlantGenerator : MonoBehaviour
 
             newPlant.transform.SetParent(chunk.chunkObject.transform);
             newPlant.transform.position = position;
-
-
-            //GameObject placedPlant = HEU_HAPIUtility.InstantiateHDA(AssetDatabase.GetAssetPath(plantSpawnSettings[randomPlantIndex].plant), position, HEU_SessionManager.GetOrCreateDefaultSession(), false);
-            //placedPlant.transform.SetParent(chunk.chunkObject.transform);
-            //if (placedPlant != null && placedPlant.GetComponent<HEU_HoudiniAssetRoot>() != null)
-            //{
-            //    HEU_HoudiniAssetRoot assetRoot = placedPlant.GetComponent<HEU_HoudiniAssetRoot>();
-            //    if (assetRoot != null)
-            //    {
-            //        HEU_ParameterUtility.SetFloat(assetRoot._houdiniAsset, "generations", Random.Range(5f,11f));
-            //        assetRoot._houdiniAsset.RequestCook(bCheckParametersChanged: true, bAsync: true, bSkipCookCheck: true, bUploadParameters: true);
-
-            //        // assetRoot._houdiniAsset;
-            //    }
-            //}
         }
     }
 
