@@ -9,16 +9,11 @@ public class PlantGeneratorEditor : Editor
     SerializedProperty _editorTimeGeneration;
     SerializedProperty _plantsPerChunk;
     SerializedProperty _plantSpawnSettings;
-    SerializedProperty _minLimit;
-    SerializedProperty _maxLimit;
     SerializedProperty _xMinVal;
-    float xMinVal;
     SerializedProperty _zMinVal;
-    float zMinVal;
     SerializedProperty _xMaxVal;
-    float xMaxVal;
     SerializedProperty _zMaxVal;
-    float zMaxVal;
+    SerializedProperty _amountOfPlantsToSpawn;
 
 
 
@@ -28,17 +23,11 @@ public class PlantGeneratorEditor : Editor
         _editorTimeGeneration = serializedObject.FindProperty("editorTimeGeneration");
         _plantsPerChunk = serializedObject.FindProperty("plantsPerChunk");
         _plantSpawnSettings = serializedObject.FindProperty("plantSpawnSettings");
-        _minLimit = serializedObject.FindProperty("minLimit");
-        _maxLimit = serializedObject.FindProperty("maxLimit");
         _xMinVal = serializedObject.FindProperty("xMinVal");
-        xMinVal = _xMinVal.floatValue;
         _zMinVal = serializedObject.FindProperty("zMinVal");
-        zMinVal = _zMinVal.floatValue;
         _xMaxVal = serializedObject.FindProperty("xMaxVal");
-        xMaxVal = _xMaxVal.floatValue;
         _zMaxVal = serializedObject.FindProperty("zMaxVal");
-        zMaxVal = _zMaxVal.floatValue;
-
+        _amountOfPlantsToSpawn = serializedObject.FindProperty("amountOfPlantsToSpawn");
     }
 
     public override void OnInspectorGUI()
@@ -49,23 +38,22 @@ public class PlantGeneratorEditor : Editor
         EditorGUILayout.PropertyField(_plantsPerChunk);
         EditorGUILayout.PropertyField(_plantSpawnSettings);
 
-        // Show default inspector property editor
         if (_editorTimeGeneration.boolValue == true)
         {
-            EditorGUILayout.PropertyField(_minLimit);
-            EditorGUILayout.PropertyField(_maxLimit);
+            EditorGUILayout.PropertyField(_xMinVal, new GUIContent("Minimum X bound"));
+            EditorGUILayout.PropertyField(_xMaxVal, new GUIContent("Maximum X bound"));
 
-            EditorGUILayout.LabelField("X Min Value:", xMinVal.ToString());
-            EditorGUILayout.LabelField("X Max Value:", xMaxVal.ToString());
-            EditorGUILayout.MinMaxSlider("X min/max", ref xMinVal, ref xMaxVal, _minLimit.floatValue, _maxLimit.floatValue);
-            _xMinVal.floatValue = xMinVal;
-            _xMaxVal.floatValue = xMaxVal;
+            EditorGUILayout.PropertyField(_zMinVal, new GUIContent("Minimum Z bound"));
+            EditorGUILayout.PropertyField(_zMaxVal, new GUIContent("Maximum Z bound"));
 
-            //Editor time code
+            EditorGUILayout.PropertyField(_amountOfPlantsToSpawn, new GUIContent("Amount of plants to spawn"));
+
+
             if (GUILayout.Button("Generate plants"))
             {
-
                 //Generate the plants
+                PlantGenerator plantGenerator = (PlantGenerator)target;
+                plantGenerator.StartCoroutine(plantGenerator.spawnPlantsInXZRange());
             }
         }
 

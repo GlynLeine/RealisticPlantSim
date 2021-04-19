@@ -7,20 +7,19 @@ using UnityEditor;
 public class PlantGenerator : MonoBehaviour
 {
     [SerializeField]
-    bool editorTimeGeneration = false;
+    public bool editorTimeGeneration = true;
 
     [SerializeField]
-    float minLimit = -50f;
+    public float xMinVal = -10f;
     [SerializeField]
-    float maxLimit = 50f;
+    public float zMinVal = -10f;
     [SerializeField]
-    float xMinVal = -10f;
+    public float xMaxVal = 10f;
     [SerializeField]
-    float zMinVal = -10f;
+    public float zMaxVal = 10f;
+
     [SerializeField]
-    float xMaxVal = 10f;
-    [SerializeField]
-    float zMaxVal = 10f;
+    public int amountOfPlantsToSpawn = 100;
 
 
     public static PlantGenerator instance;
@@ -42,8 +41,30 @@ public class PlantGenerator : MonoBehaviour
     [SerializeField]
     public List<PlantSpawnSettings> plantSpawnSettings = new List<PlantSpawnSettings>();
 
-    public void spawnPlantsInXZRange()
+    public IEnumerator spawnPlantsInXZRange()
     {
+        for(int i = 0; i < amountOfPlantsToSpawn; i++)
+        {
+            float randomXOffset = Random.Range(xMinVal, xMaxVal);
+            float randomZOffset = Random.Range(zMinVal, zMaxVal);
+
+            Vector3 position = new Vector3(transform.position.x + randomXOffset, transform.position.y, transform.position.z + randomZOffset);
+            int randomPlantIndex = Random.Range(0, plantSpawnSettings.Count);
+
+            PlantSpawnSettings spawnSettings = plantSpawnSettings[randomPlantIndex];
+
+            if (spawnSettings.mainHoudiniPlant == null)
+            {
+                spawnSettings.mainHoudiniPlant = createHoudiniPlant(spawnSettings);
+                if (spawnSettings.mainHoudiniPlant == null) yield break; //Return because something went horribly wrong.
+            }
+
+            GameObject newPlant = generateNewPlantVariantEditor(spawnSettings);
+            yield return newPlant;
+            newPlant.transform.SetParent(transform);
+            newPlant.transform.position = position;
+            Debug.Log($"Spawned plant {i + 1}/{amountOfPlantsToSpawn}");
+        }
 
     }
 
@@ -78,13 +99,31 @@ public class PlantGenerator : MonoBehaviour
         HEU_HoudiniAssetRoot assetRoot = spawnSettings.mainHoudiniPlant.GetComponent<HEU_HoudiniAssetRoot>();
         if(assetRoot != null)
         {
-            randomizeHoudiniVars(assetRoot);
+            StartCoroutine(randomizeHoudiniVars(assetRoot));
         }
 
         GameObject clonedPlant = Instantiate(spawnSettings.mainHoudiniPlant);
-        Destroy(clonedPlant.GetComponent<HEU_HoudiniAssetRoot>());
-        Destroy(clonedPlant.transform.Find("HDA_Data"));
         return clonedPlant;
+    }
+
+    private GameObject generateNewPlantVariantEditor(PlantSpawnSettings spawnSettings)
+    {
+        HEU_HoudiniAssetRoot assetRoot = spawnSettings.mainHoudiniPlant.GetComponent<HEU_HoudiniAssetRoot>();
+        if (assetRoot != null)
+        {
+            StartCoroutine(randomizeHoudiniVars(assetRoot));
+        }
+
+        GameObject newPlant = new GameObject("Plant"); // TODO: change name
+
+
+        //I = 1 because we skip the HDA_Data GameObject
+        for(int i = 1; i < spawnSettings.mainHoudiniPlant.transform.childCount; i++)
+        {
+            GameObject plantMesh = Instantiate(spawnSettings.mainHoudiniPlant.transform.GetChild(i).gameObject);
+            plantMesh.transform.SetParent(newPlant.transform);
+        }
+        return newPlant;
     }
 
     private GameObject createHoudiniPlant(PlantSpawnSettings spawnSettings)
@@ -107,10 +146,12 @@ public class PlantGenerator : MonoBehaviour
 
     }
 
-    private void randomizeHoudiniVars(HEU_HoudiniAssetRoot assetRoot)
+    private IEnumerator randomizeHoudiniVars(HEU_HoudiniAssetRoot assetRoot)
     {
         HEU_ParameterUtility.SetFloat(assetRoot._houdiniAsset, "generations", Random.Range(4f, 10f));
+        HEU_ParameterUtility.SetInt(assetRoot._houdiniAsset, "randomseed", Random.Range(0, 1000));
         assetRoot._houdiniAsset.RequestCook(bCheckParametersChanged: true, bAsync: false, bSkipCookCheck: true, bUploadParameters: true);
+        yield return null;
     }
 }
 

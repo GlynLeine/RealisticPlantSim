@@ -79,7 +79,7 @@ public class TerrainGenerator : MonoBehaviour
                     currentChunks.Add(newChunk);
                     if(spawnPlants)
                     {
-                        if(PlantGenerator.instance != null)
+                        if(PlantGenerator.instance != null && !PlantGenerator.instance.editorTimeGeneration)
                         {
                             PlantGenerator.instance.spawnPlantsOnChunk(newChunk);
                         }
