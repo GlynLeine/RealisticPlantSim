@@ -44,7 +44,6 @@ public class TerrainGenerator : MonoBehaviour
 
     public bool updateEveryFrame = false;
 
-    public bool spawnPlants = true;
     private void Update()
     {
         //remove all caches causeor noise changes so our maps change aswell.
@@ -77,14 +76,6 @@ public class TerrainGenerator : MonoBehaviour
                     newChunk.chunkObject.transform.SetParent(this.transform);
                     loadedChunks.Add(newChunk);
                     currentChunks.Add(newChunk);
-                    if(spawnPlants)
-                    {
-                        if(PlantGenerator.instance != null && !PlantGenerator.instance.editorTimeGeneration)
-                        {
-                            PlantGenerator.instance.spawnPlantsOnChunk(newChunk);
-                        }
-
-                    }
                 }
             }
         }

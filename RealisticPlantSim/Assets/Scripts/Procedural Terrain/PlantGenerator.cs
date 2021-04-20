@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using HoudiniEngineUnity;
 using UnityEditor;
+using Unity.Jobs;
+using Unity.Collections;
 
 public class PlantGenerator : MonoBehaviour
 {
-    [SerializeField]
-    public bool editorTimeGeneration = true;
-
     [SerializeField]
     public float xMinVal = -10f;
     [SerializeField]
@@ -31,19 +30,39 @@ public class PlantGenerator : MonoBehaviour
     [System.Serializable]
     public class PlantSpawnSettings
     {
-        public Object plant;
-        public float generations = 1;
         public GameObject mainHoudiniPlant;
+        public List<PlantVariationSetting> randomizers;
     }
 
-    public int plantsPerChunk = 15;
+    [System.Serializable]
+    public class PlantVariationSetting
+    {
+        public PlantVariationTypes type;
+        public string houdiniKey;
+        public float minValue;
+        public float maxValue;
+
+    }
+
+    public enum PlantVariationTypes
+    {
+        Int,
+        Float,
+    }
 
     [SerializeField]
     public List<PlantSpawnSettings> plantSpawnSettings = new List<PlantSpawnSettings>();
 
     public IEnumerator spawnPlantsInXZRange()
     {
-        for(int i = 0; i < amountOfPlantsToSpawn; i++)
+        Transform plantsHolder = transform.Find("Plants");
+        if (plantsHolder == null)
+        {
+            plantsHolder = new GameObject("Plants").transform;
+            plantsHolder.SetParent(transform);
+        }
+
+        for (int i = 0; i < amountOfPlantsToSpawn; i++)
         {
             float randomXOffset = Random.Range(xMinVal, xMaxVal);
             float randomZOffset = Random.Range(zMinVal, zMaxVal);
@@ -53,66 +72,36 @@ public class PlantGenerator : MonoBehaviour
 
             PlantSpawnSettings spawnSettings = plantSpawnSettings[randomPlantIndex];
 
-            if (spawnSettings.mainHoudiniPlant == null)
-            {
-                spawnSettings.mainHoudiniPlant = createHoudiniPlant(spawnSettings);
-                if (spawnSettings.mainHoudiniPlant == null) yield break; //Return because something went horribly wrong.
-            }
+            if (spawnSettings.mainHoudiniPlant == null) yield break; //Return because the user is stupid and didn't instantiate the plant :P
 
-            GameObject newPlant = generateNewPlantVariantEditor(spawnSettings);
+            GameObject newPlant = generateNewPlant(spawnSettings);
             yield return newPlant;
-            newPlant.transform.SetParent(transform);
+            newPlant.transform.SetParent(plantsHolder);
             newPlant.transform.position = position;
             Debug.Log($"Spawned plant {i + 1}/{amountOfPlantsToSpawn}");
         }
 
     }
 
-    public void spawnPlantsOnChunk(TerrainChunk chunk)
+    public void deleteAllPlants()
     {
-        for (int i = 0; i < plantsPerChunk; i++)
+        Transform plantsHolder = transform.Find("Plants");
+        if (plantsHolder == null)
         {
-            float randomXOffset = Random.Range(-5f, 5f);
-            float randomYOffset = Random.Range(-5f, 5f);
-
-            Vector3 position = new Vector3(chunk.gridXpos + randomXOffset, 0, chunk.gridYPos + randomYOffset);
-            int randomPlantIndex = Random.Range(0, plantSpawnSettings.Count);
-
-            PlantSpawnSettings spawnSettings = plantSpawnSettings[randomPlantIndex];
-
-            if(spawnSettings.mainHoudiniPlant == null)
-            {
-                spawnSettings.mainHoudiniPlant = createHoudiniPlant(spawnSettings);
-                if (spawnSettings.mainHoudiniPlant == null) return; //Return because something went horribly wrong.
-            }
-
-            GameObject newPlant = generateNewPlantVariant(spawnSettings);
-
-            newPlant.transform.SetParent(chunk.chunkObject.transform);
-            newPlant.transform.position = position;
+            plantsHolder = new GameObject("Plants").transform;
+            plantsHolder.SetParent(transform);
+        }
+        int childCount = plantsHolder.childCount;
+        for (int i = 0; i < childCount; i++)
+        {
+            GameObject child = plantsHolder.GetChild(0).gameObject;
+            DestroyImmediate(child);
         }
     }
 
-
-    private GameObject generateNewPlantVariant(PlantSpawnSettings spawnSettings)
+    private GameObject generateNewPlant(PlantSpawnSettings spawnSettings)
     {
-        HEU_HoudiniAssetRoot assetRoot = spawnSettings.mainHoudiniPlant.GetComponent<HEU_HoudiniAssetRoot>();
-        if(assetRoot != null)
-        {
-            StartCoroutine(randomizeHoudiniVars(assetRoot));
-        }
-
-        GameObject clonedPlant = Instantiate(spawnSettings.mainHoudiniPlant);
-        return clonedPlant;
-    }
-
-    private GameObject generateNewPlantVariantEditor(PlantSpawnSettings spawnSettings)
-    {
-        HEU_HoudiniAssetRoot assetRoot = spawnSettings.mainHoudiniPlant.GetComponent<HEU_HoudiniAssetRoot>();
-        if (assetRoot != null)
-        {
-            StartCoroutine(randomizeHoudiniVars(assetRoot));
-        }
+        StartCoroutine(randomizeHoudiniVars(spawnSettings));
 
         GameObject newPlant = new GameObject("Plant"); // TODO: change name
 
@@ -126,30 +115,24 @@ public class PlantGenerator : MonoBehaviour
         return newPlant;
     }
 
-    private GameObject createHoudiniPlant(PlantSpawnSettings spawnSettings)
+    private IEnumerator randomizeHoudiniVars(PlantSpawnSettings spawnSettings)
     {
-        GameObject placedPlant = HEU_HAPIUtility.InstantiateHDA(AssetDatabase.GetAssetPath(spawnSettings.plant), new Vector3(0, 500, 0), HEU_SessionManager.GetOrCreateDefaultSession(), false);
-        if (placedPlant != null && placedPlant.GetComponent<HEU_HoudiniAssetRoot>() != null)
-        {
-            HEU_HoudiniAssetRoot assetRoot = placedPlant.GetComponent<HEU_HoudiniAssetRoot>();
-            if (assetRoot != null)
-            {
-                HEU_ParameterUtility.SetFloat(assetRoot._houdiniAsset, "generations", 5);
-                assetRoot._houdiniAsset.RequestCook(bCheckParametersChanged: true, bAsync: false, bSkipCookCheck: true, bUploadParameters: true);
+        HEU_HoudiniAssetRoot assetRoot = spawnSettings.mainHoudiniPlant.GetComponent<HEU_HoudiniAssetRoot>();
 
-                // assetRoot._houdiniAsset;
-                return placedPlant;
+        //HEU_ParameterUtility.SetFloat(assetRoot._houdiniAsset, "generations", Random.Range(4f, 10f));
+        //HEU_ParameterUtility.SetInt(assetRoot._houdiniAsset, "randomseed", Random.Range(0, 1000));
+        foreach(PlantVariationSetting variation in spawnSettings.randomizers)
+        {
+            switch(variation.type)
+            {
+                case PlantVariationTypes.Int:
+                    HEU_ParameterUtility.SetInt(assetRoot._houdiniAsset, variation.houdiniKey, Random.Range((int)variation.minValue, (int)variation.maxValue));
+                    break;
+                case PlantVariationTypes.Float:
+                    HEU_ParameterUtility.SetFloat(assetRoot._houdiniAsset, variation.houdiniKey, Random.Range(variation.minValue, variation.maxValue));
+                    break;
             }
         }
-
-        return null;
-
-    }
-
-    private IEnumerator randomizeHoudiniVars(HEU_HoudiniAssetRoot assetRoot)
-    {
-        HEU_ParameterUtility.SetFloat(assetRoot._houdiniAsset, "generations", Random.Range(4f, 10f));
-        HEU_ParameterUtility.SetInt(assetRoot._houdiniAsset, "randomseed", Random.Range(0, 1000));
         assetRoot._houdiniAsset.RequestCook(bCheckParametersChanged: true, bAsync: false, bSkipCookCheck: true, bUploadParameters: true);
         yield return null;
     }

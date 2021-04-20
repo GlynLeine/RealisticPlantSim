@@ -6,8 +6,6 @@ using UnityEditor;
 [CustomEditor(typeof(PlantGenerator))]
 public class PlantGeneratorEditor : Editor
 {
-    SerializedProperty _editorTimeGeneration;
-    SerializedProperty _plantsPerChunk;
     SerializedProperty _plantSpawnSettings;
     SerializedProperty _xMinVal;
     SerializedProperty _zMinVal;
@@ -20,8 +18,6 @@ public class PlantGeneratorEditor : Editor
 
     void OnEnable()
     {
-        _editorTimeGeneration = serializedObject.FindProperty("editorTimeGeneration");
-        _plantsPerChunk = serializedObject.FindProperty("plantsPerChunk");
         _plantSpawnSettings = serializedObject.FindProperty("plantSpawnSettings");
         _xMinVal = serializedObject.FindProperty("xMinVal");
         _zMinVal = serializedObject.FindProperty("zMinVal");
@@ -34,27 +30,28 @@ public class PlantGeneratorEditor : Editor
     {
         serializedObject.Update();
 
-        EditorGUILayout.PropertyField(_editorTimeGeneration);
-        EditorGUILayout.PropertyField(_plantsPerChunk);
         EditorGUILayout.PropertyField(_plantSpawnSettings);
 
-        if (_editorTimeGeneration.boolValue == true)
+        EditorGUILayout.PropertyField(_xMinVal, new GUIContent("Minimum X bound"));
+        EditorGUILayout.PropertyField(_xMaxVal, new GUIContent("Maximum X bound"));
+
+        EditorGUILayout.PropertyField(_zMinVal, new GUIContent("Minimum Z bound"));
+        EditorGUILayout.PropertyField(_zMaxVal, new GUIContent("Maximum Z bound"));
+
+        EditorGUILayout.PropertyField(_amountOfPlantsToSpawn, new GUIContent("Amount of plants to spawn"));
+
+
+        if (GUILayout.Button("Generate plants"))
         {
-            EditorGUILayout.PropertyField(_xMinVal, new GUIContent("Minimum X bound"));
-            EditorGUILayout.PropertyField(_xMaxVal, new GUIContent("Maximum X bound"));
+            //Generate the plants
+            PlantGenerator plantGenerator = (PlantGenerator)target;
+            plantGenerator.StartCoroutine(plantGenerator.spawnPlantsInXZRange());
+        }
 
-            EditorGUILayout.PropertyField(_zMinVal, new GUIContent("Minimum Z bound"));
-            EditorGUILayout.PropertyField(_zMaxVal, new GUIContent("Maximum Z bound"));
-
-            EditorGUILayout.PropertyField(_amountOfPlantsToSpawn, new GUIContent("Amount of plants to spawn"));
-
-
-            if (GUILayout.Button("Generate plants"))
-            {
-                //Generate the plants
-                PlantGenerator plantGenerator = (PlantGenerator)target;
-                plantGenerator.StartCoroutine(plantGenerator.spawnPlantsInXZRange());
-            }
+        if(GUILayout.Button("Delete all plants"))
+        {
+            PlantGenerator plantGenerator = (PlantGenerator)target;
+            plantGenerator.deleteAllPlants();
         }
 
 
