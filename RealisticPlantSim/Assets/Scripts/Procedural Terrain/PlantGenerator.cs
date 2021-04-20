@@ -72,13 +72,17 @@ public class PlantGenerator : MonoBehaviour
 
             PlantSpawnSettings spawnSettings = plantSpawnSettings[randomPlantIndex];
 
-            if (spawnSettings.mainHoudiniPlant == null) yield break; //Return because the user is stupid and didn't instantiate the plant :P
+            if (spawnSettings.mainHoudiniPlant == null)
+            {
+                Debug.LogError("Error creating plant: No main houdini plant found");
+                yield break;
+            }
 
             GameObject newPlant = generateNewPlant(spawnSettings);
-            yield return newPlant;
             newPlant.transform.SetParent(plantsHolder);
             newPlant.transform.position = position;
             Debug.Log($"Spawned plant {i + 1}/{amountOfPlantsToSpawn}");
+            yield return newPlant;
         }
 
     }
