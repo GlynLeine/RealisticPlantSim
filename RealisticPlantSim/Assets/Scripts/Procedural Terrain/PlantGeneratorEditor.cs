@@ -48,6 +48,12 @@ public class PlantGeneratorEditor : Editor
             plantGenerator.StartCoroutine(plantGenerator.spawnPlantsInXZRange());
         }
 
+        if(GUILayout.Button("Cancel generator"))
+        {
+            PlantGenerator plantGenerator = (PlantGenerator)target;
+            plantGenerator.StopAllCoroutines();
+        }
+
         if(GUILayout.Button("Delete all plants"))
         {
             PlantGenerator plantGenerator = (PlantGenerator)target;
