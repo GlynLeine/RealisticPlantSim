@@ -15,8 +15,15 @@ public class TerrainGeneratorEditor : Editor
         {
             TerrainGenerator terrainGenerator = (TerrainGenerator)target;
             TerrainGenerator.instance = terrainGenerator;
-            terrainGenerator.buildTerrain(new Vector2(0, 0), new Vector2(terrainGenerator.terrainWidth, terrainGenerator.terrainLength));
+            terrainGenerator.buildTerrain();
 
+        }
+
+        if (GUILayout.Button("Delete terrain"))
+        {
+            TerrainGenerator terrainGenerator = (TerrainGenerator)target;
+            TerrainGenerator.instance = terrainGenerator;
+            terrainGenerator.deleteTerrain();
         }
 
         serializedObject.ApplyModifiedProperties();
