@@ -373,8 +373,8 @@ MonoBehaviour:
   textureWidth: 256
   textureHeight: 256
   terrainMaterial: {fileID: 2100000, guid: 49ca66d256cf09c4d963ed5b61309c51, type: 2}
-  terrainWidth: 0
-  terrainLength: 0
+  terrainWidth: 100
+  terrainLength: 100
   noiseScale: 22.8
   Seed: 1234
   PerlinScale: 100
@@ -876,6 +876,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f5ae35c2932f0840bd0d97cbea6b6e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveStep: 0.1
+  rotationStep: 0.1
+  rotateFirst: 1
 --- !u!1001 &800775766
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1112,12 +1115,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1032459726}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 090181a6279cb3a4c85a28de95040a3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Topic: /return_position
+  Topic: /send_position
   FrameId: pos_data
 --- !u!114 &1032459730
 MonoBehaviour:
