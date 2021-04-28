@@ -370,12 +370,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79fa22164178b6c46a3af6158612479c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkOffset: 3
   textureWidth: 256
   textureHeight: 256
   terrainMaterial: {fileID: 2100000, guid: 49ca66d256cf09c4d963ed5b61309c51, type: 2}
-  terrainSize: 5
-  cacheGeneratedChunks: 1
+  terrainWidth: 0
+  terrainLength: 0
   noiseScale: 22.8
   Seed: 1234
   PerlinScale: 100
@@ -389,8 +388,6 @@ MonoBehaviour:
   sinAmplitude: 0.3
   sinPeriod: 0.15
   perlinNoiseWeight: 0.3
-  robotTransform: {fileID: 595697608}
-  updateEveryFrame: 0
   spawnPlants: 0
 --- !u!4 &429488306
 Transform:
@@ -822,6 +819,7 @@ GameObject:
   m_Component:
   - component: {fileID: 595697608}
   - component: {fileID: 595697609}
+  - component: {fileID: 595697610}
   m_Layer: 0
   m_Name: robotTransform
   m_TagString: Untagged
@@ -853,7 +851,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 595697607}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e2fa8455b88ac9848bc48fc359deec9e, type: 3}
   m_Name: 
@@ -866,6 +864,18 @@ MonoBehaviour:
   terrainGenerator: {fileID: 429488304}
   moveSpeed: 5
   turnSpeed: 20
+--- !u!114 &595697610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 595697607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f5ae35c2932f0840bd0d97cbea6b6e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &800775766
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1046,6 +1056,83 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 573ac53c334415945bf239de2c2f0511, type: 3}
+--- !u!1 &1032459726
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1032459728}
+  - component: {fileID: 1032459727}
+  - component: {fileID: 1032459730}
+  - component: {fileID: 1032459729}
+  m_Layer: 0
+  m_Name: RosConnector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1032459727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1032459726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff98778ae051cfd40a6e4effdf851ebd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SecondsTimeout: 10
+  Serializer: 1
+  protocol: 0
+  RosBridgeServerUrl: ws://127.0.0.1:9090
+--- !u!4 &1032459728
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1032459726}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 9.079, y: 6.299852, z: -3.2685394}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1032459729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1032459726}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 090181a6279cb3a4c85a28de95040a3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Topic: /return_position
+  FrameId: pos_data
+--- !u!114 &1032459730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1032459726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bdc16f81b8cad8418c18ab748f3afb7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Topic: /get_position
+  TimeStep: 1
 --- !u!1001 &1234933007
 PrefabInstance:
   m_ObjectHideFlags: 0
