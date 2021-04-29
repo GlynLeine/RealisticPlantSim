@@ -74,7 +74,7 @@ public class RosDriving : MonoBehaviour
             transform.position = targetPos;
 
             //this is purely a callback to request a new position
-            PositionPublisher.PubCallback();
+            //PositionPublisher.PubCallback();
         }
     }
 
@@ -94,5 +94,7 @@ public class RosDriving : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + (targetDirection * 10));
+        //Gizmos.color = Color.blue;
+        //Gizmos.DrawRay(transform.position,transform.forward);
     }
 }
