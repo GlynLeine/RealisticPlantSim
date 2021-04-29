@@ -10,6 +10,8 @@ public class TerrainUtilityEditor : Editor
 
     int plantsToSpawn;
 
+    IETACalculator eta = null;
+
     void OnEnable()
     {
         _plantsPerUnit = serializedObject.FindProperty("plantsPerUnit");
@@ -17,6 +19,10 @@ public class TerrainUtilityEditor : Editor
 
     public override void OnInspectorGUI()
     {
+        if (eta == null)
+        {
+            eta = new ETACalculator(30, 15);
+        }
         serializedObject.Update();
         TerrainUtility terrainUtility = (TerrainUtility)target;
         TerrainGenerator terrainGenerator = terrainUtility.GetComponent<TerrainGenerator>();
@@ -68,6 +74,8 @@ public class TerrainUtilityEditor : Editor
         if (GUILayout.Button("Generate plants"))
         {
             plantGenerator.StartCoroutine(plantGenerator.spawnPlantsInXZRange());
+
+            eta.Reset();
         }
 
         if (GUILayout.Button("Delete plants"))
@@ -80,6 +88,25 @@ public class TerrainUtilityEditor : Editor
         if (GUILayout.Button("Stop generator"))
         {
             plantGenerator.StopAllCoroutines();
+            plantGenerator.generatingPlants = false;
+        }
+
+        if (plantGenerator.generatingPlants)
+        {
+            float percentageDone = (float) plantGenerator.currentPlant / (float) plantGenerator.amountOfPlantsToSpawn;
+            eta.Update(percentageDone);
+            EditorGUILayout.LabelField($"Generating plants... {plantGenerator.currentPlant} / {plantGenerator.amountOfPlantsToSpawn}");
+            if(eta.ETAIsAvailable)
+            {
+                EditorGUILayout.LabelField($"Estimated time left: {eta.ETR.Hours}:{eta.ETR.Minutes}:{eta.ETR.Seconds}");
+            } else
+            {
+                EditorGUILayout.LabelField($"Calculating time remaining...");
+
+            }
+            EditorGUILayout.LabelField("Don't click away from Unity, while clicked away the generator can't generate plants!");
+            EditorGUILayout.LabelField("Tip! Look away from the field with the scene view. The generation will go faster");
+
         }
 
 

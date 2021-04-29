@@ -28,6 +28,8 @@ public class PlantGeneratorEditor : Editor
 
     public override void OnInspectorGUI()
     {
+        PlantGenerator plantGenerator = (PlantGenerator)target;
+
         serializedObject.Update();
 
         EditorGUILayout.PropertyField(_plantSpawnSettings);
@@ -44,19 +46,16 @@ public class PlantGeneratorEditor : Editor
         if (GUILayout.Button("Generate plants"))
         {
             //Generate the plants
-            PlantGenerator plantGenerator = (PlantGenerator)target;
             plantGenerator.StartCoroutine(plantGenerator.spawnPlantsInXZRange());
         }
 
         if(GUILayout.Button("Cancel generator"))
         {
-            PlantGenerator plantGenerator = (PlantGenerator)target;
             plantGenerator.StopAllCoroutines();
         }
 
         if(GUILayout.Button("Delete all plants"))
         {
-            PlantGenerator plantGenerator = (PlantGenerator)target;
             plantGenerator.deleteAllPlants();
         }
 

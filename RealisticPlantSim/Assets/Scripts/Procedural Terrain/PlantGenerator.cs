@@ -20,6 +20,9 @@ public class PlantGenerator : MonoBehaviour
     [SerializeField]
     public int amountOfPlantsToSpawn = 100;
 
+    public int currentPlant = 0;
+    public bool generatingPlants = false;
+
 
     public static PlantGenerator instance;
     private void Awake()
@@ -55,6 +58,8 @@ public class PlantGenerator : MonoBehaviour
 
     public IEnumerator spawnPlantsInXZRange()
     {
+        generatingPlants = true;
+        currentPlant = 0;
         Transform plantsHolder = transform.Find("Plants");
         if (plantsHolder == null)
         {
@@ -81,10 +86,11 @@ public class PlantGenerator : MonoBehaviour
             GameObject newPlant = generateNewPlant(spawnSettings);
             newPlant.transform.SetParent(plantsHolder);
             newPlant.transform.position = position;
-            Debug.Log($"Spawned plant {i + 1}/{amountOfPlantsToSpawn}");
+            currentPlant++;
             yield return newPlant;
         }
-
+        generatingPlants = false;
+        Debug.Log("[PlantGenerator] Plant generator finished!");
     }
 
     public void deleteAllPlants()
