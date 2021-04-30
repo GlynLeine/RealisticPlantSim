@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour
 {
-    private void Awake()
-    {
-        instance = this;
-    }
     public static TerrainGenerator instance;
 
     [Header("Terrain settings")]
@@ -36,24 +32,29 @@ public class TerrainGenerator : MonoBehaviour
     public float sinPeriod = .1f;
     public float perlinNoiseWeight = 0.5f;
 
-    
-    public bool spawnPlants = true;
-
-    private void Start()
+    public void buildTerrain()
     {
-        buildTerrain(new Vector2(0, 0), new Vector2(terrainWidth, terrainLength));
-    }
-
-
-    public void buildTerrain(Vector2 position, Vector2 size)
-    {
-        TerrainChunk newChunk = new TerrainChunk(position: position, size: size);
-        newChunk.chunkObject.transform.SetParent(this.transform);
-        if (spawnPlants)
+        if(transform.Find("Terrain") == null)
         {
-            PlantGenerator.instance.spawnPlantsOnChunk(newChunk);
+            TerrainChunk newChunk = new TerrainChunk(position: new Vector2(0, 0), size: new Vector2(terrainWidth, terrainLength));
+            newChunk.chunkObject.transform.SetParent(transform);
+        } else
+        {
+            deleteTerrain();
+            buildTerrain();
         }
 
+    }
+    public void deleteTerrain()
+    {
+        Transform terrain = transform.Find("Terrain");
+        if(terrain != null)
+        {
+            DestroyImmediate(terrain.gameObject);
+        } else
+        {
+            Debug.LogError("[TerrainGenerator] There is no terrain to delete!");
+        }
     }
 }
 
@@ -83,7 +84,6 @@ public class TerrainChunk
         GameObject plane = new GameObject("Terrain");
         plane.AddComponent<MeshFilter>().mesh = CreateTerrainMesh(width, height);
         plane.AddComponent<MeshRenderer>();
-        plane.name = "Chunk: " + gridXpos + " : " + gridYPos;
         plane.transform.position = new Vector3(gridXpos, 0, gridYPos);
 
         Material chunkMaterial = new Material(TerrainGenerator.instance.terrainMaterial);
@@ -98,13 +98,16 @@ public class TerrainChunk
 
     public Mesh CreateTerrainMesh(float width, float height)
     {
+        float halfWidth = width / 2;
+        float halfHeight = height / 2;
+
         Mesh m = new Mesh();
         m.name = "TerrainMesh";
         m.vertices = new Vector3[] {
-         new Vector3(-width, 0.01f,-height),
-         new Vector3(width, 0.01f,-height),
-         new Vector3(width, 0.01f, height),
-         new Vector3(-width, 0.01f, height)
+         new Vector3(-halfWidth, 0.01f,-halfHeight),
+         new Vector3(halfWidth, 0.01f,-halfHeight),
+         new Vector3(halfWidth, 0.01f, halfHeight),
+         new Vector3(-halfWidth, 0.01f, halfHeight)
         };
         m.uv = new Vector2[] {
          new Vector2 (0, 0),
