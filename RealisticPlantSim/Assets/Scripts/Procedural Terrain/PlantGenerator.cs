@@ -88,6 +88,8 @@ public class PlantGenerator : MonoBehaviour
             newPlant.transform.position = position;
             currentPlant++;
             yield return newPlant;
+            EditorApplication.QueuePlayerLoopUpdate();
+            SceneView.RepaintAll();
         }
         generatingPlants = false;
         Debug.Log("[PlantGenerator] Plant generator finished!");

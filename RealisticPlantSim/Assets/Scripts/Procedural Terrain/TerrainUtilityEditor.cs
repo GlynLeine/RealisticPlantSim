@@ -17,6 +17,21 @@ public class TerrainUtilityEditor : Editor
         _plantsPerUnit = serializedObject.FindProperty("plantsPerUnit");
     }
 
+    private void OnSceneGUI()
+    {
+        TerrainUtility terrainUtility = (TerrainUtility)target;
+        PlantGenerator plantGenerator = terrainUtility.GetComponent<PlantGenerator>();
+
+        if (plantGenerator.generatingPlants)
+        {
+            if (Event.current.type == EventType.Repaint)
+            {
+                SceneView.RepaintAll();
+            }
+        }
+
+    }
+
     public override void OnInspectorGUI()
     {
         if (eta == null)
