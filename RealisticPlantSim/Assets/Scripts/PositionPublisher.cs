@@ -7,22 +7,18 @@ namespace RosSharp.RosBridgeClient
 {
     public class PositionPublisher : UnityPublisher<geom_msgs.Vector3>
     {
-        public delegate void PublisherCallback();
-        public static PublisherCallback PubCallback;
-
         public string FrameId = "Test";
 
         protected override void Start()
         {
             base.Start();
-            returnPosition() ;
-            PubCallback += returnPosition;
+            sendPosition(new geom_msgs.Vector3());
+            PubCallback += sendPosition;
         }
 
-        private void returnPosition()
+        private void sendPosition(geom_msgs.Vector3 msg)
         {
-            //Debug.Log("Returning: "+ "{"+message.x+","+message.y+","+message.z+"}");
-            Publish(new geom_msgs.Vector3());
+            Publish(msg);
         }
     }
 }

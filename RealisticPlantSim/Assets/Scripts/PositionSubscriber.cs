@@ -6,9 +6,6 @@ namespace RosSharp.RosBridgeClient
     [RequireComponent(typeof(RosConnector))]
     public class PositionSubscriber : UnitySubscriber<geom_msgs.Vector3>
     {
-        public delegate void SubscriberCallback(geom_msgs.Vector3 msg);
-        public static SubscriberCallback SubCallback;
-
         private Vector3 position;
         private bool isMessageReceived = true;
 
@@ -27,6 +24,7 @@ namespace RosSharp.RosBridgeClient
         {
             //this callback is used to send the position data to anything that wants to use it
             SubCallback(new geom_msgs.Vector3(position.x, position.y, position.z));
+
             //Debug.Log("Recieved: " + "{" + position.x + "," + position.y + "," +position.z + "}");
             isMessageReceived = false;
         }
