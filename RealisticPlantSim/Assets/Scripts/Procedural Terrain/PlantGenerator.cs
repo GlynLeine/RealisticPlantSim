@@ -34,6 +34,7 @@ public class PlantGenerator : MonoBehaviour
     public class PlantSpawnSettings
     {
         public GameObject mainHoudiniPlant;
+        public AbstractRandomPlacement randomPlacement;
         public List<PlantVariationSetting> randomizers;
     }
 
