@@ -1,8 +1,10 @@
 // FFmpegOut - FFmpeg video encoding plugin for Unity
 // https://github.com/keijiro/KlakNDI
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using Unity.Collections;
 
@@ -13,13 +15,29 @@ namespace FFmpegOut
         #region Public methods
 
         public static bool IsAvailable {
-            get { return System.IO.File.Exists(ExecutablePath); }
+            get { return GetFullPath("ffmpeg.exe") != null; }
+        }
+
+        public static string GetFullPath(string fileName)
+        {
+            if (File.Exists(fileName))
+                return Path.GetFullPath(fileName);
+
+            var values = Environment.GetEnvironmentVariable("PATH");
+            foreach (var path in values.Split(Path.PathSeparator))
+            {
+                var fullPath = Path.Combine(path, fileName);
+                if (File.Exists(fullPath))
+                    return fullPath;
+            }
+            return null;
         }
 
         public FFmpegPipe(string arguments)
         {
             // Start FFmpeg subprocess.
-            _subprocess = Process.Start(new ProcessStartInfo {
+            var processStartInfo = new ProcessStartInfo
+            {
                 FileName = ExecutablePath,
                 Arguments = arguments,
                 UseShellExecute = false,
@@ -27,7 +45,15 @@ namespace FFmpegOut
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
-            });
+            };
+
+            var ffpresetPath = UnityEngine.Application.streamingAssetsPath;
+
+            ffpresetPath += "/FFmpegOut/ffpresets";
+
+            processStartInfo.EnvironmentVariables.Add("FFMPEG_DATADIR", ffpresetPath);
+
+            _subprocess = Process.Start(processStartInfo);
 
             // Start copy/pipe subthreads.
             _copyThread = new Thread(CopyThread);
@@ -133,18 +159,7 @@ namespace FFmpegOut
         public static string ExecutablePath
         {
             get {
-                var basePath = UnityEngine.Application.streamingAssetsPath;
-                var platform = UnityEngine.Application.platform;
-                
-                if (platform == UnityEngine.RuntimePlatform.OSXPlayer ||
-                    platform == UnityEngine.RuntimePlatform.OSXEditor)
-                    return basePath + "/FFmpegOut/macOS/ffmpeg";
-
-                if (platform == UnityEngine.RuntimePlatform.LinuxPlayer ||
-                    platform == UnityEngine.RuntimePlatform.LinuxEditor)
-                    return basePath + "/FFmpegOut/Linux/ffmpeg";
-
-                return basePath + "/FFmpegOut/Windows/ffmpeg.exe";
+                return "ffmpeg";
             }
         }
 

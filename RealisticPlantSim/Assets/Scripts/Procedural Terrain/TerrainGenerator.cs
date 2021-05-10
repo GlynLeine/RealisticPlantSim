@@ -4,20 +4,15 @@ using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour
 {
-    private void Awake()
-    {
-        instance = this;
-    }
     public static TerrainGenerator instance;
 
-    public int chunkOffset = 2;
+    [Header("Terrain settings")]
     public int textureWidth = 256;
     public int textureHeight = 256;
     public Material terrainMaterial;
-    public int terrainSize = 10;
+    public float terrainWidth, terrainLength;
 
-    public bool cacheGeneratedChunks = false;
-
+    [Header("noise settings")]
     [Range(0,100)]
     public float noiseScale = 1f;
 
@@ -37,62 +32,28 @@ public class TerrainGenerator : MonoBehaviour
     public float sinPeriod = .1f;
     public float perlinNoiseWeight = 0.5f;
 
-    public Transform robotTransform;
-
-    [SerializeField]
-    public List<TerrainChunk> loadedChunks = new List<TerrainChunk>();
-
-    public bool updateEveryFrame = false;
-    private void Update()
+    public void buildTerrain()
     {
-        //remove all caches causeor noise changes so our maps change aswell.
-        if (updateEveryFrame)
+        if(transform.Find("Terrain") == null)
         {
-            foreach(TerrainChunk chunk in loadedChunks)
-            {
-                GameObject.Destroy(chunk.chunk);
-            }
-            loadedChunks = new List<TerrainChunk>();
+            TerrainChunk newChunk = new TerrainChunk(position: new Vector2(0, 0), size: new Vector2(terrainWidth, terrainLength));
+            newChunk.chunkObject.transform.SetParent(transform);
+        } else
+        {
+            deleteTerrain();
+            buildTerrain();
         }
 
-        List<TerrainChunk> currentChunks = new List<TerrainChunk>();
-
-        Vector2 robotGridPosition = new Vector2(Mathf.RoundToInt(robotTransform.position.x)/ terrainSize, Mathf.RoundToInt(robotTransform.position.z)/ terrainSize);
-        for(int x = ((int)robotGridPosition.x - (int)chunkOffset); x < ((int)robotGridPosition.x + (int)chunkOffset); x++)
+    }
+    public void deleteTerrain()
+    {
+        Transform terrain = transform.Find("Terrain");
+        if(terrain != null)
         {
-            for (int y = ((int)robotGridPosition.y - (int)chunkOffset); y < ((int)robotGridPosition.y + (int)chunkOffset); y++)
-            {
-
-                TerrainChunk chunk = loadedChunks.Find(a => a.gridXpos/ terrainSize == x && a.gridYPos/ terrainSize == y);
-                if (chunk != null)
-                {
-                    chunk.SetActive(true);
-                    currentChunks.Add(chunk);
-                }
-                else
-                {
-                    TerrainChunk newChunk = new TerrainChunk(x* terrainSize, y* terrainSize);
-                    newChunk.chunk.transform.SetParent(this.transform);
-                    loadedChunks.Add(newChunk);
-                    currentChunks.Add(newChunk);
-                }
-            }
-        }
-
-        foreach(TerrainChunk chunk in loadedChunks)
+            DestroyImmediate(terrain.gameObject);
+        } else
         {
-            if (!currentChunks.Contains(chunk))
-            {
-                if (!cacheGeneratedChunks)
-                {
-                    DestroyImmediate(chunk.chunk);
-                    loadedChunks.Remove(chunk);
-                }
-                else
-                {
-                    chunk.SetActive(false);
-                }
-            }
+            Debug.LogError("[TerrainGenerator] There is no terrain to delete!");
         }
     }
 }
@@ -100,29 +61,29 @@ public class TerrainGenerator : MonoBehaviour
 public class TerrainChunk
 {
     public Texture2D heightMap;
-    public int gridXpos;
-    public int gridYPos;
-    public GameObject chunk;
+    public float gridXpos;
+    public float gridYPos;
+    public GameObject chunkObject;
 
-    public TerrainChunk(int x, int y)
+    public TerrainChunk(Vector2 position, Vector2 size)
     {
-        this.gridXpos = x;
-        this.gridYPos = y;
-        this.heightMap = CreateHeightmap(x/ TerrainGenerator.instance.terrainSize, y/ TerrainGenerator.instance.terrainSize);
-        chunk = createTerrain();
+        this.gridXpos = position.x;
+        this.gridYPos = position.y;
+        this.heightMap = CreateHeightmap(position.x,position.y);
+        chunkObject = createTerrain(size.x,size.y);
         this.SetActive(true);
     }
 
     public void SetActive(bool value)
     {
-        chunk.SetActive(value);
+        chunkObject.SetActive(value);
     }
 
-    public GameObject createTerrain()
+    public GameObject createTerrain(float width, float height)
     {
-        GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        plane.name = "Chunk: " + gridXpos + " : " + gridYPos;
-        plane.transform.localScale = new Vector3(TerrainGenerator.instance.terrainSize*0.1f, 1, TerrainGenerator.instance.terrainSize*0.1f);
+        GameObject plane = new GameObject("Terrain");
+        plane.AddComponent<MeshFilter>().mesh = CreateTerrainMesh(width, height);
+        plane.AddComponent<MeshRenderer>();
         plane.transform.position = new Vector3(gridXpos, 0, gridYPos);
 
         Material chunkMaterial = new Material(TerrainGenerator.instance.terrainMaterial);
@@ -135,12 +96,37 @@ public class TerrainChunk
         return plane;
     }
 
+    public Mesh CreateTerrainMesh(float width, float height)
+    {
+        float halfWidth = width / 2;
+        float halfHeight = height / 2;
+
+        Mesh m = new Mesh();
+        m.name = "TerrainMesh";
+        m.vertices = new Vector3[] {
+         new Vector3(-halfWidth, 0.01f,-halfHeight),
+         new Vector3(halfWidth, 0.01f,-halfHeight),
+         new Vector3(halfWidth, 0.01f, halfHeight),
+         new Vector3(-halfWidth, 0.01f, halfHeight)
+        };
+        m.uv = new Vector2[] {
+         new Vector2 (0, 0),
+         new Vector2 (0, 1),
+         new Vector2(1, 1),
+         new Vector2 (1, 0)
+        };
+        m.triangles = new int[] { 2, 1, 0, 0, 3, 2 };
+        m.RecalculateNormals();
+
+        return m;
+    }
+
     /// <summary>
     /// creates a heightmap for the grid at the given x and y coordinates
     /// </summary>
     /// <param name="gridX"></param>
     /// <param name="gridY"></param>
-    public Texture2D CreateHeightmap(int gridX, int gridY)
+    public Texture2D CreateHeightmap(float gridX, float gridY)
     {
         Texture2D heightMapTexture = new Texture2D(TerrainGenerator.instance.textureWidth, TerrainGenerator.instance.textureHeight);
         Vector2[] octaveOffsets = new Vector2[TerrainGenerator.instance.PerlinOctaves];
