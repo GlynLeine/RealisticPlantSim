@@ -5,6 +5,8 @@ using HoudiniEngineUnity;
 using UnityEditor;
 using Unity.Jobs;
 using Unity.Collections;
+using System;
+using Random = UnityEngine.Random;
 
 public class PlantGenerator : MonoBehaviour
 {
@@ -34,7 +36,7 @@ public class PlantGenerator : MonoBehaviour
     public class PlantSpawnSettings
     {
         public GameObject mainHoudiniPlant;
-        public AbstractRandomPlacement randomPlacement;
+        public MonoScript randomPlacement;
         public List<PlantVariationSetting> randomizers;
     }
 
@@ -70,13 +72,22 @@ public class PlantGenerator : MonoBehaviour
 
         for (int i = 0; i < amountOfPlantsToSpawn; i++)
         {
-            float randomXOffset = Random.Range(xMinVal, xMaxVal);
-            float randomZOffset = Random.Range(zMinVal, zMaxVal);
-
-            Vector3 position = new Vector3(transform.position.x + randomXOffset, transform.position.y, transform.position.z + randomZOffset);
             int randomPlantIndex = Random.Range(0, plantSpawnSettings.Count);
 
             PlantSpawnSettings spawnSettings = plantSpawnSettings[randomPlantIndex];
+
+            AbstractRandomPlacement randomPlacement;
+
+            if (spawnSettings.randomPlacement.GetType().IsAssignableFrom(typeof(AbstractRandomPlacement)))
+            {
+                randomPlacement = Activator.CreateInstance(spawnSettings.randomPlacement.GetClass()) as AbstractRandomPlacement;
+            } else
+            {
+                throw new Exception($"[PlantGenerator] The Random Placement script on plant #{randomPlantIndex} does not extend from AbstractRandomPlacement!");
+            }
+
+            Vector3 position = randomPlacement.randomizePosition(this);
+
 
             if (spawnSettings.mainHoudiniPlant == null)
             {

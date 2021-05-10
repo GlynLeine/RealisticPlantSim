@@ -1,16 +1,15 @@
 using UnityEngine;
 
-public class DefaultRandomPlacement : MonoBehaviour
+public class DefaultRandomPlacement : AbstractRandomPlacement
 {
-    // Start is called before the first frame update
-    void Start()
+    public override Vector3 randomizePosition(PlantGenerator plantGenerator)
     {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        float randomXOffset = Random.Range(plantGenerator.xMinVal, plantGenerator.xMaxVal);
+        float randomZOffset = Random.Range(plantGenerator.zMinVal, plantGenerator.zMaxVal);
+
+        Vector3 position = new Vector3(plantGenerator.transform.position.x + randomXOffset, plantGenerator.transform.position.y, plantGenerator.transform.position.z + randomZOffset);
+
+        return position;
     }
 }

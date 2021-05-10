@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
-public abstract class AbstractRandomPlacement : MonoBehaviour
+public abstract class AbstractRandomPlacement : MonoScript
 {
 
-    public abstract Vector3 randomizePosition();
+    public abstract Vector3 randomizePosition(PlantGenerator plantGenerator);
 }
