@@ -17,7 +17,6 @@ limitations under the License.
 // © Siemens AG, 2018, Dr. Martin Bischoff (martin.bischoff@siemens.com)
 
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace RosSharp.RosBridgeClient
 {
@@ -39,21 +38,20 @@ namespace RosSharp.RosBridgeClient
             base.Start();
             InitializeGameObject();
             InitializeMessage();
-            //RenderPipelineManager.endCameraRendering += UpdateImage;
+            Camera.onPostRender += UpdateImage;
+        }
+
+        private void UpdateImage(Camera _camera)
+        {
+            if (texture2D != null && _camera == this.ImageCamera)
+                UpdateMessage();
         }
 
         private void InitializeGameObject()
         {
-            for (int i = 1; i <= 74; i++)
-            {
-                Debug.Log("Support format: " + i + "?" + SystemInfo.IsFormatSupported((UnityEngine.Experimental.Rendering.GraphicsFormat)i, UnityEngine.Experimental.Rendering.FormatUsage.ReadPixels));
-            }
-            //Debug.LogError("We stopping");
-            texture2D = new Texture2D(resolutionWidth, resolutionHeight, (TextureFormat)21, false);
-            //ImageCamera.targetTexture = new RenderTexture(resolutionWidth,resolutionHeight,24);
-            ImageCamera.targetTexture.width = resolutionWidth;
-            ImageCamera.targetTexture.height = resolutionHeight;
-            rect = ImageCamera.rect;
+            texture2D = new Texture2D(resolutionWidth, resolutionHeight, TextureFormat.RGB24, false);
+            rect = new Rect(0, 0, resolutionWidth, resolutionHeight);
+            ImageCamera.targetTexture = new RenderTexture(resolutionWidth, resolutionHeight, 24);
         }
 
         private void InitializeMessage()
@@ -71,22 +69,5 @@ namespace RosSharp.RosBridgeClient
             Publish(message);
         }
 
-        private void UpdateImage(ScriptableRenderContext context, Camera camera)
-        {
-            if (texture2D != null && camera == this.ImageCamera)
-            {
-                UpdateMessage();
-                
-            }
-        }
-
-        void OnEnable()
-        {
-            RenderPipelineManager.endCameraRendering += UpdateImage;
-        }
-        void OnDisable()
-        {
-            RenderPipelineManager.endCameraRendering -= UpdateImage;
-        }
     }
 }

@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: TerrainTesselated
-  m_Shader: {fileID: 4800000, guid: 756bac9090102564582875f4c7e30202, type: 3}
+  m_Shader: {fileID: 4800000, guid: 8f885f976320b2c4a846cf9f13ca2b25, type: 3}
   m_ShaderKeywords: _DISPLACEMENT_LOCK_TILING_SCALE _HEIGHTMAP _NORMALMAP _NORMALMAP_TANGENT_SPACE
     _TESSELLATION_DISPLACEMENT _TESSELLATION_PHONG _VERTEX_DISPLACEMENT_LOCK_OBJECT_SCALE
   m_LightmapFlags: 4
@@ -182,15 +182,15 @@ Material:
     - _EnableFogOnTransparent: 1
     - _EnableGeometricSpecularAA: 0
     - _EnergyConservingSpecularColor: 1
-    - _HeightAmplitude: 1.1999999
+    - _HeightAmplitude: 12
     - _HeightCenter: 0
     - _HeightMapParametrization: 1
     - _HeightMax: 1
     - _HeightMin: 0
     - _HeightOffset: 0
     - _HeightPoMAmplitude: 2
-    - _HeightTessAmplitude: 2
-    - _HeightTessCenter: 0.5
+    - _HeightTessAmplitude: 1200
+    - _HeightTessCenter: 0
     - _InvTilingScale: 0.05
     - _Ior: 1.5
     - _IridescenceMask: 1
@@ -263,9 +263,9 @@ Material:
     - _ZTestTransparent: 4
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.8679245, g: 0.6578853, b: 0.38892844, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
-    - _Color: {r: 0.8679245, g: 0.6578853, b: 0.3889284, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DiffusionProfileAsset: {r: 0, g: 0, b: 0, a: 0}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
