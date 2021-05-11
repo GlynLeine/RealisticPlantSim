@@ -64,6 +64,7 @@ public class PlantGenerator : MonoBehaviour
         generatingPlants = true;
         currentPlant = 0;
         Transform plantsHolder = transform.Find("Plants");
+        plantsHolder.gameObject.SetActive(false);
         if (plantsHolder == null)
         {
             plantsHolder = new GameObject("Plants").transform;
@@ -98,12 +99,15 @@ public class PlantGenerator : MonoBehaviour
             GameObject newPlant = generateNewPlant(spawnSettings);
             newPlant.transform.SetParent(plantsHolder);
             newPlant.transform.position = position;
+            newPlant.isStatic = true;
             currentPlant++;
             yield return newPlant;
             EditorApplication.QueuePlayerLoopUpdate();
             SceneView.RepaintAll();
         }
         generatingPlants = false;
+        plantsHolder.gameObject.SetActive(true);
+
         Debug.Log("[PlantGenerator] Plant generator finished!");
     }
 
@@ -133,8 +137,9 @@ public class PlantGenerator : MonoBehaviour
         //I = 1 because we skip the HDA_Data GameObject
         for(int i = 1; i < spawnSettings.mainHoudiniPlant.transform.childCount; i++)
         {
-            GameObject plantMesh = Instantiate(spawnSettings.mainHoudiniPlant.transform.GetChild(i).gameObject);
-            plantMesh.transform.SetParent(newPlant.transform);
+            GameObject plantPart = Instantiate(spawnSettings.mainHoudiniPlant.transform.GetChild(i).gameObject);
+            plantPart.transform.SetParent(newPlant.transform);
+
         }
         return newPlant;
     }
@@ -142,10 +147,7 @@ public class PlantGenerator : MonoBehaviour
     private IEnumerator randomizeHoudiniVars(PlantSpawnSettings spawnSettings)
     {
         HEU_HoudiniAssetRoot assetRoot = spawnSettings.mainHoudiniPlant.GetComponent<HEU_HoudiniAssetRoot>();
-
-        //HEU_ParameterUtility.SetFloat(assetRoot._houdiniAsset, "generations", Random.Range(4f, 10f));
-        //HEU_ParameterUtility.SetInt(assetRoot._houdiniAsset, "randomseed", Random.Range(0, 1000));
-        foreach(PlantVariationSetting variation in spawnSettings.randomizers)
+        foreach (PlantVariationSetting variation in spawnSettings.randomizers)
         {
             switch(variation.type)
             {

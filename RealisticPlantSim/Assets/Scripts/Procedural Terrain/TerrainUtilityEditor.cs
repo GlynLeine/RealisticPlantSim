@@ -104,6 +104,9 @@ public class TerrainUtilityEditor : Editor
         {
             plantGenerator.StopAllCoroutines();
             plantGenerator.generatingPlants = false;
+            Transform plantsHolder = plantGenerator.transform.Find("Plants");
+            plantsHolder.gameObject.SetActive(true);
+
         }
 
         if (plantGenerator.generatingPlants)
