@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-firstpass", "Assembly-CSharp-firstpass.csproj", "{1E6B66B6-5C6D-E529-BFBB-B930CEBACB43}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{93C1F8E8-6EBA-F40F-B4FB-CE6044D378A5}"
@@ -17,13 +17,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFmpegOut.Editor", "FFmpegO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kino.Postprocessing.Editor", "Kino.Postprocessing.Editor.csproj", "{5537B4FE-CF68-E2BE-6B52-ACC35DE8ACDF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-firstpass.Player", "Assembly-CSharp-firstpass.Player.csproj", "{477D6FDB-BF08-B20F-E1B4-6BBC90FCFBEA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-firstpass", "Assembly-CSharp-firstpass.Player.csproj", "{477D6FDB-BF08-B20F-E1B4-6BBC90FCFBEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp.Player", "Assembly-CSharp.Player.csproj", "{B59FB236-7F50-0171-F4CE-B66FB4C47D56}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.Player.csproj", "{B59FB236-7F50-0171-F4CE-B66FB4C47D56}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kino.Postprocessing.Player", "Kino.Postprocessing.Player.csproj", "{14CC15B9-0C72-6BA5-822B-5B50CB2CF93F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kino.Postprocessing", "Kino.Postprocessing.Player.csproj", "{14CC15B9-0C72-6BA5-822B-5B50CB2CF93F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFmpegOut.Player", "FFmpegOut.Player.csproj", "{55494EEB-339E-3E71-6C4B-7053F144B337}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFmpegOut", "FFmpegOut.Player.csproj", "{55494EEB-339E-3E71-6C4B-7053F144B337}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

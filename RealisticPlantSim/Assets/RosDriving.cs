@@ -52,7 +52,6 @@ public class RosDriving : MonoBehaviour
 
     void MoveToPoint()
     {
-
         //rotate towards the target before we start moving
         if (rotate)
         {

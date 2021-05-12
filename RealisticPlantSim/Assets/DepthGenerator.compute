@@ -1,0 +1,30 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel GetDepth
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+Texture2D<float4> depthTexture;
+RWBuffer<uint> outputBuffer;
+
+uint bufferSize;
+
+[numthreads(1024, 1, 1)]
+void GetDepth(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= bufferSize)
+        return;
+
+    float f1 = depthTexture[id.xy].r;
+    float f2 = depthTexture[id.xy + 1].r;
+    float f3 = depthTexture[id.xy + 2].r;
+    float f4 = depthTexture[id.xy + 3].r;
+
+    uint u1 = (uint)(f1 * 255);
+    uint u2 = (uint)(f2 * 255);
+    uint u3 = (uint)(f3 * 255);
+    uint u4 = (uint)(f4 * 255);
+
+    uint packedInt = u1 << 24 | u2 << 16 | u3 << 8 | u4;
+    outputBuffer[id.x] = packedInt;
+    
+}
