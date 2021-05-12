@@ -5,6 +5,8 @@ using HoudiniEngineUnity;
 using UnityEditor;
 using Unity.Jobs;
 using Unity.Collections;
+using System;
+using Random = UnityEngine.Random;
 
 public class PlantGenerator : MonoBehaviour
 {
@@ -34,6 +36,7 @@ public class PlantGenerator : MonoBehaviour
     public class PlantSpawnSettings
     {
         public GameObject mainHoudiniPlant;
+        public MonoScript randomPlacement;
         public List<PlantVariationSetting> randomizers;
     }
 
@@ -61,6 +64,7 @@ public class PlantGenerator : MonoBehaviour
         generatingPlants = true;
         currentPlant = 0;
         Transform plantsHolder = transform.Find("Plants");
+        plantsHolder.gameObject.SetActive(false);
         if (plantsHolder == null)
         {
             plantsHolder = new GameObject("Plants").transform;
@@ -69,13 +73,22 @@ public class PlantGenerator : MonoBehaviour
 
         for (int i = 0; i < amountOfPlantsToSpawn; i++)
         {
-            float randomXOffset = Random.Range(xMinVal, xMaxVal);
-            float randomZOffset = Random.Range(zMinVal, zMaxVal);
-
-            Vector3 position = new Vector3(transform.position.x + randomXOffset, transform.position.y, transform.position.z + randomZOffset);
             int randomPlantIndex = Random.Range(0, plantSpawnSettings.Count);
 
             PlantSpawnSettings spawnSettings = plantSpawnSettings[randomPlantIndex];
+
+            AbstractRandomPlacement randomPlacement;
+
+            if (spawnSettings.randomPlacement.GetType().IsAssignableFrom(typeof(AbstractRandomPlacement)))
+            {
+                randomPlacement = Activator.CreateInstance(spawnSettings.randomPlacement.GetClass()) as AbstractRandomPlacement;
+            } else
+            {
+                throw new Exception($"[PlantGenerator] The Random Placement script on plant #{randomPlantIndex} does not extend from AbstractRandomPlacement!");
+            }
+
+            Vector3 position = randomPlacement.randomizePosition(this);
+
 
             if (spawnSettings.mainHoudiniPlant == null)
             {
@@ -86,12 +99,15 @@ public class PlantGenerator : MonoBehaviour
             GameObject newPlant = generateNewPlant(spawnSettings);
             newPlant.transform.SetParent(plantsHolder);
             newPlant.transform.position = position;
+            newPlant.isStatic = true;
             currentPlant++;
             yield return newPlant;
             EditorApplication.QueuePlayerLoopUpdate();
             SceneView.RepaintAll();
         }
         generatingPlants = false;
+        plantsHolder.gameObject.SetActive(true);
+
         Debug.Log("[PlantGenerator] Plant generator finished!");
     }
 
@@ -121,8 +137,9 @@ public class PlantGenerator : MonoBehaviour
         //I = 1 because we skip the HDA_Data GameObject
         for(int i = 1; i < spawnSettings.mainHoudiniPlant.transform.childCount; i++)
         {
-            GameObject plantMesh = Instantiate(spawnSettings.mainHoudiniPlant.transform.GetChild(i).gameObject);
-            plantMesh.transform.SetParent(newPlant.transform);
+            GameObject plantPart = Instantiate(spawnSettings.mainHoudiniPlant.transform.GetChild(i).gameObject);
+            plantPart.transform.SetParent(newPlant.transform);
+
         }
         return newPlant;
     }
@@ -130,10 +147,7 @@ public class PlantGenerator : MonoBehaviour
     private IEnumerator randomizeHoudiniVars(PlantSpawnSettings spawnSettings)
     {
         HEU_HoudiniAssetRoot assetRoot = spawnSettings.mainHoudiniPlant.GetComponent<HEU_HoudiniAssetRoot>();
-
-        //HEU_ParameterUtility.SetFloat(assetRoot._houdiniAsset, "generations", Random.Range(4f, 10f));
-        //HEU_ParameterUtility.SetInt(assetRoot._houdiniAsset, "randomseed", Random.Range(0, 1000));
-        foreach(PlantVariationSetting variation in spawnSettings.randomizers)
+        foreach (PlantVariationSetting variation in spawnSettings.randomizers)
         {
             switch(variation.type)
             {
