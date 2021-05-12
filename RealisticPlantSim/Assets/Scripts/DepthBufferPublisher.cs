@@ -73,6 +73,7 @@ namespace RosSharp.RosBridgeClient
                     buffer = new byte[size];
                     depthData = new ComputeBuffer((int)size, sizeof(byte));
                     depthGetter.SetTexture(kernelHandle, "depthTexture", depthTexture, 0, RenderTextureSubElement.Depth);
+                    depthGetter.SetInt("bufferSize",(int)size);
                     depthGetter.SetBuffer(kernelHandle, "outputBuffer", depthData);
                     uint x, y, z;
                     depthGetter.GetKernelThreadGroupSizes(kernelHandle, out x, out y, out z);

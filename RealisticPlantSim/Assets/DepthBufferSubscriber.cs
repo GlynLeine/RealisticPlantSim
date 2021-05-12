@@ -33,17 +33,18 @@ namespace RosSharp.RosBridgeClient
 
         private void ProcessMessage()
         {
-            for (int i =1;i<=depthBuffer.Length;i++)
+            colors = new Color[depthBuffer.Length * 4];
+            for (int i = 0; i < depthBuffer.Length; i++)
             {
                 float[] tempBuffer = new float[4];
-                if (i%4 != 0)
+                for (int j = 0;j<tempBuffer.Length;j++)
                 {
-                    tempBuffer[i % 4] = depthBuffer[i >> i*8];
+                    tempBuffer[j] = depthBuffer[i] >> j * 8;
                 }
-                colors[i - 1] = new Color();
+                colors[i] = new Color(tempBuffer[0], tempBuffer[1], tempBuffer[2], tempBuffer[3]);
             }
 
-            texture2D.LoadImage(depthBuffer);
+            texture2D.SetPixelData<Color>(colors,0);
             texture2D.Apply();
             meshRenderer.texture = texture2D;
             meshRenderer.Rebuild(CanvasUpdate.MaxUpdateValue);

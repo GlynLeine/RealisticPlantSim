@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 1480.3584, g: 1833.9668, b: 2428.2852, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -7171,11 +7171,12 @@ MonoBehaviour:
   zMinVal: -20
   xMaxVal: 20
   zMaxVal: 20
-  amountOfPlantsToSpawn: 1000
-  currentPlant: 10
-  generatingPlants: 0
+  amountOfPlantsToSpawn: 32
+  currentPlant: 0
+  generatingPlants: 1
   plantSpawnSettings:
   - mainHoudiniPlant: {fileID: 278757921}
+    randomPlacement: {fileID: 11500000, guid: 5e31b6a7ee24ac74992c11523a848f1e, type: 3}
     randomizers:
     - type: 1
       houdiniKey: generations
@@ -7197,7 +7198,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 398c9c445fe78c34d9221aed952c24ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  plantsPerUnit: 0.625
+  plantsPerUnit: 0.02
 --- !u!114 &433368546
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7268,7 +7269,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &474011626
 Transform:
   m_ObjectHideFlags: 0
@@ -7457,7 +7458,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &487032527
 Transform:
   m_ObjectHideFlags: 0
@@ -7856,7 +7857,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &634214914
 Transform:
   m_ObjectHideFlags: 0
@@ -9181,6 +9182,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5322335665311603008, guid: dbc97c3efd66ad745917af4e3c1ff176, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5322335665645263200, guid: dbc97c3efd66ad745917af4e3c1ff176, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -9354,7 +9359,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1273525359
 MonoBehaviour:
   m_ObjectHideFlags: 0
