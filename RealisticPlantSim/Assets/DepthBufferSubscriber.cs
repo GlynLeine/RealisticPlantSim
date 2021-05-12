@@ -33,15 +33,10 @@ namespace RosSharp.RosBridgeClient
 
         private void ProcessMessage()
         {
-            colors = new Color[depthBuffer.Length * 4];
+            colors = new Color[depthBuffer.Length];
             for (int i = 0; i < depthBuffer.Length; i++)
             {
-                float[] tempBuffer = new float[4];
-                for (int j = 0;j<tempBuffer.Length;j++)
-                {
-                    tempBuffer[j] = depthBuffer[i] >> j * 8;
-                }
-                colors[i] = new Color(tempBuffer[0], tempBuffer[1], tempBuffer[2], tempBuffer[3]);
+                colors[i] = new Color((float)(depthBuffer[i]) / 255f, 0f, 0f);                
             }
 
             texture2D.SetPixelData<Color>(colors,0);

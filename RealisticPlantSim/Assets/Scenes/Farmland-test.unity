@@ -1608,7 +1608,7 @@ MonoBehaviour:
     _choiceValue: 0
     _intValues: 
     _floatValues:
-    - 5.5428314
+    - 7.458703
     _stringValues: []
     _toggle: 0
     _color: {r: 0, g: 0, b: 0, a: 0}
@@ -1794,7 +1794,7 @@ MonoBehaviour:
     _labelName: Random Seed
     _childParameterIDs: 
     _choiceValue: 0
-    _intValues: 45030000
+    _intValues: 80030000
     _floatValues: []
     _stringValues: []
     _toggle: 0
@@ -7171,9 +7171,9 @@ MonoBehaviour:
   zMinVal: -20
   xMaxVal: 20
   zMaxVal: 20
-  amountOfPlantsToSpawn: 32
-  currentPlant: 0
-  generatingPlants: 1
+  amountOfPlantsToSpawn: 320
+  currentPlant: 320
+  generatingPlants: 0
   plantSpawnSettings:
   - mainHoudiniPlant: {fileID: 278757921}
     randomPlacement: {fileID: 11500000, guid: 5e31b6a7ee24ac74992c11523a848f1e, type: 3}
@@ -7198,7 +7198,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 398c9c445fe78c34d9221aed952c24ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  plantsPerUnit: 0.02
+  plantsPerUnit: 0.2
 --- !u!114 &433368546
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7857,7 +7857,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &634214914
 Transform:
   m_ObjectHideFlags: 0
@@ -9642,7 +9642,7 @@ MonoBehaviour:
   _forceUploadInputs: 0
   _upstreamCookChanged: 0
   _cookStatus: 0
-  _lastCookResult: 1
+  _lastCookResult: 2
   _isCookingAssetReloaded: 0
   _sessionID: 2775020933536
   _uiLocked: 1
@@ -9854,7 +9854,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Topic: /depth_buffer_return
-  TimeStep: 1
+  TimeStep: 0.001
   meshRenderer: {fileID: 751614803}
 --- !u!43 &1756376934
 Mesh:

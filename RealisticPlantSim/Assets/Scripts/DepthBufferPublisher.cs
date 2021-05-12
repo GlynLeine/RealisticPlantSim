@@ -61,7 +61,7 @@ namespace RosSharp.RosBridgeClient
         {
             if (update)
             {
-                StartCoroutine(WaitForSeconds(.02f));//This starts the coroutine to lock this function
+                StartCoroutine(WaitForSeconds(.2f));//This starts the coroutine to lock this function
 
                 if (!gpu)
                 {

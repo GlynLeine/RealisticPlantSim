@@ -3,10 +3,16 @@
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
+
 Texture2D<float4> depthTexture;
 RWBuffer<uint> outputBuffer;
 
 uint bufferSize;
+
+uint2 IdxToUv(uint idx, uint2 res)
+{
+
+}
 
 [numthreads(1024, 1, 1)]
 void GetDepth(uint3 id : SV_DispatchThreadID)
@@ -14,10 +20,14 @@ void GetDepth(uint3 id : SV_DispatchThreadID)
     if (id.x >= bufferSize)
         return;
 
-    uint2 index = uint2(id.x, 0);
-    uint2 index1 = uint2(id.x + 1, 0);
-    uint2 index2 = uint2(id.x + 2, 0);
-    uint2 index3 = uint2(id.x + 3, 0);
+    uint2 res;
+
+    depthTexture.GetDimensions(res.x, res.y);
+
+    uint2 index = IdxToUv(id.x, res);
+    uint2 index1 = IdxToUv(id.x+1, res);
+    uint2 index2 =IdxToUv(id.x+2, res);
+    uint2 index3 =IdxToUv(id.x+3, res);
 
     float f1 = depthTexture[index].r;
     float f2 = depthTexture[index1].r;
