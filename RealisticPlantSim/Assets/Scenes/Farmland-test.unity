@@ -7269,7 +7269,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &474011626
 Transform:
   m_ObjectHideFlags: 0
@@ -7458,7 +7458,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &487032527
 Transform:
   m_ObjectHideFlags: 0
@@ -7755,6 +7755,7 @@ GameObject:
   m_Component:
   - component: {fileID: 595697608}
   - component: {fileID: 595697609}
+  - component: {fileID: 595697610}
   m_Layer: 0
   m_Name: robotTransform
   m_TagString: Untagged
@@ -7800,6 +7801,21 @@ MonoBehaviour:
   terrainGenerator: {fileID: 429488304}
   moveSpeed: 5
   turnSpeed: 20
+--- !u!114 &595697610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 595697607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f5ae35c2932f0840bd0d97cbea6b6e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveStep: 0.2
+  rotationStep: 1
+  rotateFirst: 1
 --- !u!114 &618549726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9359,7 +9375,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1273525359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9786,6 +9802,8 @@ GameObject:
   - component: {fileID: 1664024054}
   - component: {fileID: 1664024056}
   - component: {fileID: 1664024057}
+  - component: {fileID: 1664024059}
+  - component: {fileID: 1664024058}
   m_Layer: 0
   m_Name: RosConnector
   m_TagString: Untagged
@@ -9830,7 +9848,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1664024053}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c1d7131eb583914a9e874a77caf7ee6, type: 3}
   m_Name: 
@@ -9848,7 +9866,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1664024053}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 12019d5c2adc9db46afd0804770d682a, type: 3}
   m_Name: 
@@ -9856,6 +9874,34 @@ MonoBehaviour:
   Topic: /depth_buffer_return
   TimeStep: 0.001
   meshRenderer: {fileID: 751614803}
+--- !u!114 &1664024058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1664024053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 090181a6279cb3a4c85a28de95040a3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Topic: /send_position
+  FrameId: Test
+--- !u!114 &1664024059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1664024053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bdc16f81b8cad8418c18ab748f3afb7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Topic: /get_position
+  TimeStep: 0.001
 --- !u!43 &1756376934
 Mesh:
   m_ObjectHideFlags: 0

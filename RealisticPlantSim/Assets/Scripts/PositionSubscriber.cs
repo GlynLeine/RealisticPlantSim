@@ -25,7 +25,7 @@ namespace RosSharp.RosBridgeClient
             //this callback is used to send the position data to anything that wants to use it
             SubCallback(new geom_msgs.Vector3(position.x, position.y, position.z));
 
-            //Debug.Log("Recieved: " + "{" + position.x + "," + position.y + "," +position.z + "}");
+            Debug.Log("Recieved: " + "{" + position.x + "," + position.y + "," +position.z + "}");
             isMessageReceived = false;
         }
 
