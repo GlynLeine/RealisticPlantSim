@@ -3,48 +3,56 @@
 
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
 
 namespace FFmpegOut
 {
     [AddComponentMenu("FFmpegOut/Camera Capture")]
-    public sealed class CameraCapture : MonoBehaviour
+    public class CameraCapture : MonoBehaviour
     {
         #region Public properties
 
         [SerializeField] int _width = 1920;
 
-        public int width {
+        public int width
+        {
             get { return _width; }
             set { _width = value; }
         }
 
         [SerializeField] int _height = 1080;
 
-        public int height {
+        public int height
+        {
             get { return _height; }
             set { _height = value; }
         }
 
         [SerializeField] FFmpegPreset _preset;
 
-        public FFmpegPreset preset {
+        public FFmpegPreset preset
+        {
             get { return _preset; }
             set { _preset = value; }
         }
 
         [SerializeField] float _frameRate = 30;
 
-        public float frameRate {
+        public float frameRate
+        {
             get { return _frameRate; }
             set { _frameRate = value; }
         }
 
-        [SerializeField] string _streamURL = "rtsp://localhost:8554/mystream";
+        public Dictionary<string, FFmpegSession> sessions;
 
-        public string streamURL
+        [SerializeField] string _defaultStreamURL = "rtsp://localhost:8554/mystream";
+
+        public string defaultStreamURL
         {
-            get { return _streamURL; }
-            set { _streamURL = value; }
+            get { return _defaultStreamURL; }
+            set { _defaultStreamURL = value; }
         }
 
         [SerializeField] int _crfValue = 23;
@@ -62,6 +70,7 @@ namespace FFmpegOut
             get { return _maxBitrate; }
             set { _maxBitrate = value; }
         }
+
 
         #endregion
 
@@ -89,7 +98,8 @@ namespace FFmpegOut
         float _startTime;
         int _frameDropCount;
 
-        float FrameTime {
+        float FrameTime
+        {
             get { return _startTime + (_frameCount - 0.5f) / _frameRate; }
         }
 
@@ -143,13 +153,14 @@ namespace FFmpegOut
         IEnumerator Start()
         {
             // Sync with FFmpeg pipe thread at the end of every frame.
-            for (var eof = new WaitForEndOfFrame();;)
+            for (var eof = new WaitForEndOfFrame(); ;)
             {
                 yield return eof;
                 _session?.CompletePushFrames();
             }
         }
 
+/*
         void Update()
         {
             var camera = GetComponent<Camera>();
@@ -162,7 +173,7 @@ namespace FFmpegOut
                 // object to keep frames presented on the screen.
                 if (camera.targetTexture == null)
                 {
-                    _tempRT = new RenderTexture(_width, _height, 24, GetTargetFormat(camera)); 
+                    _tempRT = new RenderTexture(_width, _height, 24, GetTargetFormat(camera));
                     _tempRT.antiAliasing = GetAntiAliasingLevel(camera);
                     camera.targetTexture = _tempRT;
                     _blitter = Blitter.CreateInstance(camera);
@@ -220,7 +231,77 @@ namespace FFmpegOut
                 _frameCount += Mathf.FloorToInt(gap * _frameRate);
             }
         }
+*/
+        protected void PushToPipe(Texture texture)
+        {
+            RTSPServerLoader.GetInstance();
+            // Lazy initialization
+            if (_session == null)
+            {
+                // Give a newly created temporary render texture to the camera
+                // if it's set to render to a screen. Also create a blitter
+                // object to keep frames presented on the screen.
+                if (texture == null)
+                {
+                    Debug.LogError("Texture is null");
+                }
+
+                // Start an FFmpeg session.
+                _session = FFmpegSession.Create(
+                    _defaultStreamURL,
+                    width,
+                    height,
+                    _frameRate, preset,
+                    _crfValue,
+                    _maxBitrate
+                );
+
+                _startTime = Time.time;
+                _frameCount = 0;
+                _frameDropCount = 0;
+            }
+
+            var gap = Time.time - FrameTime;
+            var delta = 1 / _frameRate;
+
+            if (gap < 0)
+            {
+                // Update without frame data.
+                _session.PushFrame(null);
+            }
+            else if (gap < delta)
+            {
+                // Single-frame behind from the current time:
+                // Push the current frame to FFmpeg.
+                _session.PushFrame(texture);
+                _frameCount++;
+            }
+            else if (gap < delta * 2)
+            {
+                // Two-frame behind from the current time:
+                // Push the current frame twice to FFmpeg. Actually this is not
+                // an efficient way to catch up. We should think about
+                // implementing frame duplication in a more proper way. #fixme
+                _session.PushFrame(texture);
+                _session.PushFrame(texture);
+                _frameCount += 2;
+            }
+            else
+            {
+                // Show a warning message about the situation.
+                WarnFrameDrop();
+
+                // Push the current frame to FFmpeg.
+                _session.PushFrame(texture);
+
+                // Compensate the time delay.
+                _frameCount += Mathf.FloorToInt(gap * _frameRate);
+            }
+        }
 
         #endregion
+
     }
+
+
 }

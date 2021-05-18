@@ -7,40 +7,44 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using std_msgs = RosSharp.RosBridgeClient.MessageTypes.Std;
 using System.Linq;
+using UnityEngine.UI;
 
 namespace RosSharp.RosBridgeClient
 {
     public class DepthBufferPublisher : UnityPublisher<std_msgs.UInt8MultiArray>
     {
         public string FrameId = "Test";
-
+        [SerializeField]
+        private int resolutionWidth = 1280;
+        [SerializeField]
+        private int resolutionHeight = 720;
         [SerializeField]
         private Camera imageCamera;
         [SerializeField]
-        private RenderTexture depthTexture;
-        [SerializeField]
         private bool gpu = false;
+        [SerializeField]
+        private RawImage meshRenderer;
+        [SerializeField]
+        private ComputeShader depthGetter;
 
-        private int resolutionWidth = 1280;
-        private int resolutionHeight = 720;
+        private RenderTexture depthTexture;
+        private RenderTexture outputTexture;
+
         private uint size;
         private std_msgs.UInt8MultiArray message;
         byte[] buffer;
-        float[] floatBuffer;
         private bool update = true;
 
         private Texture2D texture2D;
         private Rect rect;
-        int kernelHandle;
-        public ComputeShader depthGetter;
-        private ComputeBuffer depthData;
-
+        private int kernelHandle;
 
 
         protected override void Start()
         {
             base.Start();
             PubCallback += sendDepthbuffer;
+
             if (depthGetter != null)
             {
                 kernelHandle = depthGetter.FindKernel("GetDepth");
@@ -50,9 +54,16 @@ namespace RosSharp.RosBridgeClient
                 gpu = false;
                 Debug.LogWarning("Computer Shader is not set");
             }
+
+            //gpu output
+            outputTexture = new RenderTexture(resolutionWidth, resolutionHeight, 0);
+            outputTexture.enableRandomWrite = true;
+            outputTexture.Create();
+
+            //cpu output
             texture2D = new Texture2D(resolutionWidth, resolutionHeight, TextureFormat.ARGB4444, false);
             size = (uint)(resolutionHeight * resolutionWidth);
-            imageCamera.targetTexture = depthTexture;//sets the target to render to.
+            depthTexture = imageCamera.targetTexture;//sets the target to render to.
             rect = imageCamera.rect;//pretty sure this sets the image camera view rect.
         }
 
@@ -61,7 +72,7 @@ namespace RosSharp.RosBridgeClient
         {
             if (update)
             {
-                StartCoroutine(WaitForSeconds(.2f));//This starts the coroutine to lock this function
+                //StartCoroutine(WaitForSeconds(.2f));//This starts the coroutine to lock this function
 
                 if (!gpu)
                 {
@@ -70,23 +81,16 @@ namespace RosSharp.RosBridgeClient
                 }
                 else
                 {
-                    buffer = new byte[size];
-                    depthData = new ComputeBuffer((int)size, sizeof(byte));
                     depthGetter.SetTexture(kernelHandle, "depthTexture", depthTexture, 0, RenderTextureSubElement.Depth);
+                    depthGetter.SetTexture(kernelHandle, "outputTexture", outputTexture, 0, RenderTextureSubElement.Color);
                     depthGetter.SetInt("bufferSize",(int)size);
-                    depthGetter.SetBuffer(kernelHandle, "outputBuffer", depthData);
                     uint x, y, z;
                     depthGetter.GetKernelThreadGroupSizes(kernelHandle, out x, out y, out z);
-                    depthGetter.Dispatch(kernelHandle, (int)(size/(4*x)), 1, 1);
-                    depthData.GetData(buffer);
-                    depthData.Dispose();
-                }
+                    depthGetter.Dispatch(kernelHandle, (int)(resolutionWidth/x), (int)(resolutionWidth/y), 1);
+                    meshRenderer.texture = outputTexture;
+                    meshRenderer.Rebuild(CanvasUpdate.MaxUpdateValue);
 
-                //Message setup. Not very important
-                var multiArrayDims = new std_msgs.MultiArrayDimension[1] { new std_msgs.MultiArrayDimension("depthData", (uint)buffer.Length, sizeof(byte)) };
-                var multiArrayLayout = new std_msgs.MultiArrayLayout(multiArrayDims, 0);
-                var msg = new std_msgs.UInt8MultiArray(multiArrayLayout, buffer);
-                message = msg;
+                }
             }
         }
 

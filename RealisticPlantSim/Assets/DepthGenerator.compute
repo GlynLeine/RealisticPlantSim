@@ -5,41 +5,19 @@
 // with cs.SetTexture
 
 Texture2D<float4> depthTexture;
-RWBuffer<uint> outputBuffer;
+RWTexture2D<float4> outputTexture;
 
 uint bufferSize;
 
 uint2 IdxToUv(uint idx, uint2 res)
 {
-
+    return uint2(idx%res.x,idx/res.x);
 }
 
-[numthreads(1024, 1, 1)]
+[numthreads(8, 8, 1)]
 void GetDepth(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x >= bufferSize)
-        return;
-
-    uint2 res;
-
-    depthTexture.GetDimensions(res.x, res.y);
-
-    uint2 index = IdxToUv(id.x, res);
-    uint2 index1 = IdxToUv(id.x+1, res);
-    uint2 index2 =IdxToUv(id.x+2, res);
-    uint2 index3 =IdxToUv(id.x+3, res);
-
-    float f1 = depthTexture[index].r;
-    float f2 = depthTexture[index1].r;
-    float f3 = depthTexture[index2].r;
-    float f4 = depthTexture[index3].r;
-
-    uint u1 = (uint)(f1 * 255);
-    uint u2 = (uint)(f2 * 255);
-    uint u3 = (uint)(f3 * 255);
-    uint u4 = (uint)(f4 * 255);
-
-    uint packedInt = u1 << 24 | u2 << 16 | u3 << 8 | u4;
-    outputBuffer[id.x] = packedInt;
-
+    int intensity = 10;
+    float3 depth = float3(depthTexture[id.xy].x * intensity, depthTexture[id.xy].x * intensity, depthTexture[id.xy].x * intensity);
+    outputTexture[id.xy] = float4(depth,1);
 }
