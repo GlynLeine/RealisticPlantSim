@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
-
+using static PlantGenerator;
+using System;
 
 [CanEditMultipleObjects]
 [CustomEditor(typeof(PlantGenerator))]
@@ -33,6 +34,21 @@ public class PlantGeneratorEditor : Editor
         serializedObject.Update();
 
         EditorGUILayout.PropertyField(_plantSpawnSettings);
+
+        foreach(PlantSpawnSettings spawnSetting in plantGenerator.plantSpawnSettings)
+        {
+            AbstractPlacementStrategy placementStrategy;
+            if (spawnSetting.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
+            {
+                placementStrategy = Activator.CreateInstance(spawnSetting.placementStrategy.GetClass()) as AbstractPlacementStrategy;
+            }
+            else
+            {
+                throw new Exception($"[PlantGenerator] The Random Placement script on plant #{plantGenerator.plantSpawnSettings.IndexOf(spawnSetting)} does not extend from AbstractPlacementStrategy!");
+            }
+            placementStrategy.OnInspectorGUI();
+        }
+
 
         EditorGUILayout.PropertyField(_xMinVal, new GUIContent("Minimum X bound"));
         EditorGUILayout.PropertyField(_xMaxVal, new GUIContent("Maximum X bound"));
