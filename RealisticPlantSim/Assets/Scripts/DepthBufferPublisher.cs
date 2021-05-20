@@ -47,7 +47,7 @@ namespace RosSharp.RosBridgeClient
 
             if (depthGetter != null)
             {
-                kernelHandle = depthGetter.FindKernel("GetDepth");
+                kernelHandle = depthGetter.FindKernel("ParseTexture");
             }
             else
             {

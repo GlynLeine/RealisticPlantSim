@@ -11,11 +11,14 @@ namespace FFmpegOut
     [CustomEditor(typeof(CameraCapture))]
     public class CameraCaptureEditor : Editor
     {
-        SerializedProperty _width;
-        SerializedProperty _height;
+        SerializedProperty _colorStreamWidth;
+        SerializedProperty _colorStreamHeight;
+        SerializedProperty _depthStreamWidth;
+        SerializedProperty _depthStreamHeight;
         SerializedProperty _preset;
         SerializedProperty _frameRate;
-        SerializedProperty _streamURL;
+        SerializedProperty _colorStreamURL;
+        SerializedProperty _depthStreamURL;
         SerializedProperty _crfValue;
         SerializedProperty _maxBitrate;
 
@@ -37,11 +40,14 @@ namespace FFmpegOut
 
         void OnEnable()
         {
-            _width = serializedObject.FindProperty("_width");
-            _height = serializedObject.FindProperty("_height");
+            _colorStreamWidth = serializedObject.FindProperty("_colorStreamWidth");
+            _colorStreamHeight = serializedObject.FindProperty("_colorStreamHeight");
+            _depthStreamWidth = serializedObject.FindProperty("_depthStreamWidth");
+            _depthStreamHeight = serializedObject.FindProperty("_depthStreamHeight");
             _preset = serializedObject.FindProperty("_preset");
             _frameRate = serializedObject.FindProperty("_frameRate");
-            _streamURL = serializedObject.FindProperty("_streamURL");
+            _colorStreamURL = serializedObject.FindProperty("_colorStreamURL");
+            _depthStreamURL = serializedObject.FindProperty("_depthStreamURL");
             _crfValue = serializedObject.FindProperty("_crfValue");
             _maxBitrate = serializedObject.FindProperty("_maxBitrate");
 
@@ -59,13 +65,16 @@ namespace FFmpegOut
 
             if (ShouldShowFormatOptions)
             {
-                EditorGUILayout.PropertyField(_width);
-                EditorGUILayout.PropertyField(_height);
+                EditorGUILayout.PropertyField(_colorStreamWidth);
+                EditorGUILayout.PropertyField(_colorStreamHeight);
+                EditorGUILayout.PropertyField(_depthStreamWidth);
+                EditorGUILayout.PropertyField(_depthStreamHeight);
             }
 
             EditorGUILayout.IntPopup(_preset, _presetLabels, _presetOptions);
             EditorGUILayout.PropertyField(_frameRate);
-            EditorGUILayout.PropertyField(_streamURL);
+            EditorGUILayout.PropertyField(_colorStreamURL);
+            EditorGUILayout.PropertyField(_depthStreamURL);
             EditorGUILayout.PropertyField(_crfValue, new GUIContent("CRF Value (0-51) higher is lower quality"));
             EditorGUILayout.PropertyField(_maxBitrate, new GUIContent("Max bitrate (Kbps)"));
 
