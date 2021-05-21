@@ -2,6 +2,7 @@ using System;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [CanEditMultipleObjects]
 [CustomEditor(typeof(TerrainUtility))]
@@ -96,9 +97,10 @@ public class TerrainUtilityEditor : Editor
 
         if (GUILayout.Button("Delete plants"))
         {
-            EditorSceneManager.MarkAllScenesDirty();
             plantGenerator.deleteAllPlants();
-
+            EditorSceneManager.MarkAllScenesDirty();
+            Scene scene = EditorSceneManager.GetActiveScene();
+            EditorSceneManager.SaveScene(scene);
         }
 
         GUILayout.EndHorizontal();
