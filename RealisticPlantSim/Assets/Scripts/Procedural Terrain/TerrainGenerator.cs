@@ -235,7 +235,7 @@ public class TerrainChunk
                 heightMapTexture.SetPixel(x, y, color);
             }
         }
-        heightMapTexture.wrapMode = TextureWrapMode.Clamp;
+        heightMapTexture.wrapMode = TextureWrapMode.Repeat;
         heightMapTexture.Apply();
         return heightMapTexture;
     }
