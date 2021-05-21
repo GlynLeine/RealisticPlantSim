@@ -10,6 +10,7 @@ public class TerrainGenerator : MonoBehaviour
     public int textureWidth = 256;
     public int textureHeight = 256;
     public Material terrainMaterial;
+    public Texture2D baseHeightTexture;
     public float terrainWidth, terrainLength;
 
     public float maximumChunkSize = 5f;
@@ -85,6 +86,7 @@ public class TerrainGenerator : MonoBehaviour
 public class TerrainChunk
 {
     public Texture2D heightMap;
+    public Texture2D normalMap;
     public float gridXpos;
     public float gridYPos;
     public GameObject chunkObject;
@@ -95,6 +97,7 @@ public class TerrainChunk
         this.gridXpos = position.x;
         this.gridYPos = position.y;
         this.heightMap = CreateHeightmap(index.x,index.y);
+        this.normalMap = this.heightMap.CreateNormal(10f);
         chunkObject = createTerrain(size.x,size.y);
         this.SetActive(true);
     }
@@ -114,6 +117,7 @@ public class TerrainChunk
         Material chunkMaterial = new Material(TerrainGenerator.instance.terrainMaterial);
         //chunkMaterial.SetTexture("_BaseColorMap", this.heightMap);
         chunkMaterial.SetTexture("_HeightMap", this.heightMap);
+        chunkMaterial.SetTexture("_NormalMap", this.normalMap);
 
 
         plane.GetComponent<Renderer>().material = chunkMaterial;
@@ -230,15 +234,89 @@ public class TerrainChunk
                     float sin = TerrainGenerator.instance.sinAmplitude * Mathf.Sin(TerrainGenerator.instance.sinPeriod * (x + offsetX));
                     value = Mathf.Clamp(sin + (value * TerrainGenerator.instance.perlinNoiseWeight), 0, int.MaxValue);
                 }
-
                 Color color = new Color(value, value, value);
                 heightMapTexture.SetPixel(x, y, color);
             }
         }
-        heightMapTexture.wrapMode = TextureWrapMode.Repeat;
+
+        TextureScale.Bilinear(heightMapTexture,TerrainGenerator.instance.baseHeightTexture.width, TerrainGenerator.instance.baseHeightTexture.height);
         heightMapTexture.Apply();
-        return heightMapTexture;
+        Texture2D blended = heightMapTexture.Blend(TerrainGenerator.instance.baseHeightTexture, .5);
+
+        blended.wrapMode = TextureWrapMode.Clamp;
+        blended.Apply();
+        return blended;
     }
+
+   
 }
 
+public static class ColorUtils
+{
+    public static Texture2D Blend(this Texture2D texture, Texture2D otherTexture, double amount)
+    {
+        if (texture.width != otherTexture.width && texture.height != otherTexture.height)
+        {
+            throw new System.Exception("Function requires both textures to be the same width and height");
+        }
+        Texture2D blendedTexture = new Texture2D(texture.width, texture.height);
+        for (int x = 0; x < TerrainGenerator.instance.baseHeightTexture.width; x++)
+        {
+            for (int y = 0; y < TerrainGenerator.instance.baseHeightTexture.height; y++)
+            {
+                blendedTexture.SetPixel(x, y, texture.GetPixel(x, y).Blend(otherTexture.GetPixel(x, y), amount));
+            }
+        }
+        blendedTexture.Apply();
+        blendedTexture.wrapMode = TextureWrapMode.Clamp;
+        return blendedTexture;
+    }
+    public static Color brighten(this Color color, float amount)
+    {
+        float H, S, V;
+        Color.RGBToHSV(color, out H, out S, out V);
+        return Color.HSVToRGB(amount, S, V);
+    }
+    public static Color Blend(this Color color, Color backColor, double amount)
+    {
+        float r = (float)((color.r * amount) + backColor.r * (1 - amount));
+        float g = (float)((color.g * amount) + backColor.g * (1 - amount));
+        float b = (float)((color.b * amount) + backColor.b * (1 - amount));
+        return new Color(r, g, b, 1.0f);
+    }
+
+    public static Texture2D CreateNormal(this Texture2D source, float strength)
+    {
+        strength = Mathf.Clamp(strength, 0.0F, 10.0F);
+
+        Texture2D result;
+
+        float xLeft;
+        float xRight;
+        float yUp;
+        float yDown;
+        float yDelta;
+        float xDelta;
+
+        result = new Texture2D(source.width, source.height, TextureFormat.ARGB32, true);
+
+        for (int by = 0; by < result.height+1; by++)
+        {
+            for (int bx = 0; bx < result.width+1; bx++)
+            {
+                xLeft = source.GetPixel(bx - 1, by).grayscale * strength;
+                xRight = source.GetPixel(bx + 1, by).grayscale * strength;
+                yUp = source.GetPixel(bx, by - 1).grayscale * strength;
+                yDown = source.GetPixel(bx, by + 1).grayscale * strength;
+                xDelta = ((xLeft - xRight) + 1) * 0.5f;
+                yDelta = ((yUp - yDown) + 1) * 0.5f;
+                result.SetPixel(bx, by, new Color(xDelta, yDelta, 1.0f, yDelta));
+            }
+        }
+        result.Apply();
+        result.wrapMode = TextureWrapMode.Clamp;
+
+        return result;
+    }
+}
 

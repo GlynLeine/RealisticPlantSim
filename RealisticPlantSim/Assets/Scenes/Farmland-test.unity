@@ -6373,13 +6373,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 217547657}
-  m_LocalRotation: {x: 0.53433233, y: -0.215612, z: 0.14317389, w: 0.804675}
+  m_LocalRotation: {x: 0.8374407, y: 0.17467321, z: 0.4080348, w: 0.3188885}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 67.171, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 23.051, y: 120.256, z: 143.076}
 --- !u!114 &217547660
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7006,8 +7006,9 @@ MonoBehaviour:
   textureWidth: 256
   textureHeight: 256
   terrainMaterial: {fileID: 2100000, guid: 49ca66d256cf09c4d963ed5b61309c51, type: 2}
-  terrainWidth: 61
-  terrainLength: 61
+  baseHeightTexture: {fileID: 2800000, guid: ff60ff54191dd1049a297f1383c1b04e, type: 3}
+  terrainWidth: 20
+  terrainLength: 20
   maximumChunkSize: 5
   noiseScale: 22.8
   Seed: 1234
@@ -7019,8 +7020,8 @@ MonoBehaviour:
   xOffset: 0
   yOffset: 0
   includeSineWave: 1
-  sinAmplitude: 0.3
-  sinPeriod: 0.15
+  sinAmplitude: 0.6
+  sinPeriod: 0.1
   perlinNoiseWeight: 0.3
 --- !u!4 &429488306
 Transform:
@@ -7061,11 +7062,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 516f070ae6ebb2643bb87a5e470e367d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xMinVal: -30.5
-  zMinVal: -30.5
-  xMaxVal: 30.5
-  zMaxVal: 30.5
-  amountOfPlantsToSpawn: 3721
+  xMinVal: -10
+  zMinVal: -10
+  xMaxVal: 10
+  zMaxVal: 10
+  amountOfPlantsToSpawn: 400
   currentPlant: 6400
   generatingPlants: 0
   plantSpawnSettings:
@@ -8346,7 +8347,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ef53e798d3b44d249b08596c3efdd227, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.49
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ef53e798d3b44d249b08596c3efdd227, type: 3}
       propertyPath: m_LocalPosition.y
