@@ -25,10 +25,6 @@ public class DefaultRandomPlacement : AbstractPlacementStrategy
 
     public override void OnInspectorGUI()
     {
-        if (GUILayout.Button("Test"))
-        {
-            Debug.Log("Damn it works!");
-        }
     }
 
 }

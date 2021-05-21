@@ -1,5 +1,6 @@
 using System;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 [CanEditMultipleObjects]
@@ -95,7 +96,9 @@ public class TerrainUtilityEditor : Editor
 
         if (GUILayout.Button("Delete plants"))
         {
+            EditorSceneManager.MarkAllScenesDirty();
             plantGenerator.deleteAllPlants();
+
         }
 
         GUILayout.EndHorizontal();
