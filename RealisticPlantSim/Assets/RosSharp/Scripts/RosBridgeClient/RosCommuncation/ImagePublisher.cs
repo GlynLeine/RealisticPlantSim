@@ -44,15 +44,10 @@ namespace RosSharp.RosBridgeClient
 
         private void InitializeGameObject()
         {
-            for (int i = 1; i <= 74; i++)
-            {
-                Debug.Log("Support format: " + i + "?" + SystemInfo.IsFormatSupported((UnityEngine.Experimental.Rendering.GraphicsFormat)i, UnityEngine.Experimental.Rendering.FormatUsage.ReadPixels));
-            }
-            //Debug.LogError("We stopping");
-            texture2D = new Texture2D(resolutionWidth, resolutionHeight, (TextureFormat)21, false);
-            //ImageCamera.targetTexture = new RenderTexture(resolutionWidth,resolutionHeight,24);
-            ImageCamera.targetTexture.width = resolutionWidth;
-            ImageCamera.targetTexture.height = resolutionHeight;
+            texture2D = new Texture2D(resolutionWidth, resolutionHeight, TextureFormat.RGB24, false);
+            ImageCamera.targetTexture = new RenderTexture(resolutionWidth,resolutionHeight,24);
+            //ImageCamera.targetTexture.width = resolutionWidth;
+            //ImageCamera.targetTexture.height = resolutionHeight;
             rect = ImageCamera.rect;
         }
 
@@ -76,7 +71,6 @@ namespace RosSharp.RosBridgeClient
             if (texture2D != null && camera == this.ImageCamera)
             {
                 UpdateMessage();
-                
             }
         }
 
