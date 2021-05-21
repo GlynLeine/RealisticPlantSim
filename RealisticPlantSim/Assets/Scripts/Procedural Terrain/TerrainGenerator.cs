@@ -12,6 +12,8 @@ public class TerrainGenerator : MonoBehaviour
     public Material terrainMaterial;
     public float terrainWidth, terrainLength;
 
+    public float maximumChunkSize = 5f;
+
     [Header("noise settings")]
     [Range(0,100)]
     public float noiseScale = 1f;
@@ -36,8 +38,30 @@ public class TerrainGenerator : MonoBehaviour
     {
         if(transform.Find("Terrain") == null)
         {
-            TerrainChunk newChunk = new TerrainChunk(position: new Vector2(0, 0), size: new Vector2(terrainWidth, terrainLength));
-            newChunk.chunkObject.transform.SetParent(transform);
+            GameObject terrain = new GameObject("Terrain");
+            terrain.transform.SetParent(transform);
+            float tileLengthLeft = terrainLength;
+            int y = 0;
+            while (tileLengthLeft > 0)
+            {
+                float tileLength = tileLengthLeft < maximumChunkSize ? tileLengthLeft : maximumChunkSize;
+
+                float tileWidthLeft = terrainWidth;
+                int x = 0;
+                while (tileWidthLeft > 0)
+                {
+                    float tileWidth = tileWidthLeft < maximumChunkSize ? tileWidthLeft : maximumChunkSize;
+
+                    TerrainChunk newChunk = new TerrainChunk(position: new Vector2(tileWidthLeft-(terrainWidth/2)+(0.5f*(maximumChunkSize-tileWidth)), tileLengthLeft-(terrainLength/2)+(0.5f*(maximumChunkSize-tileLength))), size: new Vector2(tileWidth, tileLength),index: new Vector2(x,y));
+                    newChunk.chunkObject.transform.SetParent(terrain.transform);
+
+                    x++;
+                    tileWidthLeft -= maximumChunkSize;
+                }
+                y++;
+                tileLengthLeft -= maximumChunkSize;
+            }
+            
         } else
         {
             deleteTerrain();
@@ -65,11 +89,12 @@ public class TerrainChunk
     public float gridYPos;
     public GameObject chunkObject;
 
-    public TerrainChunk(Vector2 position, Vector2 size)
+    public TerrainChunk(Vector2 position, Vector2 size, Vector2 index)
     {
+
         this.gridXpos = position.x;
         this.gridYPos = position.y;
-        this.heightMap = CreateHeightmap(position.x,position.y);
+        this.heightMap = CreateHeightmap(index.x,index.y);
         chunkObject = createTerrain(size.x,size.y);
         this.SetActive(true);
     }
@@ -81,7 +106,7 @@ public class TerrainChunk
 
     public GameObject createTerrain(float width, float height)
     {
-        GameObject plane = new GameObject("Terrain");
+        GameObject plane = new GameObject("Chunk");
         plane.AddComponent<MeshFilter>().mesh = CreateTerrainMesh(width, height);
         plane.AddComponent<MeshRenderer>();
         plane.transform.position = new Vector3(gridXpos, 0, gridYPos);
@@ -102,18 +127,27 @@ public class TerrainChunk
         float halfHeight = height / 2;
 
         Mesh m = new Mesh();
-        m.name = "TerrainMesh";
+        m.name = "chunk mesh";
         m.vertices = new Vector3[] {
          new Vector3(-halfWidth, 0.01f,-halfHeight),
          new Vector3(halfWidth, 0.01f,-halfHeight),
          new Vector3(halfWidth, 0.01f, halfHeight),
          new Vector3(-halfWidth, 0.01f, halfHeight)
         };
+
+        Vector2 uvScaled = new Vector2(width / TerrainGenerator.instance.maximumChunkSize, height / TerrainGenerator.instance.maximumChunkSize);
+
         m.uv = new Vector2[] {
-         new Vector2 (0, 0),
-         new Vector2 (0, 1),
-         new Vector2(1, 1),
-         new Vector2 (1, 0)
+         new Vector2 (1f-uvScaled.x, 0f),
+         new Vector2 (1f, 0f),
+         new Vector2(1f, uvScaled.y ),
+         new Vector2 (1f-uvScaled.x, uvScaled.y)
+
+
+         //new Vector2 (1f-uvScaled.x, 0f),
+         //new Vector2 (uvScaled.x, 0f),
+         //new Vector2(uvScaled.x, uvScaled.y ),
+         //new Vector2 (1f-uvScaled.x, uvScaled.y)
         };
         m.triangles = new int[] { 2, 1, 0, 0, 3, 2 };
         m.RecalculateNormals();
