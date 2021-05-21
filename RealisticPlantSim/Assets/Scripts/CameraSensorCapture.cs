@@ -41,8 +41,6 @@ public class CameraSensorCapture : CameraCapture
 
     private void Update()
     {
-        //Debug.Log("Calls");
-
         outputColor.enableRandomWrite = true;
         outputColor.Create();
 
@@ -50,11 +48,13 @@ public class CameraSensorCapture : CameraCapture
         outputDepth.Create();
 
         FrameParser();
+
         PushToPipe(outputColor, colorStreamURL, colorStreamWidth, colorStreamHeight);
         colorOutput.texture = outputColor;
         colorOutput.Rebuild(CanvasUpdate.MaxUpdateValue);
     }
-    private void FixedUpdate()
+
+    private void LateUpdate()
     {
         PushToPipe(outputDepth, depthStreamURL, depthStreamWidth, depthStreamHeight);
         depthOutput.texture = outputDepth;
