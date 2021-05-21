@@ -61,7 +61,7 @@ namespace FFmpegOut
             set { _frameRate = value; }
         }
 
-        public Dictionary<string, FFmpegSession> sessions;
+        private Dictionary<string, FFmpegSession> sessions = new Dictionary<string, FFmpegSession>();
 
         [SerializeField] string _colorStreamURL = "rtsp://localhost:8554/mystream";
         [SerializeField] string _depthStreamURL = "rtsp://localhost:8554/mystream";
@@ -97,8 +97,6 @@ namespace FFmpegOut
         #endregion
 
         #region Private members
-
-        FFmpegSession _session;
         RenderTexture _tempRT;
         GameObject _blitter;
 
@@ -151,12 +149,19 @@ namespace FFmpegOut
 
         void OnDisable()
         {
-            if (_session != null)
+            if (sessions[colorStreamURL] != null)
             {
                 // Close and dispose the FFmpeg session.
-                _session.Close();
-                _session.Dispose();
-                _session = null;
+                sessions[colorStreamURL].Close();
+                sessions[colorStreamURL].Dispose();
+                sessions[colorStreamURL] = null;
+            }
+            if (sessions[depthStreamURL] != null)
+            {
+                // Close and dispose the FFmpeg session.
+                sessions[depthStreamURL].Close();
+                sessions[depthStreamURL].Dispose();
+                sessions[depthStreamURL] = null;
             }
 
             if (_tempRT != null)
@@ -177,20 +182,32 @@ namespace FFmpegOut
 
         IEnumerator Start()
         {
+            sessions[colorStreamURL] = null;
+            sessions[depthStreamURL] = null;
             // Sync with FFmpeg pipe thread at the end of every frame.
             for (var eof = new WaitForEndOfFrame(); ;)
             {
                 yield return eof;
-                _session?.CompletePushFrames();
+                if (sessions[colorStreamURL]!=null)
+                    sessions[colorStreamURL].CompletePushFrames();
+                else
+                     Debug.LogWarning("Color Stream Session is not Initialized");
+
+                if (sessions[depthStreamURL]!=null)
+                    sessions[depthStreamURL].CompletePushFrames();
+                else
+                    Debug.LogWarning("Depth Stream Session is not Inialized");
             }
         }
 
-        protected void PushToPipe(Texture texture,string url,int width,int height)
+        protected void PushToPipe(Texture texture, string url, int width, int height)
         {
+            var _session = sessions[url];
             RTSPServerLoader.GetInstance();
             // Lazy initialization
             if (_session == null)
             {
+                Debug.Log("Creating Session: "+url);
                 // Give a newly created temporary render texture to the camera
                 // if it's set to render to a screen. Also create a blitter
                 // object to keep frames presented on the screen.
@@ -200,7 +217,7 @@ namespace FFmpegOut
                 }
 
                 // Start an FFmpeg session.
-                _session = FFmpegSession.Create(
+                sessions[url] = FFmpegSession.Create(
                     url,
                     width,
                     height,
@@ -208,6 +225,7 @@ namespace FFmpegOut
                     _crfValue,
                     _maxBitrate
                 );
+                _session = sessions[url];
 
                 _startTime = Time.time;
                 _frameCount = 0;
