@@ -21,6 +21,9 @@ namespace RosSharp.RosBridgeClient
     [RequireComponent(typeof(RosConnector))]
     public abstract class UnitySubscriber<T> : MonoBehaviour where T: Message
     {
+        public delegate void SubscriberCallback(T msg);
+        public static SubscriberCallback SubCallback;
+
         public string Topic;
         public float TimeStep;
 

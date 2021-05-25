@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Garden_ECS-RTX.unity
+    path: Assets/Scenes/Garden_ECS-RTX.unity
     guid: f554b50cccc2f084f84a90ac8f6dfd50
   m_configObjects: {}

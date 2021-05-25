@@ -15,11 +15,15 @@ limitations under the License.
 
 using UnityEngine;
 
+
 namespace RosSharp.RosBridgeClient
 {
     [RequireComponent(typeof(RosConnector))]
     public abstract class UnityPublisher<T> : MonoBehaviour where T : Message
     {
+        public delegate void PublisherCallback(T msg);
+        public static PublisherCallback PubCallback;
+
         public string Topic;
         private string publicationId;
 

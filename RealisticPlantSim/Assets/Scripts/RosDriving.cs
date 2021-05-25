@@ -35,6 +35,8 @@ public class RosDriving : MonoBehaviour
 
     private void updateTargetPos(geom_msgs.Vector3 msg)
     {
+        Debug.Log("Updated Pos");
+        targetPos = new Vector3((float)msg.x, transform.position.y, (float)msg.z);
         //im sanitizing the target position so we don't get any weird vertical movement
         if (rotateFirst)
         {
@@ -47,7 +49,7 @@ public class RosDriving : MonoBehaviour
         {
             move = true;
         }
-        targetPos = new Vector3((float)msg.x,transform.position.y,(float)msg.z);
+
     }
 
     void MoveToPoint()
@@ -58,12 +60,13 @@ public class RosDriving : MonoBehaviour
         {
             RotateToTarget();
         }
-        Debug.Log("Target Direction: "+targetDirection);
+        //Debug.Log("Target Direction: "+targetDirection);
 
         //move towards the target
         if (move)
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveStep);//moves at 1 unit intervals
+            //Debug.Log("I am being called");
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveStep);//moves at movestep unit intervals
         }
 
         //stop if we get close enough to the target position
@@ -74,7 +77,7 @@ public class RosDriving : MonoBehaviour
             transform.position = targetPos;
 
             //this is purely a callback to request a new position
-            //PositionPublisher.PubCallback();
+            PositionPublisher.PubCallback(new geom_msgs.Vector3(transform.position.x, transform.position.y, transform.position.z));
         }
     }
 
