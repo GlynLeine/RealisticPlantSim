@@ -70,7 +70,7 @@ public class PlantGenerator : MonoBehaviour
         {
             AbstractPlacementStrategy placementStrategy;
 
-            if (spawnSetting.placementStrategy is AbstractPlacementStrategy)
+            if (spawnSetting.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
             {
                 placementStrategy = Activator.CreateInstance(spawnSetting.placementStrategy.GetClass()) as AbstractPlacementStrategy;
             }
@@ -101,7 +101,7 @@ public class PlantGenerator : MonoBehaviour
 
             AbstractPlacementStrategy placementStrategy;
 
-            if (spawnSettings.placementStrategy is AbstractPlacementStrategy)
+            if (spawnSettings.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
             {
                 placementStrategy = Activator.CreateInstance(spawnSettings.placementStrategy.GetClass()) as AbstractPlacementStrategy;
             } else
@@ -136,7 +136,7 @@ public class PlantGenerator : MonoBehaviour
         {
             AbstractPlacementStrategy placementStrategy;
 
-            if (spawnSetting.placementStrategy is AbstractPlacementStrategy)
+            if (spawnSetting.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
             {
                 placementStrategy = Activator.CreateInstance(spawnSetting.placementStrategy.GetClass()) as AbstractPlacementStrategy;
             }

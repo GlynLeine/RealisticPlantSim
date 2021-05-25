@@ -14,9 +14,6 @@ public class PlantGeneratorEditor : Editor
     SerializedProperty _zMaxVal;
     SerializedProperty _amountOfPlantsToSpawn;
 
-
-
-
     void OnEnable()
     {
         _plantSpawnSettings = serializedObject.FindProperty("plantSpawnSettings");
@@ -38,7 +35,7 @@ public class PlantGeneratorEditor : Editor
         foreach(PlantSpawnSettings spawnSetting in plantGenerator.plantSpawnSettings)
         {
             AbstractPlacementStrategy placementStrategy;
-            if (spawnSetting.placementStrategy is AbstractPlacementStrategy)
+            if (spawnSetting.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
             {
                 placementStrategy = Activator.CreateInstance(spawnSetting.placementStrategy.GetClass()) as AbstractPlacementStrategy;
             }
@@ -75,12 +72,7 @@ public class PlantGeneratorEditor : Editor
             plantGenerator.deleteAllPlants();
         }
 
-
-
         serializedObject.ApplyModifiedProperties();
-
-
-
 
     }
 }
