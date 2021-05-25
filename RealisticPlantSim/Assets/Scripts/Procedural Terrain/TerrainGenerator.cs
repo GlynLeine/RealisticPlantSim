@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
+
+using Debug = UnityEngine.Debug;
 
 public class TerrainGenerator : MonoBehaviour
 {
@@ -16,7 +19,7 @@ public class TerrainGenerator : MonoBehaviour
     public float maximumChunkSize = 5f;
 
     [Header("noise settings")]
-    [Range(0,100)]
+    [Range(0, 100)]
     public float noiseScale = 1f;
 
 
@@ -37,8 +40,11 @@ public class TerrainGenerator : MonoBehaviour
 
     public void buildTerrain()
     {
-        if(transform.Find("Terrain") == null)
+        if (transform.Find("Terrain") == null)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             GameObject terrain = new GameObject("Terrain");
             terrain.transform.SetParent(transform);
             float tileLengthLeft = terrainLength;
@@ -53,7 +59,7 @@ public class TerrainGenerator : MonoBehaviour
                 {
                     float tileWidth = tileWidthLeft < maximumChunkSize ? tileWidthLeft : maximumChunkSize;
 
-                    TerrainChunk newChunk = new TerrainChunk(position: new Vector2(tileWidthLeft-(terrainWidth/2)+(0.5f*(maximumChunkSize-tileWidth)), tileLengthLeft-(terrainLength/2)+(0.5f*(maximumChunkSize-tileLength))), size: new Vector2(tileWidth, tileLength),index: new Vector2(x,y));
+                    TerrainChunk newChunk = new TerrainChunk(position: new Vector2(tileWidthLeft - (terrainWidth / 2) + (0.5f * (maximumChunkSize - tileWidth)), tileLengthLeft - (terrainLength / 2) + (0.5f * (maximumChunkSize - tileLength))), size: new Vector2(tileWidth, tileLength), index: new Vector2(x, y));
                     newChunk.chunkObject.transform.SetParent(terrain.transform);
 
                     x++;
@@ -62,8 +68,10 @@ public class TerrainGenerator : MonoBehaviour
                 y++;
                 tileLengthLeft -= maximumChunkSize;
             }
-            
-        } else
+
+            Debug.Log("Total: " + stopwatch.Elapsed.TotalSeconds.ToString());
+        }
+        else
         {
             deleteTerrain();
             buildTerrain();
@@ -73,10 +81,11 @@ public class TerrainGenerator : MonoBehaviour
     public void deleteTerrain()
     {
         Transform terrain = transform.Find("Terrain");
-        if(terrain != null)
+        if (terrain != null)
         {
             DestroyImmediate(terrain.gameObject);
-        } else
+        }
+        else
         {
             Debug.LogError("[TerrainGenerator] There is no terrain to delete!");
         }
@@ -96,9 +105,9 @@ public class TerrainChunk
 
         this.gridXpos = position.x;
         this.gridYPos = position.y;
-        this.heightMap = CreateHeightmap(index.x,index.y);
+        this.heightMap = CreateHeightmap(index.x, index.y);
         this.normalMap = this.heightMap.CreateNormal(10f);
-        chunkObject = createTerrain(size.x,size.y);
+        chunkObject = createTerrain(size.x, size.y);
         this.SetActive(true);
     }
 
@@ -109,6 +118,9 @@ public class TerrainChunk
 
     public GameObject createTerrain(float width, float height)
     {
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+
         GameObject plane = new GameObject("Chunk");
         plane.AddComponent<MeshFilter>().mesh = CreateTerrainMesh(width, height);
         plane.AddComponent<MeshRenderer>();
@@ -122,6 +134,7 @@ public class TerrainChunk
 
         plane.GetComponent<Renderer>().material = chunkMaterial;
 
+        Debug.Log("terrain: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return plane;
     }
 
@@ -166,6 +179,9 @@ public class TerrainChunk
     /// <param name="gridY"></param>
     public Texture2D CreateHeightmap(float gridX, float gridY)
     {
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+
         Texture2D heightMapTexture = new Texture2D(TerrainGenerator.instance.textureWidth, TerrainGenerator.instance.textureHeight);
         Vector2[] octaveOffsets = new Vector2[TerrainGenerator.instance.PerlinOctaves];
 
@@ -239,44 +255,75 @@ public class TerrainChunk
             }
         }
 
-        TextureScale.Bilinear(heightMapTexture,TerrainGenerator.instance.baseHeightTexture.width, TerrainGenerator.instance.baseHeightTexture.height);
+        TextureScale.Bilinear(heightMapTexture, TerrainGenerator.instance.baseHeightTexture.width, TerrainGenerator.instance.baseHeightTexture.height);
         heightMapTexture.Apply();
-        Texture2D blended = heightMapTexture.Blend(TerrainGenerator.instance.baseHeightTexture, .5);
+        double time;
+        Texture2D blended = heightMapTexture.Blend(TerrainGenerator.instance.baseHeightTexture, .5f, out time);
 
         blended.wrapMode = TextureWrapMode.Clamp;
         blended.Apply();
+
+        Debug.Log("height tex: " + (stopwatch.Elapsed.TotalSeconds - time).ToString());
         return blended;
     }
 
-   
+
 }
 
 public static class ColorUtils
 {
-    public static Texture2D Blend(this Texture2D texture, Texture2D otherTexture, double amount)
+    struct Vector3Uint
     {
-        if (texture.width != otherTexture.width && texture.height != otherTexture.height)
+        public uint x, y, z;
+    };
+
+    static ComputeShader m_blendShader;
+    static int m_blendKernel;
+    static Vector3Uint m_blendGlobal;
+
+    public static Texture2D Blend(this Texture2D texture, Texture2D otherTexture, float amount, out double time)
+    {
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        if (!m_blendShader)
         {
-            throw new System.Exception("Function requires both textures to be the same width and height");
-        }
-        Texture2D blendedTexture = new Texture2D(texture.width, texture.height);
-        for (int x = 0; x < TerrainGenerator.instance.baseHeightTexture.width; x++)
-        {
-            for (int y = 0; y < TerrainGenerator.instance.baseHeightTexture.height; y++)
+            m_blendShader = Resources.Load<ComputeShader>("Compute/Blend");
+            if (!m_blendShader)
             {
-                blendedTexture.SetPixel(x, y, texture.GetPixel(x, y).Blend(otherTexture.GetPixel(x, y), amount));
+                Debug.LogError("Could not load blend compute shader.");
+                time = stopwatch.Elapsed.TotalSeconds;
+                return null;
             }
+
+            m_blendKernel = m_blendShader.FindKernel("CSBlend");
+            m_blendShader.GetKernelThreadGroupSizes(m_blendKernel, out m_blendGlobal.x,  out m_blendGlobal.y, out m_blendGlobal.z);
         }
-        blendedTexture.Apply();
-        blendedTexture.wrapMode = TextureWrapMode.Clamp;
-        return blendedTexture;
+
+        m_blendShader.SetFloat("strength", amount);
+
+        Texture2D result = new Texture2D(texture.width, texture.height, texture.format, false);
+
+        m_blendShader.SetTexture(m_blendKernel, "target", result);
+        m_blendShader.SetTexture(m_blendKernel, "sourceA", texture);
+        m_blendShader.SetTexture(m_blendKernel, "sourceB", otherTexture);
+
+        Vector3Int dispatchGroupSize = new Vector3Int(texture.width / (int)m_blendGlobal.x, texture.height / (int)m_blendGlobal.y, 1);
+        m_blendShader.Dispatch(m_blendKernel, dispatchGroupSize.x, dispatchGroupSize.y, dispatchGroupSize.z);
+
+        result.filterMode = texture.filterMode;
+        result.anisoLevel = texture.anisoLevel;
+        result.wrapModeU = texture.wrapModeU;
+        result.wrapModeV = texture.wrapModeV;
+        result.wrapModeW = texture.wrapModeW;
+
+        result.Apply(texture.mipmapCount > 1, !texture.isReadable);
+
+        time = stopwatch.Elapsed.TotalSeconds;
+        Debug.Log("blend tex: " + time.ToString());
+        return result;
     }
-    public static Color brighten(this Color color, float amount)
-    {
-        float H, S, V;
-        Color.RGBToHSV(color, out H, out S, out V);
-        return Color.HSVToRGB(amount, S, V);
-    }
+
     public static Color Blend(this Color color, Color backColor, double amount)
     {
         float r = (float)((color.r * amount) + backColor.r * (1 - amount));
@@ -287,6 +334,8 @@ public static class ColorUtils
 
     public static Texture2D CreateNormal(this Texture2D source, float strength)
     {
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
         strength = Mathf.Clamp(strength, 0.0F, 10.0F);
 
         Texture2D result;
@@ -300,9 +349,9 @@ public static class ColorUtils
 
         result = new Texture2D(source.width, source.height, TextureFormat.ARGB32, true);
 
-        for (int by = 0; by < result.height+1; by++)
+        for (int by = 0; by < result.height + 1; by++)
         {
-            for (int bx = 0; bx < result.width+1; bx++)
+            for (int bx = 0; bx < result.width + 1; bx++)
             {
                 xLeft = source.GetPixel(bx - 1, by).grayscale * strength;
                 xRight = source.GetPixel(bx + 1, by).grayscale * strength;
@@ -316,6 +365,7 @@ public static class ColorUtils
         result.Apply();
         result.wrapMode = TextureWrapMode.Clamp;
 
+        Debug.Log("normal tex: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return result;
     }
 }

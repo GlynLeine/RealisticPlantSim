@@ -1,0 +1,20 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSBlend
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> target;
+Texture2D<float4> sourceA;
+Texture2D<float4> sourceB;
+float strength;
+
+[numthreads(8,8,1)]
+void CSBlend(uint3 id : SV_DispatchThreadID)
+{
+    // get texture res
+    // discard if id is outside of res
+    // calculate uv from texel coord
+    // sample sources using uv and filtering
+    // interpolate
+    // write to target
+}
