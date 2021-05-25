@@ -1,8 +1,18 @@
 using UnityEngine;
 
-public class DefaultRandomPlacement : AbstractRandomPlacement
+public class DefaultRandomPlacement : AbstractPlacementStrategy
 {
-    public override Vector3 randomizePosition(PlantGenerator plantGenerator)
+    public override void OnGeneratorFinish(PlantGenerator plantGenerator)
+    {
+        Debug.Log("Stopping generator");
+    }
+
+    public override void OnGeneratorStart(PlantGenerator plantGenerator)
+    {
+        Debug.Log("Starting generator");
+    }
+
+    public override Vector3 RandomizePosition(PlantGenerator plantGenerator)
     {
 
         float randomXOffset = Random.Range(plantGenerator.xMinVal, plantGenerator.xMaxVal);
@@ -12,4 +22,9 @@ public class DefaultRandomPlacement : AbstractRandomPlacement
 
         return position;
     }
+
+    public override void OnInspectorGUI()
+    {
+    }
+
 }
