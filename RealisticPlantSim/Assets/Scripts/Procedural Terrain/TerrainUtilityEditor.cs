@@ -99,8 +99,6 @@ public class TerrainUtilityEditor : Editor
         {
             plantGenerator.deleteAllPlants();
             EditorSceneManager.MarkAllScenesDirty();
-            Scene scene = EditorSceneManager.GetActiveScene();
-            EditorSceneManager.SaveScene(scene);
         }
 
         GUILayout.EndHorizontal();

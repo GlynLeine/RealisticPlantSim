@@ -38,7 +38,7 @@ public class PlantGeneratorEditor : Editor
         foreach(PlantSpawnSettings spawnSetting in plantGenerator.plantSpawnSettings)
         {
             AbstractPlacementStrategy placementStrategy;
-            if (spawnSetting.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
+            if (spawnSetting.placementStrategy is AbstractPlacementStrategy)
             {
                 placementStrategy = Activator.CreateInstance(spawnSetting.placementStrategy.GetClass()) as AbstractPlacementStrategy;
             }
