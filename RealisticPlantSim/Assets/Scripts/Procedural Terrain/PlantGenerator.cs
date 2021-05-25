@@ -36,7 +36,7 @@ public class PlantGenerator : MonoBehaviour
     public class PlantSpawnSettings
     {
         public GameObject mainHoudiniPlant;
-        public MonoScript randomPlacement;
+        public MonoScript placementStrategy;
         public List<PlantVariationSetting> randomizers;
     }
 
@@ -61,6 +61,24 @@ public class PlantGenerator : MonoBehaviour
 
     public IEnumerator spawnPlantsInXZRange()
     {
+        //First loop through all the PlantSpawnSettings to call the onGeneratorStart function.
+
+        foreach(PlantSpawnSettings spawnSetting in plantSpawnSettings)
+        {
+            AbstractPlacementStrategy placementStrategy;
+
+            if (spawnSetting.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
+            {
+                placementStrategy = Activator.CreateInstance(spawnSetting.placementStrategy.GetClass()) as AbstractPlacementStrategy;
+            }
+            else
+            {
+                throw new Exception($"[PlantGenerator] The Random Placement script on plant #{plantSpawnSettings.IndexOf(spawnSetting)} does not extend from AbstractPlacementStrategy!");
+            }
+            placementStrategy.OnGeneratorStart(this);
+        }
+
+
         generatingPlants = true;
         currentPlant = 0;
         Transform plantsHolder = transform.Find("Plants");
@@ -77,17 +95,17 @@ public class PlantGenerator : MonoBehaviour
 
             PlantSpawnSettings spawnSettings = plantSpawnSettings[randomPlantIndex];
 
-            AbstractRandomPlacement randomPlacement;
+            AbstractPlacementStrategy placementStrategy;
 
-            if (spawnSettings.randomPlacement.GetType().IsAssignableFrom(typeof(AbstractRandomPlacement)))
+            if (spawnSettings.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
             {
-                randomPlacement = Activator.CreateInstance(spawnSettings.randomPlacement.GetClass()) as AbstractRandomPlacement;
+                placementStrategy = Activator.CreateInstance(spawnSettings.placementStrategy.GetClass()) as AbstractPlacementStrategy;
             } else
             {
-                throw new Exception($"[PlantGenerator] The Random Placement script on plant #{randomPlantIndex} does not extend from AbstractRandomPlacement!");
+                throw new Exception($"[PlantGenerator] The Random Placement script on plant #{randomPlantIndex} does not extend from AbstractPlacementStrategy!");
             }
 
-            Vector3 position = randomPlacement.randomizePosition(this);
+            Vector3 position = placementStrategy.RandomizePosition(this);
 
 
             if (spawnSettings.mainHoudiniPlant == null)
@@ -107,6 +125,24 @@ public class PlantGenerator : MonoBehaviour
         }
         generatingPlants = false;
         plantsHolder.gameObject.SetActive(true);
+
+        //Call OnGeneratorFinish on every random placement script
+
+        foreach (PlantSpawnSettings spawnSetting in plantSpawnSettings)
+        {
+            AbstractPlacementStrategy placementStrategy;
+
+            if (spawnSetting.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
+            {
+                placementStrategy = Activator.CreateInstance(spawnSetting.placementStrategy.GetClass()) as AbstractPlacementStrategy;
+            }
+            else
+            {
+                throw new Exception($"[PlantGenerator] The Random Placement script on plant #{plantSpawnSettings.IndexOf(spawnSetting)} does not extend from AbstractPlacementStrategy!");
+            }
+            placementStrategy.OnGeneratorFinish(this);
+        }
+
 
         Debug.Log("[PlantGenerator] Plant generator finished!");
     }
