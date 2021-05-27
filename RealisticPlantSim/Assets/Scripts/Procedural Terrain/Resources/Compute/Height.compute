@@ -1,0 +1,8 @@
+#pragma kernel CSHeight
+
+RWTexture2D<float4> target;
+
+[numthreads(32, 32, 1)]
+void CSHeight(uint3 id : SV_DispatchThreadID)
+{
+}

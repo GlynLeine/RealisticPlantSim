@@ -14,6 +14,8 @@ public class TerrainGenerator : MonoBehaviour
     public int textureHeight = 256;
     public Material terrainMaterial;
     public Texture2D baseHeightTexture;
+    public Texture2D baseNormalTexture;
+    public float normalStrength = 3;
     public float terrainWidth, terrainLength;
 
     public float maximumChunkSize = 5f;
@@ -103,12 +105,15 @@ public class TerrainChunk
     public TerrainChunk(Vector2 position, Vector2 size, Vector2 index)
     {
 
-        this.gridXpos = position.x;
-        this.gridYPos = position.y;
-        this.heightMap = CreateHeightmap(index.x, index.y);
-        this.normalMap = this.heightMap.CreateNormal(10f);
+        gridXpos = position.x;
+        gridYPos = position.y;
+        heightMap = CreateHeightmap(index.x, index.y);
+        normalMap = heightMap.CreateNormal(TerrainGenerator.instance.normalStrength);
+
+        heightMap = heightMap.Blend(TerrainGenerator.instance.baseHeightTexture, 0.5f, true);
+        normalMap = normalMap.Blend(TerrainGenerator.instance.baseNormalTexture, 0.5f, true);
         chunkObject = createTerrain(size.x, size.y);
-        this.SetActive(true);
+        SetActive(true);
     }
 
     public void SetActive(bool value)
@@ -185,19 +190,18 @@ public class TerrainChunk
         Texture2D heightMapTexture = new Texture2D(TerrainGenerator.instance.textureWidth, TerrainGenerator.instance.textureHeight);
         Vector2[] octaveOffsets = new Vector2[TerrainGenerator.instance.PerlinOctaves];
 
-        float halfWidth = TerrainGenerator.instance.textureWidth / 2;
-        float halfHeight = TerrainGenerator.instance.textureHeight / 2;
+        float width = TerrainGenerator.instance.textureWidth;
+        float height = TerrainGenerator.instance.textureHeight;
 
-        // Set min / max
-        float maxNoiseHeight = float.MaxValue;
-        float minNoiseHeight = float.MinValue;
+        float chunkSize = TerrainGenerator.instance.maximumChunkSize;
+
         // Set Max Height for World
         float maxPossibleHeight = 0;
         float amplitude = TerrainGenerator.instance.PerlinBaseAmplitude;
 
         System.Random prng = new System.Random(TerrainGenerator.instance.Seed);
-        float offsetX = prng.Next(-100000, 100000) - TerrainGenerator.instance.xOffset - (TerrainGenerator.instance.textureWidth * gridX);
-        float offsetY = prng.Next(-100000, 100000) - TerrainGenerator.instance.yOffset - (TerrainGenerator.instance.textureHeight * gridY);
+        float offsetX = prng.Next(-100000, 100000) - TerrainGenerator.instance.xOffset - (chunkSize * gridX);
+        float offsetY = prng.Next(-100000, 100000) - TerrainGenerator.instance.yOffset - (chunkSize * gridY);
 
         //combine noises 
         for (int i = 0; i < TerrainGenerator.instance.PerlinOctaves; i++)
@@ -207,7 +211,6 @@ public class TerrainChunk
             maxPossibleHeight += amplitude;
             amplitude *= TerrainGenerator.instance.persistence;
         }
-
 
         //generate map for our tesselation shader on our chunk
         for (int x = 0; x < TerrainGenerator.instance.textureWidth; x++)
@@ -221,8 +224,8 @@ public class TerrainChunk
                 //perlin mapfrom combined octaves
                 for (int i = 0; i < TerrainGenerator.instance.PerlinOctaves; i++)
                 {
-                    float px = (float)(x - halfWidth + octaveOffsets[i].x) / TerrainGenerator.instance.PerlinScale * freq;
-                    float py = (float)(y - halfHeight + octaveOffsets[i].y) / TerrainGenerator.instance.PerlinScale * freq;
+                    float px = (float)((x / width) * chunkSize + octaveOffsets[i].x) / TerrainGenerator.instance.PerlinScale * freq;
+                    float py = (float)((y / height) * chunkSize + octaveOffsets[i].y) / TerrainGenerator.instance.PerlinScale * freq;
 
                     float PerlinValue = Mathf.PerlinNoise(px, py) * 2 - 1;
                     noiseHeight += PerlinValue * amplitude;
@@ -231,40 +234,30 @@ public class TerrainChunk
                     freq *= TerrainGenerator.instance.lacunarity;
                 }
 
-                if (noiseHeight > maxNoiseHeight)
-                {
-                    maxNoiseHeight = noiseHeight;
-                }
-                else if (noiseHeight < minNoiseHeight)
-                {
-                    minNoiseHeight = noiseHeight;
-                }
-
                 // Normalize Sample to fit world Sample Height
-                float normalizedHeight = (noiseHeight + 1) / (2f * maxPossibleHeight / 1.75f);
-                float value = Mathf.Clamp(normalizedHeight, 0, int.MaxValue);
+                float normalizedHeight = (noiseHeight + maxPossibleHeight) / (2f * maxPossibleHeight);
+                float value = Mathf.Clamp(normalizedHeight, 0, float.MaxValue);
 
                 if (TerrainGenerator.instance.includeSineWave)
                 {
                     //combining sine wave with perlin noise
-                    float sin = TerrainGenerator.instance.sinAmplitude * Mathf.Sin(TerrainGenerator.instance.sinPeriod * (x + offsetX));
-                    value = Mathf.Clamp(sin + (value * TerrainGenerator.instance.perlinNoiseWeight), 0, int.MaxValue);
+                    float sin = TerrainGenerator.instance.sinAmplitude * (Mathf.Sin(TerrainGenerator.instance.sinPeriod * ((x / width) * chunkSize + offsetX)) + 1f)/2f;
+
+                    float maxAmp = 1f + TerrainGenerator.instance.perlinNoiseWeight;
+
+                    value = Mathf.Clamp((sin + (value * TerrainGenerator.instance.perlinNoiseWeight)) / maxAmp, 0, float.MaxValue);
                 }
                 Color color = new Color(value, value, value);
                 heightMapTexture.SetPixel(x, y, color);
             }
         }
 
-        TextureScale.Bilinear(heightMapTexture, TerrainGenerator.instance.baseHeightTexture.width, TerrainGenerator.instance.baseHeightTexture.height);
-        heightMapTexture.Apply();
-        double time;
-        Texture2D blended = heightMapTexture.Blend(TerrainGenerator.instance.baseHeightTexture, .5f, out time);
+        heightMapTexture.filterMode = FilterMode.Bilinear;
+        heightMapTexture.wrapMode = TextureWrapMode.Clamp;
+        heightMapTexture.Apply(false, false);
 
-        blended.wrapMode = TextureWrapMode.Clamp;
-        blended.Apply();
-
-        Debug.Log("height tex: " + (stopwatch.Elapsed.TotalSeconds - time).ToString());
-        return blended;
+        Debug.Log("height tex: " + (stopwatch.Elapsed.TotalSeconds).ToString());
+        return heightMapTexture;
     }
 
 
@@ -275,13 +268,20 @@ public static class ColorUtils
     struct Vector3Uint
     {
         public uint x, y, z;
+        public Vector3Uint(uint x, uint y, uint z) { this.x = x; this.y = y; this.z = z; }
     };
 
     static ComputeShader m_blendShader;
     static int m_blendKernel;
     static Vector3Uint m_blendGlobal;
 
-    public static Texture2D Blend(this Texture2D texture, Texture2D otherTexture, float amount, out double time)
+    static ComputeShader m_normalShader;
+    static int m_normalKernel;
+    static int m_blurKernel;
+    static Vector3Uint m_normalGlobal;
+    static Vector3Uint m_blurGlobal;
+
+    public static Texture2D Blend(this Texture2D texture, Texture2D otherTexture, float amount, bool genMips = false)
     {
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -292,24 +292,32 @@ public static class ColorUtils
             if (!m_blendShader)
             {
                 Debug.LogError("Could not load blend compute shader.");
-                time = stopwatch.Elapsed.TotalSeconds;
                 return null;
             }
 
             m_blendKernel = m_blendShader.FindKernel("CSBlend");
-            m_blendShader.GetKernelThreadGroupSizes(m_blendKernel, out m_blendGlobal.x,  out m_blendGlobal.y, out m_blendGlobal.z);
+            m_blendShader.GetKernelThreadGroupSizes(m_blendKernel, out m_blendGlobal.x, out m_blendGlobal.y, out m_blendGlobal.z);
         }
 
         m_blendShader.SetFloat("strength", amount);
+        m_blendShader.SetInts("resolution", new int[] { texture.width, texture.height });
 
-        Texture2D result = new Texture2D(texture.width, texture.height, texture.format, false);
+        RenderTexture rt = new RenderTexture(texture.width, texture.height, 1, texture.graphicsFormat);
+        rt.enableRandomWrite = true;
+        rt.Create();
 
-        m_blendShader.SetTexture(m_blendKernel, "target", result);
+        m_blendShader.SetTexture(m_blendKernel, "target", rt);
         m_blendShader.SetTexture(m_blendKernel, "sourceA", texture);
         m_blendShader.SetTexture(m_blendKernel, "sourceB", otherTexture);
 
         Vector3Int dispatchGroupSize = new Vector3Int(texture.width / (int)m_blendGlobal.x, texture.height / (int)m_blendGlobal.y, 1);
         m_blendShader.Dispatch(m_blendKernel, dispatchGroupSize.x, dispatchGroupSize.y, dispatchGroupSize.z);
+
+        Texture2D result = new Texture2D(texture.width, texture.height, texture.format, false);
+
+        RenderTexture.active = rt;
+
+        result.ReadPixels(new Rect(0, 0, texture.width, texture.height), 0, 0, false);
 
         result.filterMode = texture.filterMode;
         result.anisoLevel = texture.anisoLevel;
@@ -317,53 +325,85 @@ public static class ColorUtils
         result.wrapModeV = texture.wrapModeV;
         result.wrapModeW = texture.wrapModeW;
 
-        result.Apply(texture.mipmapCount > 1, !texture.isReadable);
+        result.Apply(genMips, !texture.isReadable);
+        RenderTexture.active = null;
+        rt.Release();
 
-        time = stopwatch.Elapsed.TotalSeconds;
-        Debug.Log("blend tex: " + time.ToString());
+        Debug.Log("blend tex: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return result;
-    }
-
-    public static Color Blend(this Color color, Color backColor, double amount)
-    {
-        float r = (float)((color.r * amount) + backColor.r * (1 - amount));
-        float g = (float)((color.g * amount) + backColor.g * (1 - amount));
-        float b = (float)((color.b * amount) + backColor.b * (1 - amount));
-        return new Color(r, g, b, 1.0f);
     }
 
     public static Texture2D CreateNormal(this Texture2D source, float strength)
     {
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
+
+        if (!m_normalShader)
+        {
+            m_normalShader = Resources.Load<ComputeShader>("Compute/Normal");
+            if (!m_normalShader)
+            {
+                Debug.LogError("Could not load normal compute shader.");
+                return null;
+            }
+
+            m_normalKernel = m_normalShader.FindKernel("CSNormal");
+            m_blurKernel = m_normalShader.FindKernel("CSBlur");
+            m_normalShader.GetKernelThreadGroupSizes(m_normalKernel, out m_normalGlobal.x, out m_normalGlobal.y, out m_normalGlobal.z);
+            m_normalShader.GetKernelThreadGroupSizes(m_blurKernel, out m_blurGlobal.x, out m_blurGlobal.y, out m_blurGlobal.z);
+        }
+
         strength = Mathf.Clamp(strength, 0.0F, 10.0F);
 
-        Texture2D result;
+        RenderTexture rt = new RenderTexture(source.width, source.height, 1, source.graphicsFormat);
+        rt.enableRandomWrite = true;
+        rt.Create();
 
-        float xLeft;
-        float xRight;
-        float yUp;
-        float yDown;
-        float yDelta;
-        float xDelta;
+        m_normalShader.SetFloat("strength", strength);
+        m_normalShader.SetTexture(m_normalKernel, "target", rt);
+        m_normalShader.SetTexture(m_normalKernel, "source", source);
+        m_normalShader.SetInts("resolution", new int[] { source.width, source.height });
 
-        result = new Texture2D(source.width, source.height, TextureFormat.ARGB32, true);
+        float chunkSize = TerrainGenerator.instance.maximumChunkSize;
+        m_normalShader.SetFloats("texelSize", new float[] { chunkSize / source.width, chunkSize / source.height });
 
-        for (int by = 0; by < result.height + 1; by++)
-        {
-            for (int bx = 0; bx < result.width + 1; bx++)
-            {
-                xLeft = source.GetPixel(bx - 1, by).grayscale * strength;
-                xRight = source.GetPixel(bx + 1, by).grayscale * strength;
-                yUp = source.GetPixel(bx, by - 1).grayscale * strength;
-                yDown = source.GetPixel(bx, by + 1).grayscale * strength;
-                xDelta = ((xLeft - xRight) + 1) * 0.5f;
-                yDelta = ((yUp - yDown) + 1) * 0.5f;
-                result.SetPixel(bx, by, new Color(xDelta, yDelta, 1.0f, yDelta));
-            }
-        }
-        result.Apply();
-        result.wrapMode = TextureWrapMode.Clamp;
+        Vector3Int dispatchGroupSize = new Vector3Int(source.width / (int)m_normalGlobal.x, source.height / (int)m_normalGlobal.y, 1);
+        m_normalShader.Dispatch(m_normalKernel, dispatchGroupSize.x, dispatchGroupSize.y, dispatchGroupSize.z);
+
+        RenderTexture blurRt = new RenderTexture(source.width, source.height, 1, source.graphicsFormat);
+        blurRt.enableRandomWrite = true;
+        blurRt.Create();
+
+        m_normalShader.SetTexture(m_blurKernel, "target", blurRt);
+        m_normalShader.SetTexture(m_blurKernel, "source", rt);
+        m_normalShader.SetBool("horizontal", true);
+
+        dispatchGroupSize = new Vector3Int(source.width / (int)m_blurGlobal.x, source.height / (int)m_blurGlobal.y, 1);
+        m_normalShader.Dispatch(m_blurKernel, dispatchGroupSize.x, dispatchGroupSize.y, dispatchGroupSize.z);
+
+        m_normalShader.SetTexture(m_blurKernel, "target", rt);
+        m_normalShader.SetTexture(m_blurKernel, "source", blurRt);
+        m_normalShader.SetBool("horizontal", false);
+
+        dispatchGroupSize = new Vector3Int(source.width / (int)m_blurGlobal.x, source.height / (int)m_blurGlobal.y, 1);
+        m_normalShader.Dispatch(m_blurKernel, dispatchGroupSize.x, dispatchGroupSize.y, dispatchGroupSize.z);
+
+        Texture2D result = new Texture2D(source.width, source.height, source.format, false);
+
+        RenderTexture.active = rt;
+
+        result.ReadPixels(new Rect(0, 0, source.width, source.height), 0, 0, false);
+
+        result.filterMode = source.filterMode;
+        result.anisoLevel = source.anisoLevel;
+        result.wrapModeU = source.wrapModeU;
+        result.wrapModeV = source.wrapModeV;
+        result.wrapModeW = source.wrapModeW;
+
+        result.Apply(source.mipmapCount > 1, !source.isReadable);
+        RenderTexture.active = null;
+        rt.Release();
+        blurRt.Release();
 
         Debug.Log("normal tex: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return result;

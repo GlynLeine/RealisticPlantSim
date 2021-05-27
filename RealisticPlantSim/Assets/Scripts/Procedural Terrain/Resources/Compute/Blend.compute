@@ -6,15 +6,25 @@
 RWTexture2D<float4> target;
 Texture2D<float4> sourceA;
 Texture2D<float4> sourceB;
+SamplerState samplersourceB;
 float strength;
+int2 resolution;
 
-[numthreads(8,8,1)]
+float2 uvFromIdx(uint2 idx)
+{
+    return (float2)(idx) / resolution;
+}
+
+[numthreads(32, 32, 1)]
 void CSBlend(uint3 id : SV_DispatchThreadID)
 {
-    // get texture res
-    // discard if id is outside of res
-    // calculate uv from texel coord
-    // sample sources using uv and filtering
-    // interpolate
-    // write to target
+    if (id.x <= (uint)resolution.x && id.y <= (uint)resolution.y)
+    {
+        float2 uv = uvFromIdx(id.xy);
+
+        float4 colorA = sourceA[id.xy];
+        float4 colorB = sourceB.SampleLevel(samplersourceB, uv, 0);
+
+        target[id.xy] = lerp(colorA, colorB, strength);
+    }
 }
