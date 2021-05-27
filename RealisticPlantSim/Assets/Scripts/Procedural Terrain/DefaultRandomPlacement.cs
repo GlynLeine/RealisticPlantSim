@@ -12,13 +12,13 @@ public class DefaultRandomPlacement : AbstractPlacementStrategy
         Debug.Log("Starting generator");
     }
 
-    public override Vector3 RandomizePosition(PlantGenerator plantGenerator)
+    public override Vector3 RandomizePosition(PlantGenerator plantGenerator, float xmin, float xmax, float zmin, float zmax)
     {
 
-        float randomXOffset = Random.Range(plantGenerator.xMinVal, plantGenerator.xMaxVal);
-        float randomZOffset = Random.Range(plantGenerator.zMinVal, plantGenerator.zMaxVal);
+        float randomXOffset = Random.Range(xmin, xmax);
+        float randomZOffset = Random.Range(zmin, zmax);
 
-        Vector3 position = new Vector3(plantGenerator.transform.position.x + randomXOffset, plantGenerator.transform.position.y, plantGenerator.transform.position.z + randomZOffset);
+        Vector3 position = new Vector3(randomXOffset, plantGenerator.transform.position.y, randomZOffset);
 
         return position;
     }

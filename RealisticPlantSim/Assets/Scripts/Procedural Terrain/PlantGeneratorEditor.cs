@@ -56,13 +56,14 @@ public class PlantGeneratorEditor : Editor
         EditorGUILayout.PropertyField(_amountOfPlantsToSpawn, new GUIContent("Amount of plants to spawn"));
 
 
-        if (GUILayout.Button("Generate plants"))
+        if (GUILayout.Button("Generate plants (old logic)"))
         {
             //Generate the plants
             plantGenerator.StartCoroutine(plantGenerator.spawnPlantsInXZRange());
+
         }
 
-        if(GUILayout.Button("Cancel generator"))
+        if (GUILayout.Button("Cancel generator"))
         {
             plantGenerator.StopAllCoroutines();
         }

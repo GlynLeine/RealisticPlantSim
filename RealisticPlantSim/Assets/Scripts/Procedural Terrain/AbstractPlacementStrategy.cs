@@ -7,7 +7,7 @@ public abstract class AbstractPlacementStrategy : MonoScript
 {
     public abstract void OnGeneratorStart(PlantGenerator plantGenerator);
 
-    public abstract Vector3 RandomizePosition(PlantGenerator plantGenerator);
+    public abstract Vector3 RandomizePosition(PlantGenerator plantGenerator, float xmin, float xmax, float zmin, float zmax);
 
     public abstract void OnGeneratorFinish(PlantGenerator plantGenerator);
 

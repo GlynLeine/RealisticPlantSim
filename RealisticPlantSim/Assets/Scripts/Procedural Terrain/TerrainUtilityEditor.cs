@@ -90,7 +90,11 @@ public class TerrainUtilityEditor : Editor
 
         if (GUILayout.Button("Generate plants"))
         {
-            plantGenerator.StartCoroutine(plantGenerator.spawnPlantsInXZRange());
+            //Old logic ->
+            //plantGenerator.StartCoroutine(plantGenerator.spawnPlantsInXZRange());
+
+            //New logic ->
+            plantGenerator.StartCoroutine(plantGenerator.SpawnPlantsOnChunks(terrainGenerator));
 
             eta.Reset();
         }

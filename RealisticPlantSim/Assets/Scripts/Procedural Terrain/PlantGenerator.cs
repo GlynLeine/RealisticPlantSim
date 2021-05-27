@@ -109,7 +109,7 @@ public class PlantGenerator : MonoBehaviour
                 throw new Exception($"[PlantGenerator] The Random Placement script on plant #{randomPlantIndex} does not extend from AbstractPlacementStrategy!");
             }
 
-            Vector3 position = placementStrategy.RandomizePosition(this);
+            Vector3 position = placementStrategy.RandomizePosition(this, xMinVal, xMaxVal, zMinVal, zMaxVal);
 
 
             if (spawnSettings.mainHoudiniPlant == null)
@@ -149,6 +149,114 @@ public class PlantGenerator : MonoBehaviour
 
 
         Debug.Log("[PlantGenerator] Plant generator finished!");
+    }
+
+    public IEnumerator SpawnPlantsOnChunks(TerrainGenerator terrainGenerator)
+    {
+        generatingPlants = true;
+        currentPlant = 0;
+        int amountPerChunk = amountOfPlantsToSpawn / terrainGenerator.chunks.Count;
+
+        List<PlantSpawnSettings> enabledPlantSpawnSettings = plantSpawnSettings.Where(pss => pss.enabled).ToList();
+
+        //First loop through all the PlantSpawnSettings to call the onGeneratorStart function.
+
+        foreach (PlantSpawnSettings spawnSetting in enabledPlantSpawnSettings)
+        {
+            AbstractPlacementStrategy placementStrategy;
+
+            if (spawnSetting.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
+            {
+                placementStrategy = Activator.CreateInstance(spawnSetting.placementStrategy.GetClass()) as AbstractPlacementStrategy;
+            }
+            else
+            {
+                throw new Exception($"[PlantGenerator] The Random Placement script on plant #{plantSpawnSettings.IndexOf(spawnSetting)} does not extend from AbstractPlacementStrategy!");
+            }
+            placementStrategy.OnGeneratorStart(this);
+        }
+
+        if(terrainGenerator.chunks == null)
+        {
+            throw new Exception("[PlantGenerator] TerrainGenerator has a chunks list that is NULL!");
+        }
+
+        if(terrainGenerator.chunks.Count == 0)
+        {
+            throw new Exception("[PlantGenerator] TerrainGenerator has no chunks!");
+        }
+
+        foreach (TerrainChunk chunk in terrainGenerator.chunks)
+        {
+            StartCoroutine(SpawnPlantsOnChunk(chunk, enabledPlantSpawnSettings, amountPerChunk));
+            yield return chunk;
+        }
+
+        generatingPlants = false;
+
+
+        //Call OnGeneratorFinish on every random placement script
+
+        foreach (PlantSpawnSettings spawnSetting in enabledPlantSpawnSettings)
+        {
+            AbstractPlacementStrategy placementStrategy;
+
+            if (spawnSetting.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
+            {
+                placementStrategy = Activator.CreateInstance(spawnSetting.placementStrategy.GetClass()) as AbstractPlacementStrategy;
+            }
+            else
+            {
+                throw new Exception($"[PlantGenerator] The Random Placement script on plant #{plantSpawnSettings.IndexOf(spawnSetting)} does not extend from AbstractPlacementStrategy!");
+            }
+            placementStrategy.OnGeneratorFinish(this);
+        }
+
+        Debug.Log("[PlantGenerator] Plant generator finished!");
+    }
+
+    public IEnumerator SpawnPlantsOnChunk(TerrainChunk chunk, List<PlantSpawnSettings> plantSpawnSettings, int amountOfPlants)
+    {
+
+        for (int i = 0; i < amountOfPlants; i++)
+        {
+            int randomPlantIndex = Random.Range(0, plantSpawnSettings.Count);
+
+            PlantSpawnSettings spawnSettings = plantSpawnSettings[randomPlantIndex];
+
+            AbstractPlacementStrategy placementStrategy;
+
+            if (spawnSettings.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
+            {
+                placementStrategy = Activator.CreateInstance(spawnSettings.placementStrategy.GetClass()) as AbstractPlacementStrategy;
+            }
+            else
+            {
+                throw new Exception($"[PlantGenerator] The Random Placement script on plant #{randomPlantIndex} does not extend from AbstractPlacementStrategy!");
+            }
+            float chunkX = chunk.chunkObject.transform.position.x;
+            float chunkZ = chunk.chunkObject.transform.position.z;
+            float chunkSizeXHalf = chunk.size.x/2;
+            float chunkSizeZHalf = chunk.size.y/2;
+            Vector3 position = placementStrategy.RandomizePosition(this, chunkX-chunkSizeXHalf, chunkX+ chunkSizeXHalf, chunkZ-chunkSizeZHalf, chunkZ+chunkSizeZHalf);
+
+
+            if (spawnSettings.mainHoudiniPlant == null)
+            {
+                Debug.LogError("Error creating plant: No main houdini plant found");
+                yield break;
+            }
+
+            GameObject newPlant = generateNewPlant(spawnSettings);
+            newPlant.transform.SetParent(chunk.chunkObject.transform);
+            newPlant.transform.position = position;
+            newPlant.isStatic = true;
+            currentPlant++;
+            yield return newPlant;
+            EditorApplication.QueuePlayerLoopUpdate();
+            SceneView.RepaintAll();
+        }
+
     }
 
     public void deleteAllPlants()
