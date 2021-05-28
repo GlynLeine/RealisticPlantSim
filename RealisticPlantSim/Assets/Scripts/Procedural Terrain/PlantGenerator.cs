@@ -59,98 +59,6 @@ public class PlantGenerator : MonoBehaviour
     [SerializeField]
     public List<PlantSpawnSettings> plantSpawnSettings = new List<PlantSpawnSettings>();
 
-    public IEnumerator spawnPlantsInXZRange()
-    {
-        List<PlantSpawnSettings> enabledPlantSpawnSettings = plantSpawnSettings.Where(pss => pss.enabled).ToList();
-
-
-        //First loop through all the PlantSpawnSettings to call the onGeneratorStart function.
-
-        foreach (PlantSpawnSettings spawnSetting in enabledPlantSpawnSettings)
-        {
-            AbstractPlacementStrategy placementStrategy;
-
-            if (spawnSetting.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
-            {
-                placementStrategy = Activator.CreateInstance(spawnSetting.placementStrategy.GetClass()) as AbstractPlacementStrategy;
-            }
-            else
-            {
-                throw new Exception($"[PlantGenerator] The Random Placement script on plant #{plantSpawnSettings.IndexOf(spawnSetting)} does not extend from AbstractPlacementStrategy!");
-            }
-            placementStrategy.OnGeneratorStart(this);
-        }
-
-
-        generatingPlants = true;
-        currentPlant = 0;
-        Transform plantsHolder = transform.Find("Plants");
-        plantsHolder.gameObject.SetActive(false);
-        if (plantsHolder == null)
-        {
-            plantsHolder = new GameObject("Plants").transform;
-            plantsHolder.SetParent(transform);
-        }
-
-
-        for (int i = 0; i < amountOfPlantsToSpawn; i++)
-        {
-            int randomPlantIndex = Random.Range(0, enabledPlantSpawnSettings.Count);
-
-            PlantSpawnSettings spawnSettings = enabledPlantSpawnSettings[randomPlantIndex];
-
-            AbstractPlacementStrategy placementStrategy;
-
-            if (spawnSettings.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
-            {
-                placementStrategy = Activator.CreateInstance(spawnSettings.placementStrategy.GetClass()) as AbstractPlacementStrategy;
-            } else
-            {
-                throw new Exception($"[PlantGenerator] The Random Placement script on plant #{randomPlantIndex} does not extend from AbstractPlacementStrategy!");
-            }
-
-            Vector3 position = placementStrategy.RandomizePosition(this, xMinVal, xMaxVal, zMinVal, zMaxVal);
-
-
-            if (spawnSettings.mainHoudiniPlant == null)
-            {
-                Debug.LogError("Error creating plant: No main houdini plant found");
-                yield break;
-            }
-
-            GameObject newPlant = generateNewPlant(spawnSettings);
-            newPlant.transform.SetParent(plantsHolder);
-            newPlant.transform.position = position;
-            newPlant.isStatic = true;
-            currentPlant++;
-            yield return newPlant;
-            EditorApplication.QueuePlayerLoopUpdate();
-            SceneView.RepaintAll();
-        }
-        generatingPlants = false;
-        plantsHolder.gameObject.SetActive(true);
-
-        //Call OnGeneratorFinish on every random placement script
-
-        foreach (PlantSpawnSettings spawnSetting in enabledPlantSpawnSettings)
-        {
-            AbstractPlacementStrategy placementStrategy;
-
-            if (spawnSetting.placementStrategy.GetClass().IsSubclassOf(typeof(AbstractPlacementStrategy)))
-            {
-                placementStrategy = Activator.CreateInstance(spawnSetting.placementStrategy.GetClass()) as AbstractPlacementStrategy;
-            }
-            else
-            {
-                throw new Exception($"[PlantGenerator] The Random Placement script on plant #{plantSpawnSettings.IndexOf(spawnSetting)} does not extend from AbstractPlacementStrategy!");
-            }
-            placementStrategy.OnGeneratorFinish(this);
-        }
-
-
-        Debug.Log("[PlantGenerator] Plant generator finished!");
-    }
-
     public IEnumerator SpawnPlantsOnChunks(TerrainGenerator terrainGenerator)
     {
         generatingPlants = true;
@@ -186,14 +94,29 @@ public class PlantGenerator : MonoBehaviour
             throw new Exception("[PlantGenerator] TerrainGenerator has no chunks!");
         }
 
+        //Turning off chunks for performance
         foreach (TerrainChunk chunk in terrainGenerator.chunks)
         {
-            StartCoroutine(SpawnPlantsOnChunk(chunk, enabledPlantSpawnSettings, amountPerChunk));
-            yield return chunk;
+            chunk.SetActive(false);
         }
 
-        generatingPlants = false;
+        List<Coroutine> plantSpawnerCoroutines = new List<Coroutine>();
 
+        foreach (TerrainChunk chunk in terrainGenerator.chunks)
+        {
+            plantSpawnerCoroutines.Add(StartCoroutine(SpawnPlantsOnChunk(chunk, enabledPlantSpawnSettings, amountPerChunk)));
+        }
+
+        foreach(Coroutine coroutine in plantSpawnerCoroutines)
+        {
+            yield return coroutine;
+        }
+
+        //Turning chunks back on
+        foreach (TerrainChunk chunk in terrainGenerator.chunks)
+        {
+            chunk.SetActive(true);
+        }
 
         //Call OnGeneratorFinish on every random placement script
 
@@ -213,6 +136,8 @@ public class PlantGenerator : MonoBehaviour
         }
 
         Debug.Log("[PlantGenerator] Plant generator finished!");
+        generatingPlants = false;
+
     }
 
     public IEnumerator SpawnPlantsOnChunk(TerrainChunk chunk, List<PlantSpawnSettings> plantSpawnSettings, int amountOfPlants)
@@ -240,7 +165,6 @@ public class PlantGenerator : MonoBehaviour
             float chunkSizeZHalf = chunk.size.y/2;
             Vector3 position = placementStrategy.RandomizePosition(this, chunkX-chunkSizeXHalf, chunkX+ chunkSizeXHalf, chunkZ-chunkSizeZHalf, chunkZ+chunkSizeZHalf);
 
-
             if (spawnSettings.mainHoudiniPlant == null)
             {
                 Debug.LogError("Error creating plant: No main houdini plant found");
@@ -259,7 +183,7 @@ public class PlantGenerator : MonoBehaviour
 
     }
 
-    public void deleteAllPlants()
+    public void deleteAllPlants(TerrainGenerator terrainGenerator)
     {
         Transform plantsHolder = transform.Find("Plants");
         if (plantsHolder == null)
@@ -272,6 +196,16 @@ public class PlantGenerator : MonoBehaviour
         {
             GameObject child = plantsHolder.GetChild(0).gameObject;
             DestroyImmediate(child);
+        }
+
+        foreach (TerrainChunk chunk in terrainGenerator.chunks)
+        {
+            int plantCount = chunk.chunkObject.transform.childCount;
+            for (int i = 0; i < plantCount; i++)
+            {
+                GameObject child = chunk.chunkObject.transform.GetChild(0).gameObject;
+                DestroyImmediate(child);
+            }
         }
     }
 

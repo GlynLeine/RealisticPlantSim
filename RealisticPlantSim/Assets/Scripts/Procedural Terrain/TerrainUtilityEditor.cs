@@ -38,7 +38,7 @@ public class TerrainUtilityEditor : Editor
     {
         if (eta == null)
         {
-            eta = new ETACalculator(30, 15);
+            eta = new ETACalculator(5, 15);
         }
         serializedObject.Update();
         TerrainUtility terrainUtility = (TerrainUtility)target;
@@ -101,7 +101,7 @@ public class TerrainUtilityEditor : Editor
 
         if (GUILayout.Button("Delete plants"))
         {
-            plantGenerator.deleteAllPlants();
+            plantGenerator.deleteAllPlants(terrainGenerator);
             EditorSceneManager.MarkAllScenesDirty();
         }
 
