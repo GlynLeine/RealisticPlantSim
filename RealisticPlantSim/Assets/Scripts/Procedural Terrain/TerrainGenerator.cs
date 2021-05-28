@@ -139,7 +139,7 @@ public class TerrainChunk
 
         plane.GetComponent<Renderer>().material = chunkMaterial;
 
-        Debug.Log("terrain: " + stopwatch.Elapsed.TotalSeconds.ToString());
+        //Debug.Log("terrain: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return plane;
     }
 
@@ -235,13 +235,12 @@ public class TerrainChunk
                 }
 
                 // Normalize Sample to fit world Sample Height
-                float normalizedHeight = (noiseHeight + maxPossibleHeight) / (2f * maxPossibleHeight);
-                float value = Mathf.Clamp(normalizedHeight, 0, float.MaxValue);
+                float value = (noiseHeight + maxPossibleHeight * 1.112f) / (maxPossibleHeight * 2.13f);
 
                 if (TerrainGenerator.instance.includeSineWave)
                 {
                     //combining sine wave with perlin noise
-                    float sin = TerrainGenerator.instance.sinAmplitude * (Mathf.Sin(TerrainGenerator.instance.sinPeriod * ((x / width) * chunkSize + offsetX)) + 1f)/2f;
+                    float sin = TerrainGenerator.instance.sinAmplitude * (Mathf.Sin(TerrainGenerator.instance.sinPeriod * ((x / width) * chunkSize + offsetX)) + 1f) / 2f;
 
                     float maxAmp = 1f + TerrainGenerator.instance.perlinNoiseWeight;
 
@@ -256,7 +255,7 @@ public class TerrainChunk
         heightMapTexture.wrapMode = TextureWrapMode.Clamp;
         heightMapTexture.Apply(false, false);
 
-        Debug.Log("height tex: " + (stopwatch.Elapsed.TotalSeconds).ToString());
+        //Debug.Log("height tex: " + (stopwatch.Elapsed.TotalSeconds).ToString());
         return heightMapTexture;
     }
 
@@ -329,7 +328,7 @@ public static class ColorUtils
         RenderTexture.active = null;
         rt.Release();
 
-        Debug.Log("blend tex: " + stopwatch.Elapsed.TotalSeconds.ToString());
+        //Debug.Log("blend tex: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return result;
     }
 
@@ -405,7 +404,7 @@ public static class ColorUtils
         rt.Release();
         blurRt.Release();
 
-        Debug.Log("normal tex: " + stopwatch.Elapsed.TotalSeconds.ToString());
+        //Debug.Log("normal tex: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return result;
     }
 }

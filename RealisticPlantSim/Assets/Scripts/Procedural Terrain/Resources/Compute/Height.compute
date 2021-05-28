@@ -1,8 +1,46 @@
 #pragma kernel CSHeight
 
+#include "noise.hlsl"
+// float SimplexNoise(float2 v)
+
 RWTexture2D<float4> target;
+float2 resolution;
+float chunksize;
+int octaves;
+float amplitude;
+StructuredBuffer<float2> octaveOffsets;
+float perlinScale;
 
 [numthreads(32, 32, 1)]
 void CSHeight(uint3 id : SV_DispatchThreadID)
 {
+    float freq = 1;
+    float noiseHeight = 0;
+
+    //perlin mapfrom combined octaves
+    for (int i = 0; i < octaves; i++)
+    {
+        float2 pos = (((id.xy / resolution) * chunksize) + octaveOffsets[i]) / perlinScale * freq;
+
+        float PerlinValue = SimplexNoise(pos) * 2 - 1;
+        noiseHeight += PerlinValue * amplitude;
+
+        amplitude *= TerrainGenerator.instance.persistence;
+        freq *= TerrainGenerator.instance.lacunarity;
+    }
+
+    // Normalize Sample to fit world Sample Height
+    noiseHeight = (noiseHeight + maxPossibleHeight * 1.112f) / (maxPossibleHeight * 2.13f);
+
+    if (TerrainGenerator.instance.includeSineWave)
+    {
+        //combining sine wave with perlin noise
+        float sin = TerrainGenerator.instance.sinAmplitude * (Mathf.Sin(TerrainGenerator.instance.sinPeriod * ((x / width) * chunkSize + offsetX)) + 1f) / 2f;
+
+        float maxAmp = 1f + TerrainGenerator.instance.perlinNoiseWeight;
+
+        noiseHeight = Mathf.Clamp((sin + (noiseHeight * TerrainGenerator.instance.perlinNoiseWeight)) / maxAmp, 0, float.MaxValue);
+    }
+
+    target[id.xy] = float4(noiseHeight, noiseHeight, noiseHeight, 1.0);
 }
