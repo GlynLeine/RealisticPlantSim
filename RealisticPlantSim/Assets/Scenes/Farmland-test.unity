@@ -7228,14 +7228,16 @@ GameObject:
   - component: {fileID: 474011626}
   - component: {fileID: 474011629}
   - component: {fileID: 474011627}
+  - component: {fileID: 474011631}
   - component: {fileID: 474011628}
+  - component: {fileID: 474011630}
   m_Layer: 0
   m_Name: Camera right rear
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &474011626
 Transform:
   m_ObjectHideFlags: 0
@@ -7380,7 +7382,7 @@ MonoBehaviour:
   _streamHeight: 1080
   _preset: 0
   _frameRate: 20
-  _streamURL: rtsp://localhost:8554/mystream
+  _streamURL: rtsp://localhost:8556/camera3
   _crfValue: 23
   _maxBitrate: 20000
   colorOutput: {fileID: 1186765263}
@@ -7427,6 +7429,41 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &474011630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 474011625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4633ecbf53e5b64791a31226b4930a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _streamWidth: 1280
+  _streamHeight: 720
+  _preset: 0
+  _frameRate: 20
+  _streamURL: rtsp://localhost:8556/depth3
+  _crfValue: 23
+  _maxBitrate: 20000
+  depthOutput: {fileID: 1878707718}
+--- !u!114 &474011631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 474011625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68bd5189dc8e48a4ea4932a5d194b839, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  depthGetter: {fileID: 7200000, guid: 0e37cd25739ba3f46b4715277b37d80d, type: 3}
+  sendColorFrames: 0
+  sendDepthFrames: 0
 --- !u!1 &487032526
 GameObject:
   m_ObjectHideFlags: 0
@@ -7438,14 +7475,16 @@ GameObject:
   - component: {fileID: 487032527}
   - component: {fileID: 487032530}
   - component: {fileID: 487032528}
+  - component: {fileID: 487032532}
   - component: {fileID: 487032529}
+  - component: {fileID: 487032531}
   m_Layer: 0
   m_Name: Camera left rear
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &487032527
 Transform:
   m_ObjectHideFlags: 0
@@ -7590,7 +7629,7 @@ MonoBehaviour:
   _streamHeight: 1080
   _preset: 0
   _frameRate: 20
-  _streamURL: rtsp://localhost:8554/mystream
+  _streamURL: rtsp://localhost:8556/camera2
   _crfValue: 23
   _maxBitrate: 20000
   colorOutput: {fileID: 990109809}
@@ -7637,6 +7676,41 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &487032531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 487032526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4633ecbf53e5b64791a31226b4930a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _streamWidth: 1280
+  _streamHeight: 720
+  _preset: 0
+  _frameRate: 20
+  _streamURL: rtsp://localhost:8556/depth2
+  _crfValue: 23
+  _maxBitrate: 20000
+  depthOutput: {fileID: 1271173094}
+--- !u!114 &487032532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 487032526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68bd5189dc8e48a4ea4932a5d194b839, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  depthGetter: {fileID: 7200000, guid: 0e37cd25739ba3f46b4715277b37d80d, type: 3}
+  sendColorFrames: 0
+  sendDepthFrames: 0
 --- !u!114 &493528780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15316,6 +15390,17 @@ MonoBehaviour:
   _keepWorldTransform: 1
   _packGeometryBeforeMerging: 0
   _parentAsset: {fileID: 1566991737}
+--- !u!114 &1271173094 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4270217947159123579, guid: dbc97c3efd66ad745917af4e3c1ff176, type: 3}
+  m_PrefabInstance: {fileID: 1234933007}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1273525358
 GameObject:
   m_ObjectHideFlags: 0
@@ -15327,14 +15412,16 @@ GameObject:
   - component: {fileID: 1273525362}
   - component: {fileID: 1273525361}
   - component: {fileID: 1273525359}
+  - component: {fileID: 1273525364}
   - component: {fileID: 1273525360}
+  - component: {fileID: 1273525363}
   m_Layer: 0
   m_Name: Camera front
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1273525359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15465,7 +15552,7 @@ MonoBehaviour:
   _streamHeight: 1080
   _preset: 0
   _frameRate: 20
-  _streamURL: rtsp://localhost:8554/mystream
+  _streamURL: rtsp://localhost:8556/camera0
   _crfValue: 23
   _maxBitrate: 20000
   colorOutput: {fileID: 1544311974}
@@ -15526,6 +15613,41 @@ Transform:
   m_Father: {fileID: 595697608}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!114 &1273525363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273525358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4633ecbf53e5b64791a31226b4930a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _streamWidth: 1280
+  _streamHeight: 720
+  _preset: 0
+  _frameRate: 20
+  _streamURL: rtsp://localhost:8556/depth1
+  _crfValue: 23
+  _maxBitrate: 20000
+  depthOutput: {fileID: 2136007898}
+--- !u!114 &1273525364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273525358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68bd5189dc8e48a4ea4932a5d194b839, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  depthGetter: {fileID: 7200000, guid: 0e37cd25739ba3f46b4715277b37d80d, type: 3}
+  sendColorFrames: 0
+  sendDepthFrames: 0
 --- !u!114 &1296530109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16702,6 +16824,17 @@ MonoBehaviour:
   _keepWorldTransform: 1
   _packGeometryBeforeMerging: 0
   _parentAsset: {fileID: 947560727}
+--- !u!114 &1878707718 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3909872252030359348, guid: dbc97c3efd66ad745917af4e3c1ff176, type: 3}
+  m_PrefabInstance: {fileID: 1234933007}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!43 &1923061416
 Mesh:
   m_ObjectHideFlags: 0
@@ -17238,6 +17371,17 @@ MonoBehaviour:
       _colliders: []
     _childOutputs: []
   _volumeLayerName: 
+--- !u!114 &2136007898 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 287718438661692641, guid: dbc97c3efd66ad745917af4e3c1ff176, type: 3}
+  m_PrefabInstance: {fileID: 1234933007}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &738646681031429088
 Transform:
   m_ObjectHideFlags: 0
