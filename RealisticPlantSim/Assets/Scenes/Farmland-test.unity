@@ -176,17 +176,6 @@ MonoBehaviour:
   _keepWorldTransform: 1
   _packGeometryBeforeMerging: 0
   _parentAsset: {fileID: 1566991737}
---- !u!114 &43037361 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4270217947159123579, guid: dbc97c3efd66ad745917af4e3c1ff176, type: 3}
-  m_PrefabInstance: {fileID: 1234933007}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &71025196
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7246,7 +7235,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &474011626
 Transform:
   m_ObjectHideFlags: 0
@@ -7387,18 +7376,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8796dfa2af3a54048991412e9e61662f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _colorStreamWidth: 1920
-  _colorStreamHeight: 1080
-  _depthStreamWidth: 1280
-  _depthStreamHeight: 720
+  _streamWidth: 1920
+  _streamHeight: 1080
   _preset: 0
   _frameRate: 20
-  _colorStreamURL: rtsp://localhost:8554/camera3
-  _depthStreamURL: rtsp://localhost:8554/depth3
+  _streamURL: rtsp://localhost:8554/mystream
   _crfValue: 23
   _maxBitrate: 20000
-  depthGetter: {fileID: 7200000, guid: 0e37cd25739ba3f46b4715277b37d80d, type: 3}
-  depthOutput: {fileID: 878061942}
   colorOutput: {fileID: 1186765263}
 --- !u!20 &474011629
 Camera:
@@ -7461,7 +7445,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &487032527
 Transform:
   m_ObjectHideFlags: 0
@@ -7602,18 +7586,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8796dfa2af3a54048991412e9e61662f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _colorStreamWidth: 1920
-  _colorStreamHeight: 1080
-  _depthStreamWidth: 1280
-  _depthStreamHeight: 720
+  _streamWidth: 1920
+  _streamHeight: 1080
   _preset: 0
   _frameRate: 20
-  _colorStreamURL: rtsp://localhost:8554/camera2
-  _depthStreamURL: rtsp://localhost:8554/depth2
+  _streamURL: rtsp://localhost:8554/mystream
   _crfValue: 23
   _maxBitrate: 20000
-  depthGetter: {fileID: 7200000, guid: 0e37cd25739ba3f46b4715277b37d80d, type: 3}
-  depthOutput: {fileID: 43037361}
   colorOutput: {fileID: 990109809}
 --- !u!20 &487032530
 Camera:
@@ -8067,17 +8046,6 @@ MonoBehaviour:
   _showOnlyEditGeometry: 1
   _alwaysCookUpstream: 1
   _paintMeshVisiblity: 0
---- !u!114 &878061942 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3909872252030359348, guid: dbc97c3efd66ad745917af4e3c1ff176, type: 3}
-  m_PrefabInstance: {fileID: 1234933007}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &883681446
 GameObject:
   m_ObjectHideFlags: 0
@@ -8315,7 +8283,7 @@ MonoBehaviour:
   _assetName: super_l_systembasic1
   _assetOpName: Object/super_l_systembasic
   _assetHelp: 
-  _assetID: 0
+  _assetID: -1
   _assetPath: Assets/Plugins/HoudiniEngineUnity/HDAs/super_l_systembasic.hdalc
   _loadAssetFromMemory: 0
   _assetFileObject: {fileID: 102900000, guid: d7e700459fe20524892139656d55efda, type: 3}
@@ -15366,7 +15334,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1273525359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15493,18 +15461,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8796dfa2af3a54048991412e9e61662f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _colorStreamWidth: 1920
-  _colorStreamHeight: 1080
-  _depthStreamWidth: 1280
-  _depthStreamHeight: 720
+  _streamWidth: 1920
+  _streamHeight: 1080
   _preset: 0
   _frameRate: 20
-  _colorStreamURL: rtsp://localhost:8554/camera1
-  _depthStreamURL: rtsp://localhost:8554/depth1
+  _streamURL: rtsp://localhost:8554/mystream
   _crfValue: 23
   _maxBitrate: 20000
-  depthGetter: {fileID: 7200000, guid: 0e37cd25739ba3f46b4715277b37d80d, type: 3}
-  depthOutput: {fileID: 2063213786}
   colorOutput: {fileID: 1544311974}
 --- !u!20 &1273525361
 Camera:
@@ -16085,7 +16048,7 @@ MonoBehaviour:
   _assetName: super_l_systembasic2
   _assetOpName: Object/super_l_systembasic
   _assetHelp: 
-  _assetID: 64
+  _assetID: -1
   _assetPath: Assets/Plugins/HoudiniEngineUnity/HDAs/super_l_systembasic.hdalc
   _loadAssetFromMemory: 0
   _assetFileObject: {fileID: 102900000, guid: d7e700459fe20524892139656d55efda, type: 3}
@@ -17216,17 +17179,6 @@ MonoBehaviour:
   _geoCurve: {fileID: 0}
   _volumeCache: {fileID: 0}
   _volumeCaches: []
---- !u!114 &2063213786 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 287718438661692641, guid: dbc97c3efd66ad745917af4e3c1ff176, type: 3}
-  m_PrefabInstance: {fileID: 1234933007}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &2128077218
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17395,7 +17347,9 @@ GameObject:
   - component: {fileID: 738646681168171266}
   - component: {fileID: 2128077218}
   - component: {fileID: 755488812}
+  - component: {fileID: 738646681168171273}
   - component: {fileID: 738646681168171272}
+  - component: {fileID: 738646681168171274}
   m_Layer: 0
   m_Name: Camera 0
   m_TagString: Untagged
@@ -17580,16 +17534,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8796dfa2af3a54048991412e9e61662f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _colorStreamWidth: 1920
-  _colorStreamHeight: 1080
-  _depthStreamWidth: 1280
-  _depthStreamHeight: 720
+  _streamWidth: 1920
+  _streamHeight: 1080
   _preset: 0
   _frameRate: 20
-  _colorStreamURL: rtsp://localhost:8554/camera0
-  _depthStreamURL: rtsp://localhost:8554/depth0
+  _streamURL: rtsp://localhost:8556/camera0
   _crfValue: 23
   _maxBitrate: 20000
-  depthGetter: {fileID: 7200000, guid: 0e37cd25739ba3f46b4715277b37d80d, type: 3}
-  depthOutput: {fileID: 1301927860}
   colorOutput: {fileID: 1300417688}
+--- !u!114 &738646681168171273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738646681168171268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68bd5189dc8e48a4ea4932a5d194b839, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  depthGetter: {fileID: 7200000, guid: 0e37cd25739ba3f46b4715277b37d80d, type: 3}
+  sendColorFrames: 0
+  sendDepthFrames: 0
+--- !u!114 &738646681168171274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738646681168171268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4633ecbf53e5b64791a31226b4930a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _streamWidth: 1280
+  _streamHeight: 720
+  _preset: 0
+  _frameRate: 20
+  _streamURL: rtsp://localhost:8556/depth0
+  _crfValue: 23
+  _maxBitrate: 20000
+  depthOutput: {fileID: 1301927860}
