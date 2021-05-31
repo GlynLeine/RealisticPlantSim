@@ -35,6 +35,10 @@ public class TerrainGenerator : MonoBehaviour
     public float sinPeriod = .1f;
     public float perlinNoiseWeight = 0.5f;
 
+    // This needs to be serialized because otherwise it will get reset on script compile.
+    [SerializeField]
+    public List<TerrainChunk> chunks = new List<TerrainChunk>();
+
     public void buildTerrain()
     {
         if(transform.Find("Terrain") == null)
@@ -55,6 +59,7 @@ public class TerrainGenerator : MonoBehaviour
 
                     TerrainChunk newChunk = new TerrainChunk(position: new Vector2(tileWidthLeft-(terrainWidth/2)+(0.5f*(maximumChunkSize-tileWidth)), tileLengthLeft-(terrainLength/2)+(0.5f*(maximumChunkSize-tileLength))), size: new Vector2(tileWidth, tileLength),index: new Vector2(x,y));
                     newChunk.chunkObject.transform.SetParent(terrain.transform);
+                    chunks.Add(newChunk);
 
                     x++;
                     tileWidthLeft -= maximumChunkSize;
@@ -80,13 +85,16 @@ public class TerrainGenerator : MonoBehaviour
         {
             Debug.LogError("[TerrainGenerator] There is no terrain to delete!");
         }
+        chunks = new List<TerrainChunk>();
     }
 }
 
+[System.Serializable]
 public class TerrainChunk
 {
     public Texture2D heightMap;
     public Texture2D normalMap;
+    public Vector2 size;
     public float gridXpos;
     public float gridYPos;
     public GameObject chunkObject;
@@ -96,6 +104,7 @@ public class TerrainChunk
 
         this.gridXpos = position.x;
         this.gridYPos = position.y;
+        this.size = size;
         this.heightMap = CreateHeightmap(index.x,index.y);
         this.normalMap = this.heightMap.CreateNormal(10f);
         chunkObject = createTerrain(size.x,size.y);
