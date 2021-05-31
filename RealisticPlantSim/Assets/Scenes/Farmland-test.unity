@@ -6403,14 +6403,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 217547657}
-  m_LocalRotation: {x: -0.62849075, y: -0.04415967, z: -0.4304054, w: -0.646375}
+  m_LocalRotation: {x: -0.6085345, y: -0.16320796, z: -0.54577565, w: -0.5524291}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1510174013}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 129.243, y: -109.013, z: -435.303}
+  m_LocalEulerAnglesHint: {x: 150.383, y: -103.71399, z: -427.237}
 --- !u!114 &217547660
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6982,17 +6982,17 @@ MonoBehaviour:
   maximumChunkSize: 5
   noiseScale: 22.8
   Seed: 1234
-  PerlinScale: 1
+  PerlinScale: 1.5
   PerlinOctaves: 3
-  persistence: 2
-  lacunarity: 1
+  persistence: 0.9
+  lacunarity: 1.1
   PerlinBaseAmplitude: 1
   xOffset: 0
   yOffset: 0
   includeSineWave: 1
-  sinAmplitude: 0.8
-  sinPeriod: 4.2
-  perlinNoiseWeight: 0.5
+  sinAmplitude: 0.35
+  sinPeriod: 5
+  perlinNoiseWeight: 0.25
 --- !u!4 &429488306
 Transform:
   m_ObjectHideFlags: 0
@@ -7001,7 +7001,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 429488304}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -16.55, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 634214914}

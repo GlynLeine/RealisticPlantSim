@@ -4,6 +4,11 @@ using System.Diagnostics;
 using UnityEngine;
 
 using Debug = UnityEngine.Debug;
+struct Vector3Uint
+{
+    public uint x, y, z;
+    public Vector3Uint(uint x, uint y, uint z) { this.x = x; this.y = y; this.z = z; }
+};
 
 public class TerrainGenerator : MonoBehaviour
 {
@@ -102,6 +107,10 @@ public class TerrainChunk
     public float gridYPos;
     public GameObject chunkObject;
 
+    static ComputeShader m_heightShader;
+    static int m_heightKernel;
+    static Vector3Uint m_heightGlobal;
+
     public TerrainChunk(Vector2 position, Vector2 size, Vector2 index)
     {
 
@@ -164,12 +173,6 @@ public class TerrainChunk
          new Vector2 (1f, 0f),
          new Vector2(1f, uvScaled.y ),
          new Vector2 (1f-uvScaled.x, uvScaled.y)
-
-
-         //new Vector2 (1f-uvScaled.x, 0f),
-         //new Vector2 (uvScaled.x, 0f),
-         //new Vector2(uvScaled.x, uvScaled.y ),
-         //new Vector2 (1f-uvScaled.x, uvScaled.y)
         };
         m.triangles = new int[] { 2, 1, 0, 0, 3, 2 };
         m.RecalculateNormals();
@@ -177,99 +180,90 @@ public class TerrainChunk
         return m;
     }
 
-    /// <summary>
-    /// creates a heightmap for the grid at the given x and y coordinates
-    /// </summary>
-    /// <param name="gridX"></param>
-    /// <param name="gridY"></param>
     public Texture2D CreateHeightmap(float gridX, float gridY)
     {
+        if (!m_heightShader)
+        {
+            m_heightShader = Resources.Load<ComputeShader>("Compute/Height");
+            if (!m_heightShader)
+            {
+                Debug.LogError("Could not load height compute shader.");
+                return null;
+            }
+
+            m_heightKernel = m_heightShader.FindKernel("CSHeight");
+            m_heightShader.GetKernelThreadGroupSizes(m_heightKernel, out m_heightGlobal.x, out m_heightGlobal.y, out m_heightGlobal.z);
+        }
+
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        Texture2D heightMapTexture = new Texture2D(TerrainGenerator.instance.textureWidth, TerrainGenerator.instance.textureHeight);
-        Vector2[] octaveOffsets = new Vector2[TerrainGenerator.instance.PerlinOctaves];
+        var generator = TerrainGenerator.instance;
 
-        float width = TerrainGenerator.instance.textureWidth;
-        float height = TerrainGenerator.instance.textureHeight;
+        RenderTexture target = new RenderTexture(generator.textureWidth, generator.textureHeight, 1, RenderTextureFormat.ARGBFloat);
+        target.enableRandomWrite = true;
+        target.Create();
 
-        float chunkSize = TerrainGenerator.instance.maximumChunkSize;
+        m_heightShader.SetTexture(m_heightKernel, "target", target);
+        m_heightShader.SetFloats("oneOverResolution", 1f / generator.textureWidth, 1f / generator.textureHeight);
+        m_heightShader.SetFloat("chunkSize", generator.maximumChunkSize);
 
-        // Set Max Height for World
+        m_heightShader.SetInt("octaves", generator.PerlinOctaves);
+
+        m_heightShader.SetFloat("amplitude", generator.PerlinBaseAmplitude);
+        m_heightShader.SetFloat("persistence", generator.persistence);
+        m_heightShader.SetFloat("lacunarity", generator.lacunarity);
+
+        Vector2[] octaveOffsets = new Vector2[generator.PerlinOctaves];
+
+        System.Random prng = new System.Random(generator.Seed);
+        Vector2 offset = new Vector2(prng.Next(-100000, 100000) - generator.xOffset - (generator.maximumChunkSize * gridX), prng.Next(-100000, 100000) - generator.yOffset - (generator.maximumChunkSize * gridY));
         float maxPossibleHeight = 0;
-        float amplitude = TerrainGenerator.instance.PerlinBaseAmplitude;
+        float amplitude = generator.PerlinBaseAmplitude;
 
-        System.Random prng = new System.Random(TerrainGenerator.instance.Seed);
-        float offsetX = prng.Next(-100000, 100000) - TerrainGenerator.instance.xOffset - (chunkSize * gridX);
-        float offsetY = prng.Next(-100000, 100000) - TerrainGenerator.instance.yOffset - (chunkSize * gridY);
-
-        //combine noises 
-        for (int i = 0; i < TerrainGenerator.instance.PerlinOctaves; i++)
+        for (int i = 0; i < generator.PerlinOctaves; i++)
         {
-            octaveOffsets[i] = new Vector2(offsetX, offsetY);
-
+            octaveOffsets[i] = new Vector2(offset.x, offset.y);
             maxPossibleHeight += amplitude;
-            amplitude *= TerrainGenerator.instance.persistence;
+            amplitude *= generator.persistence;
         }
 
-        //generate map for our tesselation shader on our chunk
-        for (int x = 0; x < TerrainGenerator.instance.textureWidth; x++)
-        {
-            for (int y = 0; y < TerrainGenerator.instance.textureHeight; y++)
-            {
-                amplitude = TerrainGenerator.instance.PerlinBaseAmplitude;
-                float freq = 1;
-                float noiseHeight = 0;
+        ComputeBuffer octaveOffsetsBuffer = new ComputeBuffer(generator.PerlinOctaves, sizeof(float) * 2, ComputeBufferType.Structured, ComputeBufferMode.Dynamic);
+        octaveOffsetsBuffer.SetData(octaveOffsets);
 
-                //perlin mapfrom combined octaves
-                for (int i = 0; i < TerrainGenerator.instance.PerlinOctaves; i++)
-                {
-                    float px = (float)((x / width) * chunkSize + octaveOffsets[i].x) / TerrainGenerator.instance.PerlinScale * freq;
-                    float py = (float)((y / height) * chunkSize + octaveOffsets[i].y) / TerrainGenerator.instance.PerlinScale * freq;
+        m_heightShader.SetBuffer(m_heightKernel, "octaveOffsets", octaveOffsetsBuffer);
 
-                    float PerlinValue = Mathf.PerlinNoise(px, py) * 2 - 1;
-                    noiseHeight += PerlinValue * amplitude;
+        m_heightShader.SetFloat("perlinScale", 1f / generator.PerlinScale);
+        m_heightShader.SetFloat("normalizeScale", 1f / maxPossibleHeight);
 
-                    amplitude *= TerrainGenerator.instance.persistence;
-                    freq *= TerrainGenerator.instance.lacunarity;
-                }
+        m_heightShader.SetBool("includeSineWave", generator.includeSineWave);
+        m_heightShader.SetFloat("halfSineAmplitude", generator.sinAmplitude * 0.5f);
+        m_heightShader.SetFloat("sinePeriod", generator.sinPeriod);
+        m_heightShader.SetFloat("chunkOffsetX", offset.x);
+        m_heightShader.SetFloat("perlinNoiseWeight", generator.perlinNoiseWeight);
 
-                // Normalize Sample to fit world Sample Height
-                float value = (noiseHeight + maxPossibleHeight * 1.112f) / (maxPossibleHeight * 2.13f);
+        Vector3Int dispatchGroupSize = new Vector3Int(generator.textureWidth / (int)m_heightGlobal.x, generator.textureHeight / (int)m_heightGlobal.y, 1);
+        m_heightShader.Dispatch(m_heightKernel, dispatchGroupSize.x, dispatchGroupSize.y, dispatchGroupSize.z);
 
-                if (TerrainGenerator.instance.includeSineWave)
-                {
-                    //combining sine wave with perlin noise
-                    float sin = TerrainGenerator.instance.sinAmplitude * (Mathf.Sin(TerrainGenerator.instance.sinPeriod * ((x / width) * chunkSize + offsetX)) + 1f) / 2f;
+        Texture2D heightMapTexture = new Texture2D(generator.textureWidth, generator.textureHeight, TextureFormat.RGBAFloat, true);
 
-                    float maxAmp = 1f + TerrainGenerator.instance.perlinNoiseWeight;
+        RenderTexture.active = target;
 
-                    value = Mathf.Clamp((sin + (value * TerrainGenerator.instance.perlinNoiseWeight)) / maxAmp, 0, float.MaxValue);
-                }
-                Color color = new Color(value, value, value);
-                heightMapTexture.SetPixel(x, y, color);
-            }
-        }
-
+        heightMapTexture.ReadPixels(new Rect(0, 0, generator.textureWidth, generator.textureHeight), 0, 0, true);
         heightMapTexture.filterMode = FilterMode.Bilinear;
         heightMapTexture.wrapMode = TextureWrapMode.Clamp;
         heightMapTexture.Apply(false, false);
+        RenderTexture.active = null;
+        target.Release();
+        octaveOffsetsBuffer.Release();
 
-        //Debug.Log("height tex: " + (stopwatch.Elapsed.TotalSeconds).ToString());
         return heightMapTexture;
     }
-
 
 }
 
 public static class ColorUtils
 {
-    struct Vector3Uint
-    {
-        public uint x, y, z;
-        public Vector3Uint(uint x, uint y, uint z) { this.x = x; this.y = y; this.z = z; }
-    };
-
     static ComputeShader m_blendShader;
     static int m_blendKernel;
     static Vector3Uint m_blendGlobal;
