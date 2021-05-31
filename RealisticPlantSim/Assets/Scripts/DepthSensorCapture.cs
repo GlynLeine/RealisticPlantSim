@@ -24,7 +24,7 @@ public class DepthSensorCapture : CameraCapture
 
     private void Update()
     {
-        if (settings.sendColorFrames)
+        if (settings.sendDepthFrames)
         {
             PushToPipe(outputDepth, streamURL, streamWidth, streamHeight);
 
