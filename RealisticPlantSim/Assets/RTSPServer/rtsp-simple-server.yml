@@ -47,7 +47,7 @@ protocols: [udp, tcp]
 # available values are "no", "strict", "optional".
 encryption: no
 # port of the TCP/RTSP listener. This is used only if encryption is "no" or "optional".
-rtspPort: 8554
+rtspPort: 8556
 # port of the TCP/TLS/RTSPS listener. This is used only if encryption is "strict" or "optional".
 rtspsPort: 8555
 # port of the UDP/RTP listener. This is used only if "udp" is in protocols.
