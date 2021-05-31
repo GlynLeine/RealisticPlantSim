@@ -163,9 +163,13 @@ namespace FFmpegOut
 
         protected void PushToPipe(Texture texture, string url, int width, int height)
         {
-            RTSPServerLoader.GetInstance();
+            RTSPServerLoader loader = RTSPServerLoader.GetInstance();
+            if(!loader.CoroutineStarted)
+            {
+                StartCoroutine(loader.WaitForServerToStart());
+            }
             // Lazy initialization
-            if (_session == null)
+            if (_session == null && loader.RTSPServerloaded)
             {
                 Debug.Log("Creating Session: "+url);
                 // Give a newly created temporary render texture to the camera
@@ -189,6 +193,11 @@ namespace FFmpegOut
                 _startTime = Time.time;
                 _frameCount = 0;
                 _frameDropCount = 0;
+            }
+
+            if(_session == null)
+            {
+                return;
             }
 
             var gap = Time.time - FrameTime;
