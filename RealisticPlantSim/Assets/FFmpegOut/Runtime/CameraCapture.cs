@@ -13,36 +13,20 @@ namespace FFmpegOut
     {
         #region Public properties
 
-        [SerializeField] int _colorStreamWidth = 1920;
+        [SerializeField] int _streamWidth = 1920;
 
-        public int colorStreamWidth
+        public int streamWidth
         {
-            get { return _colorStreamWidth; }
-            set { _colorStreamWidth = value; }
+            get { return _streamWidth; }
+            set { _streamWidth = value; }
         }
 
-        [SerializeField] int _colorStreamHeight = 1080;
+        [SerializeField] int _streamHeight = 1080;
 
-        public int colorStreamHeight
+        public int streamHeight
         {
-            get { return _colorStreamHeight; }
-            set { _colorStreamHeight = value; }
-        }
-
-        [SerializeField] int _depthStreamWidth = 1920;
-
-        public int depthStreamWidth
-        {
-            get { return _depthStreamWidth; }
-            set { _depthStreamWidth = value; }
-        }
-
-        [SerializeField] int _depthStreamHeight = 1080;
-
-        public int depthStreamHeight
-        {
-            get { return _depthStreamHeight; }
-            set { _depthStreamHeight = value; }
+            get { return _streamHeight; }
+            set { _streamHeight = value; }
         }
 
         [SerializeField] FFmpegPreset _preset;
@@ -61,20 +45,12 @@ namespace FFmpegOut
             set { _frameRate = value; }
         }
 
-        private Dictionary<string, FFmpegSession> sessions = new Dictionary<string, FFmpegSession>();
+        [SerializeField] string _streamURL = "rtsp://localhost:8554/mystream";
 
-        [SerializeField] string _colorStreamURL = "rtsp://localhost:8554/mystream";
-        [SerializeField] string _depthStreamURL = "rtsp://localhost:8554/mystream";
-
-        public string colorStreamURL
+        public string streamURL
         {
-            get { return _colorStreamURL; }
-            set { _colorStreamURL = value; }
-        }
-        public string depthStreamURL
-        {
-            get { return _depthStreamURL; }
-            set { _depthStreamURL = value; }
+            get { return _streamURL; }
+            set { _streamURL = value; }
         }
 
         [SerializeField] int _crfValue = 23;
@@ -97,6 +73,7 @@ namespace FFmpegOut
         #endregion
 
         #region Private members
+        FFmpegSession _session;
         RenderTexture _tempRT;
         GameObject _blitter;
 
@@ -140,28 +117,18 @@ namespace FFmpegOut
 
         void OnValidate()
         {
-            _colorStreamWidth = Mathf.Max(8, _colorStreamWidth);
-            _colorStreamHeight = Mathf.Max(8, _colorStreamHeight);
-
-            _depthStreamWidth = Mathf.Max(8, _depthStreamWidth);
-            _depthStreamHeight = Mathf.Max(8, _depthStreamHeight);
+            _streamWidth = Mathf.Max(8, _streamWidth);
+            _streamHeight = Mathf.Max(8, _streamHeight);
         }
 
         void OnDisable()
         {
-            if (sessions[colorStreamURL] != null)
+            if (_session!= null)
             {
                 // Close and dispose the FFmpeg session.
-                sessions[colorStreamURL].Close();
-                sessions[colorStreamURL].Dispose();
-                sessions[colorStreamURL] = null;
-            }
-            if (sessions[depthStreamURL] != null)
-            {
-                // Close and dispose the FFmpeg session.
-                sessions[depthStreamURL].Close();
-                sessions[depthStreamURL].Dispose();
-                sessions[depthStreamURL] = null;
+                _session.Close();
+                _session.Dispose();
+                _session = null;
             }
 
             if (_tempRT != null)
@@ -182,30 +149,27 @@ namespace FFmpegOut
 
         IEnumerator Start()
         {
-            sessions[colorStreamURL] = null;
-            sessions[depthStreamURL] = null;
+            _session = null;
             // Sync with FFmpeg pipe thread at the end of every frame.
             for (var eof = new WaitForEndOfFrame(); ;)
             {
                 yield return eof;
-                if (sessions[colorStreamURL]!=null)
-                    sessions[colorStreamURL].CompletePushFrames();
+                if (_session != null)
+                    _session.CompletePushFrames();
                 else
-                     Debug.LogWarning("Color Stream Session is not Initialized");
-
-                if (sessions[depthStreamURL]!=null)
-                    sessions[depthStreamURL].CompletePushFrames();
-                else
-                    Debug.LogWarning("Depth Stream Session is not Inialized");
+                     Debug.LogWarning("Stream Session is not Initialized");
             }
         }
 
         protected void PushToPipe(Texture texture, string url, int width, int height)
         {
-            var _session = sessions[url];
-            RTSPServerLoader.GetInstance();
+            RTSPServerLoader loader = RTSPServerLoader.GetInstance();
+            if(!loader.CoroutineStarted)
+            {
+                StartCoroutine(loader.WaitForServerToStart());
+            }
             // Lazy initialization
-            if (_session == null)
+            if (_session == null && loader.RTSPServerloaded)
             {
                 Debug.Log("Creating Session: "+url);
                 // Give a newly created temporary render texture to the camera
@@ -217,7 +181,7 @@ namespace FFmpegOut
                 }
 
                 // Start an FFmpeg session.
-                sessions[url] = FFmpegSession.Create(
+                _session = FFmpegSession.Create(
                     url,
                     width,
                     height,
@@ -225,11 +189,15 @@ namespace FFmpegOut
                     _crfValue,
                     _maxBitrate
                 );
-                _session = sessions[url];
 
                 _startTime = Time.time;
                 _frameCount = 0;
                 _frameDropCount = 0;
+            }
+
+            if(_session == null)
+            {
+                return;
             }
 
             var gap = Time.time - FrameTime;
@@ -273,6 +241,8 @@ namespace FFmpegOut
         #endregion
 
     }
+
+
 
 
 }

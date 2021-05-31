@@ -10,6 +10,7 @@ public class RTSPServerLoader
     public static RTSPServerLoader instance;
 
     public bool RTSPServerloaded = false;
+    public bool CoroutineStarted = false;
     private Process process;
     private StreamWriter messageStream;
 
@@ -20,6 +21,7 @@ public class RTSPServerLoader
             process = new Process();
             process.EnableRaisingEvents = false;
             process.StartInfo.FileName = Application.dataPath + "./RTSPServer/rtsp-simple-server.exe";
+            process.StartInfo.WorkingDirectory = Application.dataPath + "./RTSPServer";
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.RedirectStandardOutput = true;
@@ -39,8 +41,9 @@ public class RTSPServerLoader
         }
     }
 
-    IEnumerator WaitForServerToStart()
+    public IEnumerator WaitForServerToStart()
     {
+        CoroutineStarted = true;
         yield return new WaitForSeconds(2);
         RTSPServerloaded = true;
         UnityEngine.Debug.Log("Started RTSP Server");
@@ -74,6 +77,7 @@ public class RTSPServerLoader
         {
             instance = new RTSPServerLoader();
             UnityEngine.Debug.Log("Creating new instance of RTSPServerLoader");
+            
         }
         return instance;
     }
