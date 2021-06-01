@@ -103,6 +103,27 @@ public class TerrainGenerator : MonoBehaviour
         }
         chunks = new List<TerrainChunk>();
     }
+
+    /// <summary>
+    /// Gets the terrain chunk at a given x/z position
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns>The chunk that was found covering the position or null if nothing is found</returns>
+    public TerrainChunk GetTerrainChunk(Vector2 position)
+    {
+        foreach(TerrainChunk chunk in chunks)
+        {
+            if(chunk.gridXPos - (chunk.size.x / 2) <= position.x && chunk.gridXPos + (chunk.size.x / 2) >= position.x)
+            {
+                if(chunk.gridYPos - (chunk.size.y / 2) <= position.y && chunk.gridYPos + (chunk.size.y / 2) >= position.y)
+                {
+                    return chunk;
+                }
+            }
+        }
+
+        return null;
+    }
 }
 
 [System.Serializable]
@@ -111,7 +132,7 @@ public class TerrainChunk
     public Texture2D heightMap;
     public Texture2D normalMap;
     public Vector2 size;
-    public float gridXpos;
+    public float gridXPos;
     public float gridYPos;
     public GameObject chunkObject;
 
@@ -122,7 +143,7 @@ public class TerrainChunk
     public TerrainChunk(Vector2 position, Vector2 size, Vector2 index)
     {
 
-        gridXpos = position.x;
+        gridXPos = position.x;
         gridYPos = position.y;
         this.size = size;
         heightMap = CreateHeightmap(index.x, index.y);
@@ -147,7 +168,7 @@ public class TerrainChunk
         GameObject plane = new GameObject("Chunk");
         plane.AddComponent<MeshFilter>().mesh = CreateTerrainMesh(width, height);
         plane.AddComponent<MeshRenderer>();
-        plane.transform.position = new Vector3(gridXpos, 0, gridYPos);
+        plane.transform.position = new Vector3(gridXPos, 0, gridYPos);
 
         Material chunkMaterial = new Material(TerrainGenerator.instance.terrainMaterial);
         //chunkMaterial.SetTexture("_BaseColorMap", this.heightMap);

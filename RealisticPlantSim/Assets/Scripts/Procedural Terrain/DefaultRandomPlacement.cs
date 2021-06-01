@@ -19,12 +19,29 @@ public class DefaultRandomPlacement : AbstractPlacementStrategy
         float randomZOffset = Random.Range(zmin, zmax);
 
         Vector3 position = new Vector3(randomXOffset, plantGenerator.transform.position.y, randomZOffset);
+        Vector2 mappedPlantPosition = new Vector2(position.x, position.z);
+
+        TerrainChunk terrainChunk = plantGenerator.gameObject.GetComponent<TerrainGenerator>().GetTerrainChunk(mappedPlantPosition);
+
+        if (terrainChunk != null) {
+
+            Vector2 terrainPosition = new Vector2(terrainChunk.gridXPos, terrainChunk.gridYPos);
+            Vector2 relativePlantPosition = (mappedPlantPosition - terrainPosition) / terrainChunk.size;
+            Vector2 plantUvPosition = new Vector2(0.5f, 0.5f) + relativePlantPosition;
+
+            Color pixelColor = terrainChunk.heightMap.GetPixel((int)(plantUvPosition.x * terrainChunk.heightMap.width), (int)(plantUvPosition.y * terrainChunk.heightMap.height));
+
+            float tesselationAmplitude = terrainChunk.chunkObject.GetComponent<Renderer>().sharedMaterial.GetFloat("_HeightTessAmplitude");
+            float height = terrainChunk.chunkObject.transform.position.y + (pixelColor.r * tesselationAmplitude / 100f);
+            position.y = height;
+        }
 
         return position;
     }
 
     public override void OnInspectorGUI()
     {
+
     }
 
 }
