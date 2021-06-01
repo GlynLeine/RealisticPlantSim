@@ -70,7 +70,7 @@ public class TerrainGenerator : MonoBehaviour
                 {
                     float tileWidth = tileWidthLeft < maximumChunkSize ? tileWidthLeft : maximumChunkSize;
 
-                    TerrainChunk newChunk = new TerrainChunk(position: new Vector2(tileWidthLeft - (terrainWidth / 2) + (0.5f * (maximumChunkSize - tileWidth)), tileLengthLeft - (terrainLength / 2) + (0.5f * (maximumChunkSize - tileLength))), size: new Vector2(tileWidth, tileLength), index: new Vector2(x, y));
+                    TerrainChunk newChunk = new TerrainChunk(position: new Vector2(tileWidthLeft - (terrainWidth / 2) - (0.5f * tileWidth), tileLengthLeft - (terrainLength / 2) - (0.5f * tileLength) ), size: new Vector2(tileWidth, tileLength), index: new Vector2(x, y));
                     newChunk.chunkObject.transform.SetParent(terrain.transform);
                     chunks.Add(newChunk);
 
@@ -103,6 +103,27 @@ public class TerrainGenerator : MonoBehaviour
         }
         chunks = new List<TerrainChunk>();
     }
+
+    /// <summary>
+    /// Gets the terrain chunk at a given x/z position
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns>The chunk that was found covering the position or null if nothing is found</returns>
+    public TerrainChunk GetTerrainChunk(Vector2 position)
+    {
+        foreach(TerrainChunk chunk in chunks)
+        {
+            if(chunk.gridXPos - (chunk.size.x / 2) <= position.x && chunk.gridXPos + (chunk.size.x / 2) >= position.x)
+            {
+                if(chunk.gridYPos - (chunk.size.y / 2) <= position.y && chunk.gridYPos + (chunk.size.y / 2) >= position.y)
+                {
+                    return chunk;
+                }
+            }
+        }
+
+        return null;
+    }
 }
 
 [System.Serializable]
@@ -111,7 +132,7 @@ public class TerrainChunk
     public Texture2D heightMap;
     public Texture2D normalMap;
     public Vector2 size;
-    public float gridXpos;
+    public float gridXPos;
     public float gridYPos;
     public GameObject chunkObject;
 
@@ -122,7 +143,7 @@ public class TerrainChunk
     public TerrainChunk(Vector2 position, Vector2 size, Vector2 index)
     {
 
-        gridXpos = position.x;
+        gridXPos = position.x;
         gridYPos = position.y;
         this.size = size;
         heightMap = CreateHeightmap(index.x, index.y);
@@ -147,7 +168,7 @@ public class TerrainChunk
         GameObject plane = new GameObject("Chunk");
         plane.AddComponent<MeshFilter>().mesh = CreateTerrainMesh(width, height);
         plane.AddComponent<MeshRenderer>();
-        plane.transform.position = new Vector3(gridXpos, 0, gridYPos);
+        plane.transform.position = new Vector3(gridXPos, 0, gridYPos);
 
         Material chunkMaterial = new Material(TerrainGenerator.instance.terrainMaterial);
         //chunkMaterial.SetTexture("_BaseColorMap", this.heightMap);
@@ -248,7 +269,7 @@ public class TerrainChunk
         m_heightShader.SetBool("includeSineWave", generator.includeSineWave);
         m_heightShader.SetFloat("halfSineAmplitude", generator.sinAmplitude * 0.5f);
         m_heightShader.SetFloat("sinePeriod", generator.sinPeriod);
-        m_heightShader.SetFloat("chunkOffsetX", offset.x);
+        m_heightShader.SetFloat("chunkOffsetX", generator.xOffset - (generator.maximumChunkSize * gridX));
         m_heightShader.SetFloat("perlinNoiseWeight", generator.perlinNoiseWeight);
 
         Vector3Int dispatchGroupSize = new Vector3Int(generator.textureWidth / (int)m_heightGlobal.x, generator.textureHeight / (int)m_heightGlobal.y, 1);
@@ -267,6 +288,19 @@ public class TerrainChunk
         octaveOffsetsBuffer.Release();
 
         return heightMapTexture;
+    }
+
+    public float GetHeightFromPosition(Vector2 position)
+    {
+
+        Vector2 terrainPosition = new Vector2(this.gridXPos, this.gridYPos);
+        Vector2 relativePlantPosition = (position - terrainPosition) / this.size;
+        Vector2 plantUvPosition = new Vector2(0.5f, 0.5f) + relativePlantPosition;
+
+        Color pixelColor = this.heightMap.GetPixel((int)(plantUvPosition.x * this.heightMap.width), (int)(plantUvPosition.y * this.heightMap.height));
+
+        float tesselationAmplitude = this.chunkObject.GetComponent<Renderer>().sharedMaterial.GetFloat("_HeightTessAmplitude");
+        return this.chunkObject.transform.position.y + (pixelColor.r * tesselationAmplitude / 100f);
     }
 
 }

@@ -163,7 +163,7 @@ public class PlantGenerator : MonoBehaviour
             float chunkZ = chunk.chunkObject.transform.position.z;
             float chunkSizeXHalf = chunk.size.x/2;
             float chunkSizeZHalf = chunk.size.y/2;
-            Vector3 position = placementStrategy.RandomizePosition(this, chunkX-chunkSizeXHalf, chunkX+ chunkSizeXHalf, chunkZ-chunkSizeZHalf, chunkZ+chunkSizeZHalf);
+            Vector3 position = placementStrategy.RandomizePosition(this, chunk, chunkX-chunkSizeXHalf, chunkX+ chunkSizeXHalf, chunkZ-chunkSizeZHalf, chunkZ+chunkSizeZHalf);
 
             if (spawnSettings.mainHoudiniPlant == null)
             {
