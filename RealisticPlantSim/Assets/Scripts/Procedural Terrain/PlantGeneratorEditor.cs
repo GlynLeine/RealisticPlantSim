@@ -43,7 +43,7 @@ public class PlantGeneratorEditor : Editor
             {
                 throw new Exception($"[PlantGenerator] The Random Placement script on plant #{plantGenerator.plantSpawnSettings.IndexOf(spawnSetting)} does not extend from AbstractPlacementStrategy!");
             }
-            placementStrategy.OnInspectorGUI();
+            placementStrategy.OnInspectorGUI(plantGenerator);
         }
 
 
