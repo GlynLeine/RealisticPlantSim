@@ -1,0 +1,90 @@
+#pragma kernel CSNormal
+#pragma kernel CSBlur
+
+RWTexture2D<float4> target;
+Texture2D<float4> source;
+float strength;
+int2 resolution;
+float2 texelSize;
+
+[numthreads(32, 32, 1)]
+void CSNormal(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x <= (uint)resolution.x && id.y <= (uint)resolution.y)
+    {
+        uint2 northIdx = uint2(id.x, clamp(id.y - 1, 0, resolution.y));
+        uint2 eastIdx = uint2(clamp(id.x + 1, 0, resolution.x), id.y);
+        uint2 southIdx = uint2(id.x, clamp(id.y + 1, 0, resolution.y));
+        uint2 westIdx = uint2(clamp(id.x - 1, 0, resolution.x), id.y);
+
+        float3 position = float3(id.x * texelSize.x, 0, id.y * texelSize.y);
+
+        float3 north = float3(position.x, source[northIdx].x, position.y - texelSize.y);
+        float3 east = float3(position.x + texelSize.x, source[eastIdx].x, position.y);
+        float3 south = float3(position.x, source[southIdx].x, position.y + texelSize.y);
+        float3 west = float3(position.x - texelSize.x, source[westIdx].x, position.y);
+
+        float3 vertical = normalize(south - north);
+        float3 horizontal = normalize(west - east);
+
+        float3 normal = normalize(cross(horizontal, vertical));
+
+        normal.xz = float2(1.0, 1.0) + normal.xz * strength;
+        normal = normalize(normal);
+
+        target[id.xy] = float4(normal.x, normal.z, 1.0, 1.0);
+    }
+}
+
+bool horizontal;
+
+[numthreads(32, 32, 1)]
+void CSBlur(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x <= (uint)resolution.x && id.y <= (uint)resolution.y)
+    {
+        const float weights[16] = {
+                                0.08427471052401217,
+                                0.08241881287569482,
+                                0.07709359878116807,
+                                0.0689714791513203,
+                                0.05901747760595566,
+                                0.0483006289068612,
+                                0.03780820879774751,
+                                0.028306095234324098,
+                                0.020269056400399315,
+                                0.0138818132369629,
+                                0.009093222300681138,
+                                0.0056970328941555156,
+                                0.003413813462766935,
+                                0.001956555597625242,
+                                0.001072524959457961,
+                                0.0005623245328733309 };
+
+        float4 result = source[id.xy] * weights[0];
+
+        if (horizontal)
+        {
+            for (int i = 1; i < 16; ++i)
+            {
+                result += source[clamp(id.xy + uint2(i, 0), 0, (uint2)resolution)] * weights[i];
+                result += source[clamp(id.xy - uint2(i, 0), 0, (uint2)resolution)] * weights[i];
+            }
+        }
+        else
+        {
+            for (int i = 1; i < 16; ++i)
+            {
+                result += source[clamp(id.xy + uint2(0, i), 0, (uint2)resolution)] * weights[i];
+                result += source[clamp(id.xy - uint2(0, i), 0, (uint2)resolution)] * weights[i];
+            }
+        }
+
+        result.w = 1.0;
+        result.xyz = normalize(float3(1.0, 1.0, 0.0) + result.xyz * float3(strength, strength, 1.0));
+        result.z = 1.0;
+
+        target[id.xy] = result;
+    }
+}
+

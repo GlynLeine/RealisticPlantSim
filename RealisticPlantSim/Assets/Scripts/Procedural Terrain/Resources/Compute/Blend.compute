@@ -1,0 +1,30 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSBlend
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> target;
+Texture2D<float4> sourceA;
+Texture2D<float4> sourceB;
+SamplerState samplersourceB;
+float strength;
+int2 resolution;
+
+float2 uvFromIdx(uint2 idx)
+{
+    return (float2)(idx) / resolution;
+}
+
+[numthreads(32, 32, 1)]
+void CSBlend(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x <= (uint)resolution.x && id.y <= (uint)resolution.y)
+    {
+        float2 uv = uvFromIdx(id.xy);
+
+        float4 colorA = sourceA[id.xy];
+        float4 colorB = sourceB.SampleLevel(samplersourceB, uv, 0);
+
+        target[id.xy] = lerp(colorA, colorB, strength);
+    }
+}
