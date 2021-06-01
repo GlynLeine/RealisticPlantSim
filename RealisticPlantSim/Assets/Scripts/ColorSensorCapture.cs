@@ -16,7 +16,7 @@ public class ColorSensorCapture : CameraCapture
     public ColorSensorCapture Initialize()
     {
         settings = GetComponent<StreamSettings>();
-        outputColor = new RenderTexture(streamWidth, streamHeight, 16, RenderTextureFormat.ARGB32);
+        outputColor = new RenderTexture(streamWidth, streamHeight, 1, RenderTextureFormat.ARGBFloat);
         outputColor.enableRandomWrite = true;
         outputColor.Create();
         return this;

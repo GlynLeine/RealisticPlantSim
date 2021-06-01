@@ -16,7 +16,7 @@ public class DepthSensorCapture : CameraCapture
     public DepthSensorCapture Initialize()
     {
         settings = GetComponent<StreamSettings>();
-        outputDepth = new RenderTexture(streamWidth, streamHeight, 16, RenderTextureFormat.ARGB32);
+        outputDepth = new RenderTexture(streamWidth, streamHeight, 1, RenderTextureFormat.ARGBFloat);
         outputDepth.enableRandomWrite = true;
         outputDepth.Create();
         return this;
