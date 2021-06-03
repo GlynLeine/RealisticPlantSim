@@ -49,9 +49,17 @@ public class FarmlandHeightBasedPlacementStrategy : AbstractPlacementStrategy
         possibleXValues = null;
     }
 
-    public override void OnInspectorGUI()
+    public override void OnInspectorGUI(PlantGenerator plantGenerator)
     {
-        maxOffset = EditorGUILayout.FloatField(new GUIContent("Maximum offset"), maxOffset);
+        float maxRowOffset = plantGenerator.getVarFromPlacementVarStorage<float>("maxRowOffset");
+
+        float offset = EditorGUILayout.FloatField(new GUIContent("Maximum offset"), maxRowOffset);
+
+        if (offset != maxRowOffset)
+        {
+            plantGenerator.placementStrategyVars["maxRowOffset"] = offset;
+        }
+
     }
 
     

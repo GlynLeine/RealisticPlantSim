@@ -21,6 +21,9 @@ public class PlantGenerator : MonoBehaviour
     [SerializeField]
     public int amountOfPlantsToSpawn = 100;
 
+    [SerializeField]
+    public SerializableDictionary<string, object> placementStrategyVars = new SerializableDictionary<string, object>();
+
     public int currentPlant = 0;
     public bool generatingPlants = false;
 
@@ -245,5 +248,33 @@ public class PlantGenerator : MonoBehaviour
         assetRoot._houdiniAsset.RequestCook(bCheckParametersChanged: true, bAsync: false, bSkipCookCheck: true, bUploadParameters: true);
         yield return null;
     }
+
+    public T getVarFromPlacementVarStorage<T>(string key)
+    {
+        if(!placementStrategyVars.ContainsKey(key))
+        {
+            return default(T);
+        }
+
+        object value = placementStrategyVars[key];
+        if(value.GetType() is T)
+        {
+            return (T)value;
+        } else
+        {
+            return default(T);
+        }
+    }
 }
 
+//[Serializable]
+//public class PlacementStrategyValueStore
+//{
+//    public string paramName;
+
+//    public PlacementStrategyValueStore(string )
+//    {
+//        this.paramName = paramName;
+
+//    }
+//}

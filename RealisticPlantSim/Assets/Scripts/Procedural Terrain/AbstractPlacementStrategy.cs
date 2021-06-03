@@ -32,5 +32,6 @@ public abstract class AbstractPlacementStrategy : MonoScript
     /// <summary>
     /// Exposed Inspector GUI capability
     /// </summary>
-    public abstract void OnInspectorGUI();
+    /// <param name="plantGenerator"></param>
+    public abstract void OnInspectorGUI(PlantGenerator plantGenerator);
 }
