@@ -254,7 +254,7 @@ MonoBehaviour:
   _streamHeight: 720
   _preset: 0
   _frameRate: 20
-  _streamURL: rtsp://localhost:8556/depth0
+  _streamURL: rtsp://localhost:8554/depth0
   _crfValue: 23
   _maxBitrate: 20000
   depthOutput: {fileID: 0}
@@ -274,7 +274,7 @@ MonoBehaviour:
   _streamHeight: 1080
   _preset: 0
   _frameRate: 20
-  _streamURL: rtsp://localhost:8556/camera0
+  _streamURL: rtsp://localhost:8554/camera0
   _crfValue: 23
   _maxBitrate: 20000
   colorOutput: {fileID: 0}
