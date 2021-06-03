@@ -23,12 +23,25 @@ const float perlinNoiseWeight;
 [numthreads(32, 32, 1)]
 void CSHeight(uint3 id : SV_DispatchThreadID)
 {
+    float offsetX = 0;
+    float offsetY = 0;
+    if (id.x == 0)
+    {
+        offsetX = 1;
+    }
+    if (id.y == 0)
+    {
+        offsetY = 1;
+    }
+
+   
+
     float freq = 1;
     float noiseHeight = 0;
 
     for (int i = 0; i < octaves; i++)
     {
-        float2 pos = ((id.xy * oneOverResolution * chunkSize) + octaveOffsets[i]) * perlinScale * freq;
+        float2 pos = (((id.xy-float2(offsetX,offsetY)) * oneOverResolution * chunkSize) + octaveOffsets[i]) * perlinScale * freq;
 
         noiseHeight += (((SimplexNoise(pos) * 0.5) + 0.5) * amplitude);
 
@@ -40,12 +53,14 @@ void CSHeight(uint3 id : SV_DispatchThreadID)
 
     if (includeSineWave)
     {
-        float period = sinePeriod * ((id.x * oneOverResolution.x * chunkSize) + chunkOffsetX);
+        float period = sinePeriod * (((id.x-offsetX) * oneOverResolution.x * chunkSize) + chunkOffsetX );
         float sine = (sin(period) * halfSineAmplitude) + halfSineAmplitude;
 
         noiseHeight = lerp(sine, noiseHeight, perlinNoiseWeight);
     }
 
+
     noiseHeight = saturate(noiseHeight);
+
     target[id.xy] = float4(noiseHeight, noiseHeight, noiseHeight, 1.0);
 }

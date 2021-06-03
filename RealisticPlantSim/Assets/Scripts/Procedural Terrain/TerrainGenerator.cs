@@ -172,9 +172,9 @@ public class TerrainChunk
         //heightMap = TerrainGenerator.instance.baseHeightTexture.Blend(heightMap, 0.5f, true);
         //normalMap = TerrainGenerator.instance.baseNormalTexture.Blend(normalMap, 0.5f, true);
         heightMap = heightMap.Blend(TerrainGenerator.instance.baseHeightTexture, 0.5f, true);
-        heightMap.Compress(true);
+        //heightMap.Compress(true);
         normalMap = normalMap.Blend(TerrainGenerator.instance.baseNormalTexture, 0.5f, true);
-        normalMap.Compress(true);
+        //normalMap.Compress(true);
 
         chunkObject = createTerrain(size.x, size.y);
         SetActive(true);
@@ -388,6 +388,7 @@ public static class ColorUtils
         result.wrapModeU = texture.wrapModeU;
         result.wrapModeV = texture.wrapModeV;
         result.wrapModeW = texture.wrapModeW;
+        result.wrapMode = TextureWrapMode.Clamp;
 
         result.Apply(genMips, !texture.isReadable);
         RenderTexture.active = null;
@@ -464,6 +465,7 @@ public static class ColorUtils
         result.wrapModeU = source.wrapModeU;
         result.wrapModeV = source.wrapModeV;
         result.wrapModeW = source.wrapModeW;
+        result.wrapMode = TextureWrapMode.Clamp;
 
         result.Apply(source.mipmapCount > 1, !source.isReadable);
         RenderTexture.active = null;
