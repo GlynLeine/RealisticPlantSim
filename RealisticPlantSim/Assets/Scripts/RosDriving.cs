@@ -62,7 +62,6 @@ public class RosDriving : MonoBehaviour
         {
             targetObject = new GameObject("Waypoint");
             targetObject.transform.position = targetPos;
-            GetComponent<UnityStandardAssets.Vehicles.Car.CarAIControl>().SetTarget(targetObject.transform);
         }
 
     }
