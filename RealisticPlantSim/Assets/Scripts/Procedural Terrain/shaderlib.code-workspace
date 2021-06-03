@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "..\\..\\..\\Library\\PackageCache\\com.unity.render-pipelines.core@10.3.1\\ShaderLibrary"
+		},
+		{
+			"path": "..\\..\\..\\Library\\PackageCache\\com.unity.render-pipelines.high-definition@10.3.1\\Runtime\\RenderPipeline\\ShaderPass"
+		},
+		{
+			"path": "..\\..\\..\\Library\\PackageCache\\com.unity.render-pipelines.high-definition@10.3.1\\Runtime\\ShaderLibrary"
+		},
+		{
+			"path": "..\\..\\..\\Library\\PackageCache\\com.unity.render-pipelines.high-definition@10.3.1\\Runtime\\Material\\Lit"
+		},
+		{
+			"path": "..\\..\\..\\Library\\PackageCache\\com.unity.render-pipelines.high-definition@10.3.1\\Runtime\\Debug"
+		},
+		{
+			"path": "..\\..\\..\\Library\\PackageCache\\com.unity.render-pipelines.high-definition@10.3.1\\Runtime\\Material\\Builtin"
+		}
+	],
+	"settings": {}
+}

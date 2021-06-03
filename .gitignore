@@ -88,3 +88,6 @@ Documentation~/
 *.log
 UserSettings/
 Thumbs.db**
+*/Export
+
+*/Assets/HoudiniEngineAssetCache/Working

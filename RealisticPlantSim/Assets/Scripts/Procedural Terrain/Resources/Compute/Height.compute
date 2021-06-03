@@ -1,0 +1,51 @@
+#pragma kernel CSHeight
+
+#include "noise.hlsl"
+
+RWTexture2D<float4> target;
+const float2 oneOverResolution;
+const float chunkSize;
+const int octaves;
+float amplitude;
+const float persistence;
+const float lacunarity;
+
+StructuredBuffer<float2> octaveOffsets;
+const float perlinScale;
+const float normalizeScale;
+
+const bool includeSineWave;
+const float halfSineAmplitude;
+const float sinePeriod;
+const float chunkOffsetX;
+const float perlinNoiseWeight;
+
+[numthreads(32, 32, 1)]
+void CSHeight(uint3 id : SV_DispatchThreadID)
+{
+    float freq = 1;
+    float noiseHeight = 0;
+
+    for (int i = 0; i < octaves; i++)
+    {
+        float2 pos = ((id.xy * oneOverResolution * chunkSize) + octaveOffsets[i]) * perlinScale * freq;
+
+        noiseHeight += (((SimplexNoise(pos) * 0.5) + 0.5) * amplitude);
+
+        amplitude *= persistence;
+        freq *= lacunarity;
+    }
+
+    noiseHeight = noiseHeight * normalizeScale;
+
+    if (includeSineWave)
+    {
+        float period = sinePeriod * ((id.x * oneOverResolution.x * chunkSize) + chunkOffsetX);
+        float sine = (sin(period) * halfSineAmplitude) + halfSineAmplitude;
+
+        noiseHeight = lerp(sine, noiseHeight, perlinNoiseWeight);
+    }
+
+    noiseHeight = saturate(noiseHeight);
+    target[id.xy] = float4(noiseHeight, noiseHeight, noiseHeight, 1.0);
+}
