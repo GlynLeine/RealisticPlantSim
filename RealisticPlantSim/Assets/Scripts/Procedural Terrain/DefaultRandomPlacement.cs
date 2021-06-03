@@ -26,7 +26,7 @@ public class DefaultRandomPlacement : AbstractPlacementStrategy
         return position;
     }
 
-    public override void OnInspectorGUI()
+    public override void OnInspectorGUI(PlantGenerator plantGenerator)
     {
 
     }
