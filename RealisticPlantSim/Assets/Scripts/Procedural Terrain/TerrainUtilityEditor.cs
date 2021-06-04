@@ -103,7 +103,7 @@ public class TerrainUtilityEditor : Editor
             //plantGenerator.StartCoroutine(plantGenerator.spawnPlantsInXZRange());
 
             //New logic ->
-            plantGenerator.StartCoroutine(plantGenerator.SpawnPlantsOnChunks(terrainGenerator));
+            plantGenerator.StartCoroutine(plantGenerator.SpawnPlantsOnChunks(terrainGenerator, _plantsPerFrame.intValue));
 
             eta.Reset();
         }

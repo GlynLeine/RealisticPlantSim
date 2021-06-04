@@ -62,7 +62,7 @@ public class PlantGenerator : MonoBehaviour
     [SerializeField]
     public List<PlantSpawnSettings> plantSpawnSettings = new List<PlantSpawnSettings>();
 
-    public IEnumerator SpawnPlantsOnChunks(TerrainGenerator terrainGenerator)
+    public IEnumerator SpawnPlantsOnChunks(TerrainGenerator terrainGenerator, int plantsPerFrame)
     {
         generatingPlants = true;
         currentPlant = 0;
@@ -103,17 +103,26 @@ public class PlantGenerator : MonoBehaviour
             chunk.SetActive(false);
         }
 
-        List<Coroutine> plantSpawnerCoroutines = new List<Coroutine>();
 
-        foreach (TerrainChunk chunk in terrainGenerator.chunks)
+        List<TerrainChunk> chunksToGenerateOn = terrainGenerator.chunks.ToList();
+
+        while(chunksToGenerateOn.Count > 0)
         {
-            plantSpawnerCoroutines.Add(StartCoroutine(SpawnPlantsOnChunk(chunk, enabledPlantSpawnSettings, amountPerChunk)));
+            List<Coroutine> plantSpawnerCoroutines = new List<Coroutine>();
+
+            foreach (TerrainChunk chunk in chunksToGenerateOn.RemoveAndGet(0, plantsPerFrame))
+            {
+                plantSpawnerCoroutines.Add(StartCoroutine(SpawnPlantsOnChunk(chunk, enabledPlantSpawnSettings, amountPerChunk)));
+            }
+
+            foreach (Coroutine coroutine in plantSpawnerCoroutines)
+            {
+                yield return coroutine;
+            }
         }
 
-        foreach(Coroutine coroutine in plantSpawnerCoroutines)
-        {
-            yield return coroutine;
-        }
+
+
 
         //Turning chunks back on
         foreach (TerrainChunk chunk in terrainGenerator.chunks)
@@ -263,6 +272,28 @@ public class PlantGenerator : MonoBehaviour
         } else
         {
             return default(T);
+        }
+    }
+}
+
+public static class Extensions
+{
+    public static IList<T> RemoveAndGet<T>(this IList<T> list, int index, int amount)
+    {
+        lock (list)
+        {
+            List<T> itemsTaken = new List<T>();
+            for(int i = 0; i < amount; i++)
+            {
+                int actualIndex = index + i;
+                if(list.ElementAtOrDefault(actualIndex) != null)
+                {
+                    itemsTaken.Add(list[actualIndex]);
+                    list.RemoveAt(actualIndex);
+
+                }
+            }
+            return itemsTaken;
         }
     }
 }
