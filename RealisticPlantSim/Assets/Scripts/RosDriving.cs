@@ -32,39 +32,29 @@ public class RosDriving : MonoBehaviour
 
     private void Update()
     {
-        if (!useAi)
-        {
-            //just moves the robot to the position, nothing fancy
-            MoveToPoint();
-        } 
+        //just moves the robot to the position, nothing fancy
+        MoveToPoint();
     }
 
     private void updateTargetPos(geom_msgs.Vector3 msg)
     {
         Debug.Log("Updated Pos");
         targetPos = new Vector3((float)msg.x, transform.position.y, (float)msg.z);
-        if (!useAi)
+        Debug.Log(targetPos);
+        if (rotateFirst)
         {
-            //im sanitizing the target position so we don't get any weird vertical movement
-            if (rotateFirst)
-            {
-                rotate = true;
-                move = false;
-                targetDirection = (targetPos - transform.position).normalized;
-                targetRotation = Quaternion.LookRotation(targetDirection);
-            }
-            else
-            {
-                move = true;
-            }
+            rotate = true;
+            move = false;
+            targetDirection = (targetPos - transform.position).normalized;
+            targetRotation = Quaternion.LookRotation(targetDirection);
         }
         else
         {
-            targetObject = new GameObject("Waypoint");
-            targetObject.transform.position = targetPos;
+            move = true;
         }
-
     }
+
+
 
     #region Move and Rotatation
     void MoveToPoint()
