@@ -27,6 +27,8 @@ public class PlantGenerator : MonoBehaviour
     public int currentPlant = 0;
     public bool generatingPlants = false;
 
+    private bool cancel = false;
+    private IETACalculator eta = null;
 
     public static PlantGenerator instance;
     private void Awake()
@@ -62,11 +64,18 @@ public class PlantGenerator : MonoBehaviour
     [SerializeField]
     public List<PlantSpawnSettings> plantSpawnSettings = new List<PlantSpawnSettings>();
 
-    public IEnumerator SpawnPlantsOnChunks(TerrainGenerator terrainGenerator)
+    public IEnumerator SpawnPlantsOnChunks(TerrainGenerator terrainGenerator, int plantsPerFrame)
     {
         generatingPlants = true;
+        cancel = false;
         currentPlant = 0;
         int amountPerChunk = amountOfPlantsToSpawn / terrainGenerator.chunks.Count;
+
+        if (eta == null)
+        {
+            eta = new ETACalculator(5, 20);
+        }
+        eta.Reset();
 
         List<PlantSpawnSettings> enabledPlantSpawnSettings = plantSpawnSettings.Where(pss => pss.enabled).ToList();
 
@@ -103,17 +112,29 @@ public class PlantGenerator : MonoBehaviour
             chunk.SetActive(false);
         }
 
-        List<Coroutine> plantSpawnerCoroutines = new List<Coroutine>();
 
-        foreach (TerrainChunk chunk in terrainGenerator.chunks)
+        List<TerrainChunk> chunksToGenerateOn = terrainGenerator.chunks.ToList();
+
+
+        while (chunksToGenerateOn.Count > 0)
         {
-            plantSpawnerCoroutines.Add(StartCoroutine(SpawnPlantsOnChunk(chunk, enabledPlantSpawnSettings, amountPerChunk)));
+            List<Coroutine> plantSpawnerCoroutines = new List<Coroutine>();
+
+            foreach (TerrainChunk chunk in chunksToGenerateOn.RemoveAndGet(0, plantsPerFrame))
+            {
+                plantSpawnerCoroutines.Add(StartCoroutine(SpawnPlantsOnChunk(chunk, enabledPlantSpawnSettings, amountPerChunk, terrainGenerator.chunks)));
+            }
+
+            foreach (Coroutine coroutine in plantSpawnerCoroutines)
+            {
+                yield return coroutine;
+            }
+            GC.Collect();
+            Resources.UnloadUnusedAssets();
         }
 
-        foreach(Coroutine coroutine in plantSpawnerCoroutines)
-        {
-            yield return coroutine;
-        }
+
+
 
         //Turning chunks back on
         foreach (TerrainChunk chunk in terrainGenerator.chunks)
@@ -140,10 +161,11 @@ public class PlantGenerator : MonoBehaviour
 
         Debug.Log("[PlantGenerator] Plant generator finished!");
         generatingPlants = false;
+        EditorUtility.ClearProgressBar();
 
     }
 
-    public IEnumerator SpawnPlantsOnChunk(TerrainChunk chunk, List<PlantSpawnSettings> plantSpawnSettings, int amountOfPlants)
+    public IEnumerator SpawnPlantsOnChunk(TerrainChunk chunk, List<PlantSpawnSettings> plantSpawnSettings, int amountOfPlants, List<TerrainChunk> chunks)
     {
 
         for (int i = 0; i < amountOfPlants; i++)
@@ -179,6 +201,30 @@ public class PlantGenerator : MonoBehaviour
             newPlant.transform.position = position;
             newPlant.isStatic = true;
             currentPlant++;
+
+            float percentageDone = (float)currentPlant / (float)amountOfPlantsToSpawn;
+            eta.Update(percentageDone);
+            string extraText = "";
+            if (eta.ETAIsAvailable)
+            {
+                extraText += $"Estimated time left: {eta.ETR.Hours}:{eta.ETR.Minutes}:{eta.ETR.Seconds}";
+            }
+
+            cancel = EditorUtility.DisplayCancelableProgressBar("Busy generating plants...", $"Generating plants {currentPlant} / {amountOfPlantsToSpawn} {extraText}", percentageDone);
+            if (cancel)
+            {
+                StopAllCoroutines();
+                generatingPlants = false;
+                Transform plantsHolder = transform.Find("Plants");
+                plantsHolder.gameObject.SetActive(true);
+                EditorUtility.ClearProgressBar();
+                //Turning chunks back on
+                foreach (TerrainChunk terrainChunk in chunks)
+                {
+                    terrainChunk.SetActive(true);
+                }
+
+            }
             yield return newPlant;
             EditorApplication.QueuePlayerLoopUpdate();
             SceneView.RepaintAll();
@@ -263,6 +309,28 @@ public class PlantGenerator : MonoBehaviour
         } else
         {
             return default(T);
+        }
+    }
+}
+
+public static class Extensions
+{
+    public static IList<T> RemoveAndGet<T>(this IList<T> list, int index, int amount)
+    {
+        lock (list)
+        {
+            List<T> itemsTaken = new List<T>();
+            for(int i = 0; i < amount; i++)
+            {
+                int actualIndex = index + i;
+                if(list.ElementAtOrDefault(actualIndex) != null)
+                {
+                    itemsTaken.Add(list[actualIndex]);
+                    list.RemoveAt(actualIndex);
+
+                }
+            }
+            return itemsTaken;
         }
     }
 }

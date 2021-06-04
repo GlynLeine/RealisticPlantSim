@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
-
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using Debug = UnityEngine.Debug;
 struct Vector3Uint
 {
@@ -45,48 +47,75 @@ public class TerrainGenerator : MonoBehaviour
     public float sinPeriod = .1f;
     public float perlinNoiseWeight = 0.5f;
 
+    public GameObject chunkCullingRobotObject;
+    public float CullEveryXSeconds = 0.5f;
+    public int cullDistance = 15;
+
     // This needs to be serialized because otherwise it will get reset on script compile.
     [SerializeField]
     public List<TerrainChunk> chunks = new List<TerrainChunk>();
+    IEnumerator GenerateTerrain(int chunksPerFrame)
+    {
+        GameObject terrain = new GameObject("Terrain");
+        terrain.transform.SetParent(transform);
+        float tileLengthLeft = terrainLength;
 
-    public void buildTerrain()
+        int chunkCount = Mathf.CeilToInt(terrainLength / maximumChunkSize) * Mathf.CeilToInt(terrainWidth / maximumChunkSize);
+
+        int y = 0;
+
+        int progress = 0;
+
+        bool cancel = false;
+
+        cancel = EditorUtility.DisplayCancelableProgressBar("Busy generating terrain...", "Generating terrain " + progress + "/" + chunkCount, ((float)progress) / chunkCount);
+
+        while (tileLengthLeft > 0 && !cancel)
+        {
+            float tileLength = tileLengthLeft < maximumChunkSize ? tileLengthLeft : maximumChunkSize;
+
+            float tileWidthLeft = terrainWidth;
+            int x = 0;
+            while (tileWidthLeft > 0 && !cancel)
+            {
+                float tileWidth = tileWidthLeft < maximumChunkSize ? tileWidthLeft : maximumChunkSize;
+
+                TerrainChunk newChunk = new TerrainChunk(position: new Vector2(tileWidthLeft - (terrainWidth / 2) - (0.5f * tileWidth), tileLengthLeft - (terrainLength / 2) - (0.5f * tileLength)), size: new Vector2(tileWidth, tileLength), index: new Vector2(x, y));
+                newChunk.chunkObject.transform.SetParent(terrain.transform);
+                chunks.Add(newChunk);
+
+                progress++;
+                cancel = EditorUtility.DisplayCancelableProgressBar("Busy generating terrain...", "Generating terrain " + progress + "/" + chunkCount, ((float)progress) / chunkCount);
+
+
+                if (progress % chunksPerFrame == 0)
+                {
+                    System.GC.Collect();
+                    Resources.UnloadUnusedAssets();
+                    yield return null;
+                }
+
+                x++;
+                tileWidthLeft -= maximumChunkSize;
+            }
+            y++;
+            tileLengthLeft -= maximumChunkSize;
+        }
+        EditorUtility.ClearProgressBar();
+        System.GC.Collect();
+        Resources.UnloadUnusedAssets();
+    }
+
+    public void buildTerrain(int chunksPerFrame)
     {
         if (transform.Find("Terrain") == null)
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            GameObject terrain = new GameObject("Terrain");
-            terrain.transform.SetParent(transform);
-            float tileLengthLeft = terrainLength;
-            int y = 0;
-            while (tileLengthLeft > 0)
-            {
-                float tileLength = tileLengthLeft < maximumChunkSize ? tileLengthLeft : maximumChunkSize;
-
-                float tileWidthLeft = terrainWidth;
-                int x = 0;
-                while (tileWidthLeft > 0)
-                {
-                    float tileWidth = tileWidthLeft < maximumChunkSize ? tileWidthLeft : maximumChunkSize;
-
-                    TerrainChunk newChunk = new TerrainChunk(position: new Vector2(tileWidthLeft - (terrainWidth / 2) - (0.5f * tileWidth), tileLengthLeft - (terrainLength / 2) - (0.5f * tileLength) ), size: new Vector2(tileWidth, tileLength), index: new Vector2(x, y));
-                    newChunk.chunkObject.transform.SetParent(terrain.transform);
-                    chunks.Add(newChunk);
-
-                    x++;
-                    tileWidthLeft -= maximumChunkSize;
-                }
-                y++;
-                tileLengthLeft -= maximumChunkSize;
-            }
-
-            Debug.Log("Total: " + stopwatch.Elapsed.TotalSeconds.ToString());
+            StartCoroutine(GenerateTerrain(chunksPerFrame));
         }
         else
         {
             deleteTerrain();
-            buildTerrain();
+            buildTerrain(chunksPerFrame);
         }
 
     }
@@ -111,11 +140,11 @@ public class TerrainGenerator : MonoBehaviour
     /// <returns>The chunk that was found covering the position or null if nothing is found</returns>
     public TerrainChunk GetTerrainChunk(Vector2 position)
     {
-        foreach(TerrainChunk chunk in chunks)
+        foreach (TerrainChunk chunk in chunks)
         {
-            if(chunk.gridXPos - (chunk.size.x / 2) <= position.x && chunk.gridXPos + (chunk.size.x / 2) >= position.x)
+            if (chunk.gridXPos - (chunk.size.x / 2) <= position.x && chunk.gridXPos + (chunk.size.x / 2) >= position.x)
             {
-                if(chunk.gridYPos - (chunk.size.y / 2) <= position.y && chunk.gridYPos + (chunk.size.y / 2) >= position.y)
+                if (chunk.gridYPos - (chunk.size.y / 2) <= position.y && chunk.gridYPos + (chunk.size.y / 2) >= position.y)
                 {
                     return chunk;
                 }
@@ -149,10 +178,16 @@ public class TerrainChunk
         heightMap = CreateHeightmap(index.x, index.y);
         normalMap = heightMap.CreateNormal(TerrainGenerator.instance.normalStrength);
 
+        //heightMap = TerrainGenerator.instance.baseHeightTexture.Blend(heightMap, 0.5f, true);
+        //normalMap = TerrainGenerator.instance.baseNormalTexture.Blend(normalMap, 0.5f, true);
         heightMap = heightMap.Blend(TerrainGenerator.instance.baseHeightTexture, 0.5f, true);
+        //heightMap.Compress(true);
         normalMap = normalMap.Blend(TerrainGenerator.instance.baseNormalTexture, 0.5f, true);
+        normalMap.Compress(false);
+
         chunkObject = createTerrain(size.x, size.y);
         SetActive(true);
+        //GL.Flush();
     }
 
     public void SetActive(bool value)
@@ -234,6 +269,11 @@ public class TerrainChunk
         target.enableRandomWrite = true;
         target.Create();
 
+        if (generator.includeSineWave)
+            m_heightShader.EnableKeyword("SINE_WAVE_ON");
+        else
+            m_heightShader.DisableKeyword("SINE_WAVE_ON");
+
         m_heightShader.SetTexture(m_heightKernel, "target", target);
         m_heightShader.SetFloats("oneOverResolution", 1f / generator.textureWidth, 1f / generator.textureHeight);
         m_heightShader.SetFloat("chunkSize", generator.maximumChunkSize);
@@ -266,7 +306,6 @@ public class TerrainChunk
         m_heightShader.SetFloat("perlinScale", 1f / generator.PerlinScale);
         m_heightShader.SetFloat("normalizeScale", 1f / maxPossibleHeight);
 
-        m_heightShader.SetBool("includeSineWave", generator.includeSineWave);
         m_heightShader.SetFloat("halfSineAmplitude", generator.sinAmplitude * 0.5f);
         m_heightShader.SetFloat("sinePeriod", generator.sinPeriod);
         m_heightShader.SetFloat("chunkOffsetX", generator.xOffset - (generator.maximumChunkSize * gridX));
@@ -285,7 +324,9 @@ public class TerrainChunk
         heightMapTexture.Apply(false, false);
         RenderTexture.active = null;
         target.Release();
+        target.DiscardContents();
         octaveOffsetsBuffer.Release();
+        octaveOffsetsBuffer.Dispose();
 
         return heightMapTexture;
     }
@@ -360,10 +401,12 @@ public static class ColorUtils
         result.wrapModeU = texture.wrapModeU;
         result.wrapModeV = texture.wrapModeV;
         result.wrapModeW = texture.wrapModeW;
+        result.wrapMode = TextureWrapMode.Clamp;
 
         result.Apply(genMips, !texture.isReadable);
         RenderTexture.active = null;
         rt.Release();
+        rt.DiscardContents();
 
         //Debug.Log("blend tex: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return result;
@@ -435,11 +478,14 @@ public static class ColorUtils
         result.wrapModeU = source.wrapModeU;
         result.wrapModeV = source.wrapModeV;
         result.wrapModeW = source.wrapModeW;
+        result.wrapMode = TextureWrapMode.Clamp;
 
         result.Apply(source.mipmapCount > 1, !source.isReadable);
         RenderTexture.active = null;
         rt.Release();
+        rt.DiscardContents();
         blurRt.Release();
+        blurRt.DiscardContents();
 
         //Debug.Log("normal tex: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return result;
