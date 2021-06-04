@@ -2,6 +2,8 @@
 
 #include "noise.hlsl"
 
+#pragma multi_compile_local SINE_WAVE_ON __
+
 RWTexture2D<float4> target;
 const float2 oneOverResolution;
 const float chunkSize;
@@ -14,7 +16,6 @@ StructuredBuffer<float2> octaveOffsets;
 const float perlinScale;
 const float normalizeScale;
 
-const bool includeSineWave;
 const float halfSineAmplitude;
 const float sinePeriod;
 const float chunkOffsetX;
@@ -23,25 +24,14 @@ const float perlinNoiseWeight;
 [numthreads(32, 32, 1)]
 void CSHeight(uint3 id : SV_DispatchThreadID)
 {
-    float offsetX = 0;
-    float offsetY = 0;
-    if (id.x == 0)
-    {
-        offsetX = 1;
-    }
-    if (id.y == 0)
-    {
-        offsetY = 1;
-    }
-
-   
+    float2 offset = float2(1.0, 1.0) - saturate(id.xy);
 
     float freq = 1;
     float noiseHeight = 0;
 
     for (int i = 0; i < octaves; i++)
     {
-        float2 pos = (((id.xy-float2(offsetX,offsetY)) * oneOverResolution * chunkSize) + octaveOffsets[i]) * perlinScale * freq;
+        float2 pos = (((id.xy - offset) * oneOverResolution * chunkSize) + octaveOffsets[i]) * perlinScale * freq;
 
         noiseHeight += (((SimplexNoise(pos) * 0.5) + 0.5) * amplitude);
 
@@ -51,14 +41,12 @@ void CSHeight(uint3 id : SV_DispatchThreadID)
 
     noiseHeight = noiseHeight * normalizeScale;
 
-    if (includeSineWave)
-    {
-        float period = sinePeriod * (((id.x-offsetX) * oneOverResolution.x * chunkSize) + chunkOffsetX );
-        float sine = (sin(period) * halfSineAmplitude) + halfSineAmplitude;
+#if SINE_WAVE_ON
+    float period = sinePeriod * (((id.x - offset.x) * oneOverResolution.x * chunkSize) + chunkOffsetX);
+    float sine = (sin(period) * halfSineAmplitude) + halfSineAmplitude;
 
-        noiseHeight = lerp(sine, noiseHeight, perlinNoiseWeight);
-    }
-
+    noiseHeight = lerp(sine, noiseHeight, perlinNoiseWeight);
+#endif
 
     noiseHeight = saturate(noiseHeight);
 

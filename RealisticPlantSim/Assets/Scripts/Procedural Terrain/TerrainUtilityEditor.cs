@@ -9,6 +9,9 @@ using UnityEngine.SceneManagement;
 public class TerrainUtilityEditor : Editor
 {
     SerializedProperty _plantsPerUnit;
+    SerializedProperty _chunksPerFrame;
+    SerializedProperty _plantsPerFrame;
+
 
     int plantsToSpawn;
 
@@ -17,6 +20,8 @@ public class TerrainUtilityEditor : Editor
     void OnEnable()
     {
         _plantsPerUnit = serializedObject.FindProperty("plantsPerUnit");
+        _chunksPerFrame = serializedObject.FindProperty("chunksPerFrame");
+        _plantsPerFrame = serializedObject.FindProperty("plantsPerFrame");
     }
 
     private void OnSceneGUI()
@@ -60,12 +65,13 @@ public class TerrainUtilityEditor : Editor
 
         terrainGenerator.terrainLength = EditorGUILayout.FloatField(new GUIContent("Terrain size Z"), terrainGenerator.terrainLength);
 
+        EditorGUILayout.PropertyField(_chunksPerFrame);
 
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("Create terrain"))
         {
             TerrainGenerator.instance = terrainGenerator;
-            terrainGenerator.buildTerrain();
+            terrainGenerator.buildTerrain(_chunksPerFrame.intValue);
         }
 
         if (GUILayout.Button("Delete terrain"))
@@ -85,6 +91,9 @@ public class TerrainUtilityEditor : Editor
         plantsToSpawn = (int)Math.Round(_plantsPerUnit.floatValue * terrainGenerator.terrainLength * terrainGenerator.terrainWidth);
         GUILayout.Label($"This will spawn {plantsToSpawn} plants");
         plantGenerator.amountOfPlantsToSpawn = plantsToSpawn;
+
+        EditorGUILayout.PropertyField(_plantsPerFrame);
+
 
         GUILayout.BeginHorizontal();
 

@@ -50,7 +50,7 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     public List<TerrainChunk> chunks = new List<TerrainChunk>();
 
-    IEnumerator GenerateTerrain()
+    IEnumerator GenerateTerrain(int chunksPerFrame)
     {
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -85,7 +85,12 @@ public class TerrainGenerator : MonoBehaviour
 
                 progress++;
                 cancel = EditorUtility.DisplayCancelableProgressBar("Busy generating terrain...", "Generating terrain " + progress + "/" + chunkCount, ((float)progress) / chunkCount);
-                yield return null;
+
+
+                if (progress % chunksPerFrame == 0)
+                {
+                    yield return null;
+                }
 
                 x++;
                 tileWidthLeft -= maximumChunkSize;
@@ -97,16 +102,16 @@ public class TerrainGenerator : MonoBehaviour
         Debug.Log("Total: " + stopwatch.Elapsed.TotalSeconds.ToString());
     }
 
-    public void buildTerrain()
+    public void buildTerrain(int chunksPerFrame)
     {
         if (transform.Find("Terrain") == null)
         {
-            StartCoroutine(GenerateTerrain());
+            StartCoroutine(GenerateTerrain(chunksPerFrame));
         }
         else
         {
             deleteTerrain();
-            buildTerrain();
+            buildTerrain(chunksPerFrame);
         }
 
     }
@@ -174,7 +179,7 @@ public class TerrainChunk
         heightMap = heightMap.Blend(TerrainGenerator.instance.baseHeightTexture, 0.5f, true);
         //heightMap.Compress(true);
         normalMap = normalMap.Blend(TerrainGenerator.instance.baseNormalTexture, 0.5f, true);
-        //normalMap.Compress(true);
+        normalMap.Compress(false);
 
         chunkObject = createTerrain(size.x, size.y);
         SetActive(true);
@@ -260,6 +265,11 @@ public class TerrainChunk
         target.enableRandomWrite = true;
         target.Create();
 
+        if (generator.includeSineWave)
+            m_heightShader.EnableKeyword("SINE_WAVE_ON");
+        else
+            m_heightShader.DisableKeyword("SINE_WAVE_ON");
+
         m_heightShader.SetTexture(m_heightKernel, "target", target);
         m_heightShader.SetFloats("oneOverResolution", 1f / generator.textureWidth, 1f / generator.textureHeight);
         m_heightShader.SetFloat("chunkSize", generator.maximumChunkSize);
@@ -292,7 +302,6 @@ public class TerrainChunk
         m_heightShader.SetFloat("perlinScale", 1f / generator.PerlinScale);
         m_heightShader.SetFloat("normalizeScale", 1f / maxPossibleHeight);
 
-        m_heightShader.SetBool("includeSineWave", generator.includeSineWave);
         m_heightShader.SetFloat("halfSineAmplitude", generator.sinAmplitude * 0.5f);
         m_heightShader.SetFloat("sinePeriod", generator.sinPeriod);
         m_heightShader.SetFloat("chunkOffsetX", generator.xOffset - (generator.maximumChunkSize * gridX));
