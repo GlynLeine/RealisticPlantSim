@@ -11,21 +11,6 @@ public class TerrainGeneratorEditor : Editor
 
         DrawDefaultInspector();
 
-        if (GUILayout.Button("Generate terrain"))
-        {
-            TerrainGenerator terrainGenerator = (TerrainGenerator)target;
-            TerrainGenerator.instance = terrainGenerator;
-            terrainGenerator.buildTerrain();
-
-        }
-
-        if (GUILayout.Button("Delete terrain"))
-        {
-            TerrainGenerator terrainGenerator = (TerrainGenerator)target;
-            TerrainGenerator.instance = terrainGenerator;
-            terrainGenerator.deleteTerrain();
-        }
-
         serializedObject.ApplyModifiedProperties();
     }
 }
