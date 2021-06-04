@@ -15,7 +15,6 @@ public class TerrainUtilityEditor : Editor
 
     int plantsToSpawn;
 
-    IETACalculator eta = null;
 
     void OnEnable()
     {
@@ -24,27 +23,23 @@ public class TerrainUtilityEditor : Editor
         _plantsPerFrame = serializedObject.FindProperty("plantsPerFrame");
     }
 
-    private void OnSceneGUI()
-    {
-        TerrainUtility terrainUtility = (TerrainUtility)target;
-        PlantGenerator plantGenerator = terrainUtility.GetComponent<PlantGenerator>();
+    //private void OnSceneGUI()
+    //{
+    //    TerrainUtility terrainUtility = (TerrainUtility)target;
+    //    PlantGenerator plantGenerator = terrainUtility.GetComponent<PlantGenerator>();
 
-        if (plantGenerator.generatingPlants)
-        {
-            if (Event.current.type == EventType.Repaint)
-            {
-                SceneView.RepaintAll();
-            }
-        }
+    //    if (plantGenerator.generatingPlants)
+    //    {
+    //        if (Event.current.type == EventType.Repaint)
+    //        {
+    //            SceneView.RepaintAll();
+    //        }
+    //    }
 
-    }
+    //}
 
     public override void OnInspectorGUI()
     {
-        if (eta == null)
-        {
-            eta = new ETACalculator(5, 15);
-        }
         serializedObject.Update();
         TerrainUtility terrainUtility = (TerrainUtility)target;
         TerrainGenerator terrainGenerator = terrainUtility.GetComponent<TerrainGenerator>();
@@ -78,6 +73,9 @@ public class TerrainUtilityEditor : Editor
         {
             TerrainGenerator.instance = terrainGenerator;
             terrainGenerator.deleteTerrain();
+            EditorSceneManager.MarkAllScenesDirty();
+            System.GC.Collect();
+            Resources.UnloadUnusedAssets();
         }
 
         GUILayout.EndHorizontal();
@@ -104,46 +102,17 @@ public class TerrainUtilityEditor : Editor
 
             //New logic ->
             plantGenerator.StartCoroutine(plantGenerator.SpawnPlantsOnChunks(terrainGenerator, _plantsPerFrame.intValue));
-
-            eta.Reset();
         }
 
         if (GUILayout.Button("Delete plants"))
         {
             plantGenerator.deleteAllPlants(terrainGenerator);
             EditorSceneManager.MarkAllScenesDirty();
+            System.GC.Collect();
+            Resources.UnloadUnusedAssets();
         }
 
         GUILayout.EndHorizontal();
-
-        if (GUILayout.Button("Stop generator"))
-        {
-            plantGenerator.StopAllCoroutines();
-            plantGenerator.generatingPlants = false;
-            Transform plantsHolder = plantGenerator.transform.Find("Plants");
-            plantsHolder.gameObject.SetActive(true);
-
-        }
-
-        if (plantGenerator.generatingPlants)
-        {
-            float percentageDone = (float) plantGenerator.currentPlant / (float) plantGenerator.amountOfPlantsToSpawn;
-            eta.Update(percentageDone);
-            EditorGUILayout.LabelField($"Generating plants... {plantGenerator.currentPlant} / {plantGenerator.amountOfPlantsToSpawn}");
-            if(eta.ETAIsAvailable)
-            {
-                EditorGUILayout.LabelField($"Estimated time left: {eta.ETR.Hours}:{eta.ETR.Minutes}:{eta.ETR.Seconds}");
-            } else
-            {
-                EditorGUILayout.LabelField($"Calculating time remaining...");
-
-            }
-            EditorGUILayout.LabelField("Don't click away from Unity, while clicked away the generator can't generate plants!");
-            EditorGUILayout.LabelField("Tip! Look away from the field with the scene view. The generation will go faster");
-
-        }
-
-
 
         serializedObject.ApplyModifiedProperties();
     }

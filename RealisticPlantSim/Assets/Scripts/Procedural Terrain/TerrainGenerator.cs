@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
-
+#endif
 using Debug = UnityEngine.Debug;
 struct Vector3Uint
 {
@@ -46,15 +47,15 @@ public class TerrainGenerator : MonoBehaviour
     public float sinPeriod = .1f;
     public float perlinNoiseWeight = 0.5f;
 
+    public GameObject chunkCullingRobotObject;
+    public float CullEveryXSeconds = 0.5f;
+    public int cullDistance = 15;
+
     // This needs to be serialized because otherwise it will get reset on script compile.
     [SerializeField]
     public List<TerrainChunk> chunks = new List<TerrainChunk>();
-
     IEnumerator GenerateTerrain(int chunksPerFrame)
     {
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
-
         GameObject terrain = new GameObject("Terrain");
         terrain.transform.SetParent(transform);
         float tileLengthLeft = terrainLength;
@@ -89,6 +90,8 @@ public class TerrainGenerator : MonoBehaviour
 
                 if (progress % chunksPerFrame == 0)
                 {
+                    System.GC.Collect();
+                    Resources.UnloadUnusedAssets();
                     yield return null;
                 }
 
@@ -99,7 +102,8 @@ public class TerrainGenerator : MonoBehaviour
             tileLengthLeft -= maximumChunkSize;
         }
         EditorUtility.ClearProgressBar();
-        Debug.Log("Total: " + stopwatch.Elapsed.TotalSeconds.ToString());
+        System.GC.Collect();
+        Resources.UnloadUnusedAssets();
     }
 
     public void buildTerrain(int chunksPerFrame)
@@ -183,7 +187,7 @@ public class TerrainChunk
 
         chunkObject = createTerrain(size.x, size.y);
         SetActive(true);
-        GL.Flush();
+        //GL.Flush();
     }
 
     public void SetActive(bool value)
