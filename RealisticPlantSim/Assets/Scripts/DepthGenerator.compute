@@ -22,7 +22,7 @@ void GetColor(uint2 uv)
     outputColor[uv] = colorTexture[uv];
 }
 
-[numthreads(8, 8, 1)]
+[numthreads(16, 16, 1)]
 void ParseTexture(uint3 id : SV_DispatchThreadID)
 {
     GetDepth(id.xy);
