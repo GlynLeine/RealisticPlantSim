@@ -6,13 +6,16 @@ using geom_msgs = RosSharp.RosBridgeClient.MessageTypes.Geometry;
 
 public class RosDriving : MonoBehaviour
 {
-
+    private GameObject targetObject;
     private Vector3 targetPos;
     private Vector3 targetDirection;
     private Quaternion targetRotation;
 
     private bool move = false;
     private bool rotate = false;
+
+    [SerializeField]
+    private bool useAi = false;
 
     [SerializeField]
     private float moveStep = 1;
@@ -29,29 +32,41 @@ public class RosDriving : MonoBehaviour
 
     private void Update()
     {
-        //just moves the robot to the position, nothing fancy
-        MoveToPoint();
+        if (!useAi)
+        {
+            //just moves the robot to the position, nothing fancy
+            MoveToPoint();
+        } 
     }
 
     private void updateTargetPos(geom_msgs.Vector3 msg)
     {
         Debug.Log("Updated Pos");
         targetPos = new Vector3((float)msg.x, transform.position.y, (float)msg.z);
-        //im sanitizing the target position so we don't get any weird vertical movement
-        if (rotateFirst)
+        if (!useAi)
         {
-            rotate = true;
-            move = false;
-            targetDirection = (targetPos - transform.position).normalized;
-            targetRotation = Quaternion.LookRotation(targetDirection);
+            //im sanitizing the target position so we don't get any weird vertical movement
+            if (rotateFirst)
+            {
+                rotate = true;
+                move = false;
+                targetDirection = (targetPos - transform.position).normalized;
+                targetRotation = Quaternion.LookRotation(targetDirection);
+            }
+            else
+            {
+                move = true;
+            }
         }
         else
         {
-            move = true;
+            targetObject = new GameObject("Waypoint");
+            targetObject.transform.position = targetPos;
         }
 
     }
 
+    #region Move and Rotatation
     void MoveToPoint()
     {
 
@@ -80,7 +95,6 @@ public class RosDriving : MonoBehaviour
             PositionPublisher.PubCallback(new geom_msgs.Vector3(transform.position.x, transform.position.y, transform.position.z));
         }
     }
-
     void RotateToTarget()
     {
         if (Quaternion.Angle(transform.rotation, targetRotation) > 0.01f)
@@ -92,6 +106,7 @@ public class RosDriving : MonoBehaviour
         rotate = false;
         move = true;
     }
+    #endregion
 
     private void OnDrawGizmos()
     {
