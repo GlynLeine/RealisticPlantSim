@@ -7,10 +7,11 @@ float strength;
 int2 resolution;
 float2 texelSize;
 
+/// Sampling normal from heightmap ///
 [numthreads(32, 32, 1)]
 void CSNormal(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x <= (uint)resolution.x && id.y <= (uint)resolution.y)
+    if (all(id.xy <= (uint2)resolution))
     {
         uint2 northIdx = uint2(id.x, clamp(id.y - 1, 0, resolution.y));
         uint2 eastIdx = uint2(clamp(id.x + 1, 0, resolution.x), id.y);
@@ -38,10 +39,11 @@ void CSNormal(uint3 id : SV_DispatchThreadID)
 
 bool horizontal;
 
+/// Gaussian blur kernel ///
 [numthreads(32, 32, 1)]
 void CSBlur(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x <= (uint)resolution.x && id.y <= (uint)resolution.y)
+    if (all(id.xy <= (uint2)resolution))
     {
         const float weights[16] = {
                                 0.08427471052401217,

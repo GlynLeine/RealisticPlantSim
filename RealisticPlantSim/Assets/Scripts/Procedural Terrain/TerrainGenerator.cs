@@ -275,7 +275,7 @@ public class TerrainChunk
             m_heightShader.DisableKeyword("SINE_WAVE_ON");
 
         m_heightShader.SetTexture(m_heightKernel, "target", target);
-        m_heightShader.SetFloats("oneOverResolution", 1f / generator.textureWidth, 1f / generator.textureHeight);
+        m_heightShader.SetFloats("resolutionData", generator.textureWidth, generator.textureHeight, 1f / generator.textureWidth, 1f / generator.textureHeight);
         m_heightShader.SetFloat("chunkSize", generator.maximumChunkSize);
 
         m_heightShader.SetInt("octaves", generator.PerlinOctaves);

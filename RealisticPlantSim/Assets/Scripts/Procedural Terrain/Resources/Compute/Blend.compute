@@ -18,7 +18,7 @@ float2 uvFromIdx(uint2 idx)
 [numthreads(32, 32, 1)]
 void CSBlend(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x <= (uint)resolution.x && id.y <= (uint)resolution.y)
+    if (all(id.xy <= (uint2)resolution))
     {
         float2 uv = uvFromIdx(id.xy);
 
