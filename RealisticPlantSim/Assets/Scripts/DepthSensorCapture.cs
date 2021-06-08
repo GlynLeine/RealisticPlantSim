@@ -1,3 +1,7 @@
+/// <summary>
+/// Handles pushing the parsed depth information, to the FFmpeg pipeline for streaming
+/// Author: Rowan Ramsey
+/// </summary>
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,24 +12,28 @@ using UnityEngine.UI;
 [AddComponentMenu("Sensors/Depth Sensor")]
 public class DepthSensorCapture : CameraCapture
 {
+    //The render texture that holds the depth information from the camera
     private RenderTexture outputDepth;
-    StreamSettings settings;
+
+    CameraFrameParser frameParser;
 
     public DepthSensorCapture Initialize()
     {
-        settings = GetComponent<StreamSettings>();
+        frameParser = GetComponent<CameraFrameParser>();
         outputDepth = new RenderTexture(streamWidth, streamHeight, 1, RenderTextureFormat.ARGBFloat);
         outputDepth.enableRandomWrite = true;
         outputDepth.Create();
         return this;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        if (settings.sendDepthFrames)
+        //A check to see if the the frameParser has succesfully parsed the depth frame information
+        if (frameParser.sendDepthFrames)
         {
+            //Pushes the parsed frame to the FFmpeg pipeline
             PushToPipe(outputDepth, streamURL, streamWidth, streamHeight);
-            settings.sendDepthFrames = false;
+            frameParser.sendDepthFrames = false;
         }
     }
     public RenderTexture OutputDepth
