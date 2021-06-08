@@ -7,6 +7,11 @@ using System;
 using Random = UnityEngine.Random;
 using System.Linq;
 
+/// <summary>
+/// Can generate houdini plants based on many assignable variables.
+/// These plants can be generated at editor time.
+/// Author: Robin Dittrich, Maurijn Besters
+/// </summary>
 public class PlantGenerator : MonoBehaviour
 {
     [SerializeField]
@@ -36,6 +41,9 @@ public class PlantGenerator : MonoBehaviour
         instance = this;
     }
 
+    /// <summary>
+    /// Spawn settings for 1 type of plant
+    /// </summary>
     [System.Serializable]
     public class PlantSpawnSettings
     {
@@ -45,6 +53,10 @@ public class PlantGenerator : MonoBehaviour
         public List<PlantVariationSetting> randomizers;
     }
 
+    /// <summary>
+    /// Controls variables in houdini based on the Houdini key.
+    /// Can be a int or float
+    /// </summary>
     [System.Serializable]
     public class PlantVariationSetting
     {
@@ -64,6 +76,12 @@ public class PlantGenerator : MonoBehaviour
     [SerializeField]
     public List<PlantSpawnSettings> plantSpawnSettings = new List<PlantSpawnSettings>();
 
+    /// <summary>
+    /// Spawns plants on the current chunks that the terrain generator has generated, randomly picking spawn settings.
+    /// </summary>
+    /// <param name="terrainGenerator"></param>
+    /// <param name="plantsPerFrame">Plants that are generated before the editor updates 1 frame (Default 10)</param>
+    /// <returns></returns>
     public IEnumerator SpawnPlantsOnChunks(TerrainGenerator terrainGenerator, int plantsPerFrame)
     {
         generatingPlants = true;
@@ -112,9 +130,8 @@ public class PlantGenerator : MonoBehaviour
             chunk.SetActive(false);
         }
 
-
+        //We need all the terrainchunks copied to a new list
         List<TerrainChunk> chunksToGenerateOn = terrainGenerator.chunks.ToList();
-
 
         while (chunksToGenerateOn.Count > 0)
         {
@@ -165,6 +182,14 @@ public class PlantGenerator : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Spawns the required amount of plants on the current chunk
+    /// </summary>
+    /// <param name="chunk"></param>
+    /// <param name="plantSpawnSettings"></param>
+    /// <param name="amountOfPlants"></param>
+    /// <param name="chunks"></param>
+    /// <returns></returns>
     public IEnumerator SpawnPlantsOnChunk(TerrainChunk chunk, List<PlantSpawnSettings> plantSpawnSettings, int amountOfPlants, List<TerrainChunk> chunks)
     {
 
@@ -184,6 +209,7 @@ public class PlantGenerator : MonoBehaviour
             {
                 throw new Exception($"[PlantGenerator] The Random Placement script on plant #{randomPlantIndex} does not extend from AbstractPlacementStrategy!");
             }
+
             float chunkX = chunk.chunkObject.transform.position.x;
             float chunkZ = chunk.chunkObject.transform.position.z;
             float chunkSizeXHalf = chunk.size.x/2;
@@ -226,8 +252,6 @@ public class PlantGenerator : MonoBehaviour
 
             }
             yield return newPlant;
-            EditorApplication.QueuePlayerLoopUpdate();
-            SceneView.RepaintAll();
         }
 
     }
