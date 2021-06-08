@@ -9,8 +9,6 @@ using UnityEngine.UI;
 public class DepthSensorCapture : CameraCapture
 {
     private RenderTexture outputDepth;
-    [SerializeField]
-    private RawImage depthOutput;
     StreamSettings settings;
 
     public DepthSensorCapture Initialize()
@@ -27,14 +25,7 @@ public class DepthSensorCapture : CameraCapture
         if (settings.sendDepthFrames)
         {
             PushToPipe(outputDepth, streamURL, streamWidth, streamHeight);
-
-            depthOutput.texture = outputDepth;
-            depthOutput.Rebuild(CanvasUpdate.MaxUpdateValue);
-
-            outputDepth.enableRandomWrite = true;
-            outputDepth.Create();
-
-            settings.OutputDepth = outputDepth;
+            settings.sendDepthFrames = false;
         }
     }
     public RenderTexture OutputDepth

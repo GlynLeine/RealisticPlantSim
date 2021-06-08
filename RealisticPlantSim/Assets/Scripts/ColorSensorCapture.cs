@@ -9,8 +9,6 @@ using UnityEngine.UI;
 public class ColorSensorCapture : CameraCapture
 {
     private RenderTexture outputColor;
-    [SerializeField]
-    private RawImage colorOutput;
     StreamSettings settings;
 
     public ColorSensorCapture Initialize()
@@ -28,14 +26,6 @@ public class ColorSensorCapture : CameraCapture
         {
             PushToPipe(outputColor, streamURL, streamWidth, streamHeight);
             settings.sendColorFrames = false;
-
-            colorOutput.texture = outputColor;
-            colorOutput.Rebuild(CanvasUpdate.MaxUpdateValue);
-
-            outputColor.enableRandomWrite = true;
-            outputColor.Create();
-
-            settings.OutputColor = outputColor;
         }
     }
 

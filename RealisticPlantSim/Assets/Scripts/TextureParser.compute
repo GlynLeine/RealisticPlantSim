@@ -1,0 +1,37 @@
+#pragma kernel ParseTexture
+
+Texture2D<float4> colorTexture;
+Texture2D<float4> depthTexture;
+
+RWTexture2D<float4> outputColor;
+RWTexture2D<float4> outputDepth;
+
+int screenWidth = 1920;
+int screenHeight = 1080;
+
+int depthWidth = 1280;
+int depthHeight = 720;
+
+
+void GetDepth(uint2 uv)
+{
+    int2 offset = int2((screenWidth - depthWidth) / 2, (screenHeight - depthHeight) / 2);
+
+    int intensity = 3;
+    float depthValue = depthTexture[uv + offset].x * intensity;
+    outputDepth[uv] = float4(depthValue,depthValue,depthValue, 1);
+}
+
+void GetColor(uint2 uv)
+{
+    outputColor[uv] = colorTexture[uv];
+}
+
+[numthreads(16, 16, 1)]
+void ParseTexture(uint3 id : SV_DispatchThreadID)
+{
+    GetDepth(id.xy);
+    GetColor(id.xy);
+}
+
+
