@@ -5,6 +5,10 @@ using System.Diagnostics;
 using System.IO;
 using UnityEngine;
 
+/// <summary>
+/// Starts the RTSP server that can catch and resend the streams.
+/// Author: Robin Dittrich
+/// </summary>
 public class RTSPServerLoader
 {
     public static RTSPServerLoader instance;
@@ -41,6 +45,10 @@ public class RTSPServerLoader
         }
     }
 
+    /// <summary>
+    /// Sets a boolean when the server has started
+    /// </summary>
+    /// <returns></returns>
     public IEnumerator WaitForServerToStart()
     {
         CoroutineStarted = true;
@@ -50,18 +58,29 @@ public class RTSPServerLoader
 
     }
 
+    /// <summary>
+    /// Handles stdout messages from the process
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="eventArgs"></param>
     void DataReceived(object sender, DataReceivedEventArgs eventArgs)
     {
         UnityEngine.Debug.Log(eventArgs.Data);
     }
 
-
+    /// <summary>
+    /// Handles stderr messages from the process
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="eventArgs"></param>
     void ErrorReceived(object sender, DataReceivedEventArgs eventArgs)
     {
         UnityEngine.Debug.LogError(eventArgs.Data);
     }
 
-
+    /// <summary>
+    /// Kills the RTSP server
+    /// </summary>
     public void Kill()
     {
         if (process != null && !process.HasExited)
@@ -70,7 +89,10 @@ public class RTSPServerLoader
         }
     }
 
-
+    /// <summary>
+    /// Gets instance of rstp server. if it doesnt exist, creates it.
+    /// </summary>
+    /// <returns></returns>
     public static RTSPServerLoader GetInstance()
     {
         if (instance == null)

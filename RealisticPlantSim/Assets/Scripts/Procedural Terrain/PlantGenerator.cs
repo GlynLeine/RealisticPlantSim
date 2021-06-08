@@ -256,6 +256,10 @@ public class PlantGenerator : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Deletes all plants that are spawned
+    /// </summary>
+    /// <param name="terrainGenerator"></param>
     public void deleteAllPlants(TerrainGenerator terrainGenerator)
     {
         Transform plantsHolder = transform.Find("Plants");
@@ -282,6 +286,11 @@ public class PlantGenerator : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Generates one plant by randomizing its variables and spawning it on terrainchunks
+    /// </summary>
+    /// <param name="spawnSettings"></param>
+    /// <returns></returns>
     private GameObject generateNewPlant(PlantSpawnSettings spawnSettings)
     {
         StartCoroutine(randomizeHoudiniVars(spawnSettings));
@@ -300,6 +309,11 @@ public class PlantGenerator : MonoBehaviour
         return newPlant;
     }
 
+    /// <summary>
+    /// Randomizes the houdini variables of one plant according to the randomizer settings
+    /// </summary>
+    /// <param name="spawnSettings"></param>
+    /// <returns></returns>
     private IEnumerator randomizeHoudiniVars(PlantSpawnSettings spawnSettings)
     {
         HEU_HoudiniAssetRoot assetRoot = spawnSettings.mainHoudiniPlant.GetComponent<HEU_HoudiniAssetRoot>();
@@ -319,6 +333,12 @@ public class PlantGenerator : MonoBehaviour
         yield return null;
     }
 
+    /// <summary>
+    /// Generic method that gets a variable from a dictionary as a specific type.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="key"></param>
+    /// <returns></returns>
     public T getVarFromPlacementVarStorage<T>(string key)
     {
         if(!placementStrategyVars.ContainsKey(key))
@@ -337,8 +357,19 @@ public class PlantGenerator : MonoBehaviour
     }
 }
 
+/// <summary>
+/// Extension class that adds a method to the IList class
+/// </summary>
 public static class Extensions
 {
+    /// <summary>
+    /// This method removes a set amount of items from a list and returns them.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="list"></param>
+    /// <param name="index"></param>
+    /// <param name="amount"></param>
+    /// <returns></returns>
     public static IList<T> RemoveAndGet<T>(this IList<T> list, int index, int amount)
     {
         lock (list)
@@ -358,15 +389,3 @@ public static class Extensions
         }
     }
 }
-
-//[Serializable]
-//public class PlacementStrategyValueStore
-//{
-//    public string paramName;
-
-//    public PlacementStrategyValueStore(string )
-//    {
-//        this.paramName = paramName;
-
-//    }
-//}
