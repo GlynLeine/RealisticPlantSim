@@ -1,3 +1,7 @@
+/// <summary>
+/// Publishes position requests to ROS
+/// Author: Rowan Ramsey
+/// </summary>
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
