@@ -12,6 +12,10 @@ struct Vector3Uint
     public Vector3Uint(uint x, uint y, uint z) { this.x = x; this.y = y; this.z = z; }
 };
 
+/// <summary>
+/// Can generate a farmland terrain based on parameters using compute shaders
+/// Author: Maurijn Besters, Glyn Leine, Robin Dittrich
+/// </summary>
 public class TerrainGenerator : MonoBehaviour
 {
     public static TerrainGenerator instance;
