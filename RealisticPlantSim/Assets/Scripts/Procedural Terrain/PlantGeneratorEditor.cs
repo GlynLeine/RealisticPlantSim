@@ -3,6 +3,10 @@ using UnityEditor;
 using static PlantGenerator;
 using System;
 
+/// <summary>
+/// Inspector editor code for the plant generator
+/// Author: Robin dittrich
+/// </summary>
 [CanEditMultipleObjects]
 [CustomEditor(typeof(PlantGenerator))]
 public class PlantGeneratorEditor : Editor

@@ -1,17 +1,30 @@
 using UnityEngine;
 
+/// <summary>
+/// Default random placement that randomly places plants within minimum and maximum bounds
+/// Author: Robin Dittrich
+/// </summary>
 public class DefaultRandomPlacement : AbstractPlacementStrategy
 {
+
     public override void OnGeneratorFinish(PlantGenerator plantGenerator)
     {
-        Debug.Log("Stopping generator");
     }
 
     public override void OnGeneratorStart(PlantGenerator plantGenerator)
     {
-        Debug.Log("Starting generator");
     }
 
+    /// <summary>
+    /// Randomizes position of a plant on the targeted chunk.
+    /// </summary>
+    /// <param name="plantGenerator"></param>
+    /// <param name="chunk"></param>
+    /// <param name="xmin"></param>
+    /// <param name="xmax"></param>
+    /// <param name="zmin"></param>
+    /// <param name="zmax"></param>
+    /// <returns>Vector3 with randomized position</returns>
     public override Vector3 RandomizePosition(PlantGenerator plantGenerator, TerrainChunk chunk, float xmin, float xmax, float zmin, float zmax)
     {
 
@@ -28,7 +41,6 @@ public class DefaultRandomPlacement : AbstractPlacementStrategy
 
     public override void OnInspectorGUI(PlantGenerator plantGenerator)
     {
-
     }
 
 }

@@ -1,4 +1,7 @@
-
+/// <summary>
+/// Subscribes to new position messages from ROS, and signals the robot to start moving
+/// Author: Rowan Ramsey
+/// </summary>
 using UnityEngine;
 using geom_msgs = RosSharp.RosBridgeClient.MessageTypes.Geometry;
 namespace RosSharp.RosBridgeClient

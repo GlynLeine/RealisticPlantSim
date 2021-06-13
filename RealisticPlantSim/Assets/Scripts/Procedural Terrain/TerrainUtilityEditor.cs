@@ -4,6 +4,10 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Terrain utility editor that calls different terrain / plant generator classes
+/// Author: Robin Dittrich
+/// </summary>
 [CanEditMultipleObjects]
 [CustomEditor(typeof(TerrainUtility))]
 public class TerrainUtilityEditor : Editor
@@ -22,21 +26,6 @@ public class TerrainUtilityEditor : Editor
         _chunksPerFrame = serializedObject.FindProperty("chunksPerFrame");
         _plantsPerFrame = serializedObject.FindProperty("plantsPerFrame");
     }
-
-    //private void OnSceneGUI()
-    //{
-    //    TerrainUtility terrainUtility = (TerrainUtility)target;
-    //    PlantGenerator plantGenerator = terrainUtility.GetComponent<PlantGenerator>();
-
-    //    if (plantGenerator.generatingPlants)
-    //    {
-    //        if (Event.current.type == EventType.Repaint)
-    //        {
-    //            SceneView.RepaintAll();
-    //        }
-    //    }
-
-    //}
 
     public override void OnInspectorGUI()
     {

@@ -4,6 +4,10 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// Places plants on the terrain tops based on the sine function of the generated terrain.
+/// Author: Robin Dittrich, Glyn Leine, Maurijn Besters
+/// </summary>
 public class FarmlandHeightBasedPlacementStrategy : AbstractPlacementStrategy
 {
 
@@ -13,6 +17,10 @@ public class FarmlandHeightBasedPlacementStrategy : AbstractPlacementStrategy
 
     static float maxOffset = 0;
 
+    /// <summary>
+    /// OnGeneratorStart calculate the positions of the terrain tops based on the terraingenerator settings
+    /// </summary>
+    /// <param name="plantGenerator"></param>
     public override void OnGeneratorStart(PlantGenerator plantGenerator)
     {
         terrainGenerator = plantGenerator.gameObject.GetComponent<TerrainGenerator>();
@@ -44,21 +52,31 @@ public class FarmlandHeightBasedPlacementStrategy : AbstractPlacementStrategy
         Debug.Log(log);
 
     }
+
+    /// <summary>
+    /// OnGeneratorFinish reset the positions that plants can be placed on
+    /// </summary>
+    /// <param name="plantGenerator"></param>
     public override void OnGeneratorFinish(PlantGenerator plantGenerator)
     {
         possibleXValues = null;
     }
 
+    /// <summary>
+    /// Inspector spot for a maxRowOffset where a plant can be a little offset on a row top.
+    /// TODO: fix the variable storage problem here
+    /// </summary>
+    /// <param name="plantGenerator"></param>
     public override void OnInspectorGUI(PlantGenerator plantGenerator)
     {
-        float maxRowOffset = plantGenerator.getVarFromPlacementVarStorage<float>("maxRowOffset");
+        //float maxRowOffset = plantGenerator.getVarFromPlacementVarStorage<float>("maxRowOffset");
 
-        float offset = EditorGUILayout.FloatField(new GUIContent("Maximum offset"), maxRowOffset);
+        //float offset = EditorGUILayout.FloatField(new GUIContent("Maximum offset"), maxRowOffset);
 
-        if (offset != maxRowOffset)
-        {
-            plantGenerator.placementStrategyVars["maxRowOffset"] = offset;
-        }
+        //if (offset != maxRowOffset)
+        //{
+        //    plantGenerator.placementStrategyVars["maxRowOffset"] = offset;
+        //}
 
     }
 
