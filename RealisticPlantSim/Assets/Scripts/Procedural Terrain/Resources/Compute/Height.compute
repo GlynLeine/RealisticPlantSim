@@ -52,8 +52,10 @@ void CSHeight(uint3 id : SV_DispatchThreadID)
         // Fractal noise sampling.
         for (int i = 0; i < octaves; i++)
         {
+            // Get world space sample position
             const float2 samplePosition = ((idx * oneOverResolution * chunkSize) + octaveOffsets[i]) * perlinScale * frequency;
 
+            // Sample and normalize noise to a range of 0-1
             const float halfAmplitude = amp * 0.5;
             noiseHeight += (SimplexNoise(samplePosition) * halfAmplitude) + halfAmplitude;
 
@@ -61,16 +63,22 @@ void CSHeight(uint3 id : SV_DispatchThreadID)
             frequency *= lacunarity;
         }
 
+        // Normalize fractal noise to a range of 0-1. NormalizeScale is one devided by the sum of all maximum values of each noise layer.
         noiseHeight *= normalizeScale;
 
 #if SINE_WAVE_ON
         // Sample a sine wave to blend with the fractal noise if sine waves are enabled on this dispatch.
-        const float period = sinePeriod * ((idx.x * oneOverResolution.x * chunkSize) + chunkOffsetX);
-        const float sine = (sin(period) * halfSineAmplitude) + halfSineAmplitude;
+        
+        // Get the world space position to sample the sine wave at
+        const float input = sinePeriod * ((idx.x * oneOverResolution.x * chunkSize) + chunkOffsetX);
 
+        // Sample and normalize the sine wave
+        const float sine = (sin(input) * halfSineAmplitude) + halfSineAmplitude;
+
+        // Blend the sine wave and the fractal noise
         noiseHeight = lerp(sine, noiseHeight, perlinNoiseWeight);
 #endif
 
-        target[id.xy] = float4(saturate(noiseHeight).xxx, 1.0);
+        target[id.xy] = float4(noiseHeight.xxx, 1.0);
     }
 }

@@ -1,15 +1,13 @@
-// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSBlend
+ 
+RWTexture2D<float4> target;     // Target texture to write result to (resolution must be the same as sourceA).
+Texture2D<float4> sourceA;      // First texture to use for the blend.
+Texture2D<float4> sourceB;      // Second texture to use for the blend.
+SamplerState samplersourceB;    // Sampler to use to sample the second texture with (can be lower or higher resolution than the first texture).
+float strength;                 // Interpolator value to use for the interpolation.
+int2 resolution;                // Resolution of sourceA and target.
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-RWTexture2D<float4> target;
-Texture2D<float4> sourceA;
-Texture2D<float4> sourceB;
-SamplerState samplersourceB;
-float strength;
-int2 resolution;
-
+// Convert from dispatch thread id to uv coordinate.
 float2 uvFromIdx(uint2 idx)
 {
     return (float2)(idx) / resolution;
