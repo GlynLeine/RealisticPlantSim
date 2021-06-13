@@ -1,3 +1,8 @@
+/// <summary>
+/// Custom importer for the simplified shader program.
+/// Author: Glyn Marcus Leine
+/// </summary>
+
 using UnityEngine;
 using UnityEditor.AssetImporters;
 using System.IO;

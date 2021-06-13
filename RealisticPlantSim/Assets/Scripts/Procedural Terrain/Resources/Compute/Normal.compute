@@ -1,3 +1,8 @@
+/// <summary>
+/// Compute shader for generating a normal map from a heightmap, includes gaussian blur kernel to blur the normal map afterwards.
+/// Author: Glyn Marcus Leine
+/// </summary>
+
 #pragma kernel CSNormal
 #pragma kernel CSBlur
 

@@ -1,3 +1,7 @@
+/// <summary>
+/// Compute shader for generating a heightmap using fractal noise and a sine wave for farmland grooves.
+/// Author: Glyn Marcus Leine
+/// </summary>
 #pragma kernel CSHeight
 
 #include "noise.hlsl"

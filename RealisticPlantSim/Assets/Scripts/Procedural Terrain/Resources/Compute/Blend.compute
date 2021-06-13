@@ -1,3 +1,8 @@
+/// <summary>
+/// Compute shader for blending 2 textures together using linear interpolation.
+/// Author: Glyn Marcus Leine
+/// </summary>
+
 #pragma kernel CSBlend
  
 RWTexture2D<float4> target;     // Target texture to write result to (resolution must be the same as sourceA).
