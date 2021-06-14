@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+
 using Debug = UnityEngine.Debug;
+
 struct Vector3Uint
 {
     public uint x, y, z;
@@ -71,9 +72,9 @@ public class TerrainGenerator : MonoBehaviour
         int progress = 0;
 
         bool cancel = false;
-
+#if UNITY_EDITOR
         cancel = EditorUtility.DisplayCancelableProgressBar("Busy generating terrain...", "Generating terrain " + progress + "/" + chunkCount, ((float)progress) / chunkCount);
-
+#endif
         while (tileLengthLeft > 0 && !cancel)
         {
             float tileLength = tileLengthLeft < maximumChunkSize ? tileLengthLeft : maximumChunkSize;
@@ -89,8 +90,9 @@ public class TerrainGenerator : MonoBehaviour
                 chunks.Add(newChunk);
 
                 progress++;
+#if UNITY_EDITOR
                 cancel = EditorUtility.DisplayCancelableProgressBar("Busy generating terrain...", "Generating terrain " + progress + "/" + chunkCount, ((float)progress) / chunkCount);
-
+#endif
 
                 if (progress % chunksPerFrame == 0)
                 {
@@ -105,7 +107,9 @@ public class TerrainGenerator : MonoBehaviour
             y++;
             tileLengthLeft -= maximumChunkSize;
         }
+#if UNITY_EDITOR
         EditorUtility.ClearProgressBar();
+#endif
         System.GC.Collect();
         Resources.UnloadUnusedAssets();
     }
@@ -182,16 +186,12 @@ public class TerrainChunk
         heightMap = CreateHeightmap(index.x, index.y);
         normalMap = heightMap.CreateNormal(TerrainGenerator.instance.normalStrength);
 
-        //heightMap = TerrainGenerator.instance.baseHeightTexture.Blend(heightMap, 0.5f, true);
-        //normalMap = TerrainGenerator.instance.baseNormalTexture.Blend(normalMap, 0.5f, true);
         heightMap = heightMap.Blend(TerrainGenerator.instance.baseHeightTexture, 0.5f, true);
-        //heightMap.Compress(true);
         normalMap = normalMap.Blend(TerrainGenerator.instance.baseNormalTexture, 0.5f, true);
         normalMap.Compress(false);
 
         chunkObject = createTerrain(size.x, size.y);
         SetActive(true);
-        //GL.Flush();
     }
 
     public void SetActive(bool value)
@@ -201,23 +201,17 @@ public class TerrainChunk
 
     public GameObject createTerrain(float width, float height)
     {
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
-
         GameObject plane = new GameObject("Chunk");
         plane.AddComponent<MeshFilter>().mesh = CreateTerrainMesh(width, height);
         plane.AddComponent<MeshRenderer>();
         plane.transform.position = new Vector3(gridXPos, 0, gridYPos);
 
         Material chunkMaterial = new Material(TerrainGenerator.instance.terrainMaterial);
-        //chunkMaterial.SetTexture("_BaseColorMap", this.heightMap);
         chunkMaterial.SetTexture("_HeightMap", this.heightMap);
         chunkMaterial.SetTexture("_NormalMap", this.normalMap);
 
 
         plane.GetComponent<Renderer>().material = chunkMaterial;
-
-        //Debug.Log("terrain: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return plane;
     }
 
@@ -229,8 +223,8 @@ public class TerrainChunk
         Mesh m = new Mesh();
         m.name = "chunk mesh";
         m.vertices = new Vector3[] {
-         new Vector3(-halfWidth, 0.01f,-halfHeight),
-         new Vector3(halfWidth, 0.01f,-halfHeight),
+         new Vector3(-halfWidth, 0.01f, -halfHeight),
+         new Vector3(halfWidth, 0.01f, -halfHeight),
          new Vector3(halfWidth, 0.01f, halfHeight),
          new Vector3(-halfWidth, 0.01f, halfHeight)
         };
@@ -249,6 +243,10 @@ public class TerrainChunk
         return m;
     }
 
+    /// <summary>
+    /// Generates a heightmap with fractal noise and a sine wave for farmland grooves, uses compute shaders.
+    /// Author: Glyn Marcus Leine & Maurijn Besters
+    /// </summary>
     public Texture2D CreateHeightmap(float gridX, float gridY)
     {
         if (!m_heightShader)
@@ -263,9 +261,6 @@ public class TerrainChunk
             m_heightKernel = m_heightShader.FindKernel("CSHeight");
             m_heightShader.GetKernelThreadGroupSizes(m_heightKernel, out m_heightGlobal.x, out m_heightGlobal.y, out m_heightGlobal.z);
         }
-
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
 
         var generator = TerrainGenerator.instance;
 
@@ -337,7 +332,6 @@ public class TerrainChunk
 
     public float GetHeightFromPosition(Vector2 position)
     {
-
         Vector2 terrainPosition = new Vector2(this.gridXPos, this.gridYPos);
         Vector2 relativePlantPosition = (position - terrainPosition) / this.size;
         Vector2 plantUvPosition = new Vector2(0.5f, 0.5f) + relativePlantPosition;
@@ -362,11 +356,12 @@ public static class ColorUtils
     static Vector3Uint m_normalGlobal;
     static Vector3Uint m_blurGlobal;
 
+    /// <summary>
+    /// Blends 2 textures together using linear interpolation and compute shaders.
+    /// Author: Glyn Marcus Leine & Maurijn Besters
+    /// </summary>
     public static Texture2D Blend(this Texture2D texture, Texture2D otherTexture, float amount, bool genMips = false)
     {
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
-
         if (!m_blendShader)
         {
             m_blendShader = Resources.Load<ComputeShader>("Compute/Blend");
@@ -412,15 +407,15 @@ public static class ColorUtils
         rt.Release();
         rt.DiscardContents();
 
-        //Debug.Log("blend tex: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return result;
     }
 
+    /// <summary>
+    /// Generate a normal map from a heightmap using compute shaders.
+    /// Author: Glyn Marcus Leine & Maurijn Besters
+    /// </summary>
     public static Texture2D CreateNormal(this Texture2D source, float strength)
     {
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
-
         if (!m_normalShader)
         {
             m_normalShader = Resources.Load<ComputeShader>("Compute/Normal");
@@ -491,7 +486,6 @@ public static class ColorUtils
         blurRt.Release();
         blurRt.DiscardContents();
 
-        //Debug.Log("normal tex: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return result;
     }
 }
