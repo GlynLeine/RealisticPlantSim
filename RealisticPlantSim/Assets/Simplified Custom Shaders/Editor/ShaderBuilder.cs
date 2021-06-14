@@ -1,3 +1,8 @@
+/// <summary>
+/// Custom editor window for generating simplified custom shaders.
+/// Author: Glyn Marcus Leine
+/// </summary>
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

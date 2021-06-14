@@ -1,3 +1,8 @@
+/// <summary>
+/// Editor utilities that might be useful for creating custom editor windows.
+/// Author: Glyn Marcus Leine
+/// </summary>
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

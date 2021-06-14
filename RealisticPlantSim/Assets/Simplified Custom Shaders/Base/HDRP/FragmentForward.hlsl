@@ -1,3 +1,8 @@
+/// <summary>
+/// Fragment shader code in order to simplify making custom shaders for HDRP. This shader code is used for the forward render pass.
+/// Author: Glyn Marcus Leine
+/// </summary>
+
 #if SHADERPASS != SHADERPASS_FORWARD
 #error SHADERPASS_is_not_correctly_define
 #endif

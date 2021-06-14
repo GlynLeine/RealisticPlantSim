@@ -1,3 +1,7 @@
+/// <summary>
+/// Vertex shader code in order to simplify making custom shaders for HDRP.
+/// Author: Glyn Marcus Leine
+/// </summary>
 
 // Vertex shader main function
 PackedVaryingsType Vert(    AttributesMesh inputMesh
