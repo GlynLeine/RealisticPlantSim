@@ -8630,7 +8630,7 @@ MonoBehaviour:
   _assetName: super_l_systembasic1
   _assetOpName: Object/super_l_systembasic
   _assetHelp: 
-  _assetID: 0
+  _assetID: -1
   _assetPath: Assets/Plugins/HoudiniEngineUnity/HDAs/super_l_systembasic.hdalc
   _loadAssetFromMemory: 0
   _assetFileObject: {fileID: 102900000, guid: d7e700459fe20524892139656d55efda, type: 3}
@@ -16066,6 +16066,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1603306400}
   - component: {fileID: 1603306399}
+  - component: {fileID: 1603306401}
   m_Layer: 0
   m_Name: Render Profile
   m_TagString: Untagged
@@ -16104,6 +16105,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1603306401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603306398}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: 7b4db7c917a49b0489d889dea8cc363e, type: 2}
 --- !u!114 &1604883617
 MonoBehaviour:
   m_ObjectHideFlags: 0
