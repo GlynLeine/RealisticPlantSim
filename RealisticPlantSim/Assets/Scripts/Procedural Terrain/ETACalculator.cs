@@ -36,6 +36,7 @@ public interface IETACalculator
 /// <summary> Calculates the "Estimated Time of Arrival"
 /// (or more accurately, "Estimated Time of Completion"),
 /// based on a "rolling average" of progress over time.
+/// Author: Stackoverflow - scott-rippey
 /// </summary>
 public class ETACalculator : IETACalculator
 {

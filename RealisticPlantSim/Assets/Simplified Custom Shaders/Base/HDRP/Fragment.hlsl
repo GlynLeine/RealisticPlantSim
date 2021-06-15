@@ -1,3 +1,7 @@
+/// <summary>
+/// Fragment shader code in order to simplify making custom shaders for HDRP. This shader code is used for any deferred/meta render pass.
+/// Author: Glyn Marcus Leine
+/// </summary>
 
 #if (SHADERPASS == SHADERPASS_FULL_SCREEN_DEBUG) && !defined(_DEPTHOFFSET_ON)
 [earlydepthstencil] // quad overshading debug mode writes to UAV

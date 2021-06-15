@@ -1,3 +1,7 @@
+/// <summary>
+/// Handles the movement and rotation of the robot
+/// Author: Rowan Ramsey
+/// </summary>
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,13 +10,15 @@ using geom_msgs = RosSharp.RosBridgeClient.MessageTypes.Geometry;
 
 public class RosDriving : MonoBehaviour
 {
-
     private Vector3 targetPos;
     private Vector3 targetDirection;
     private Quaternion targetRotation;
 
     private bool move = false;
     private bool rotate = false;
+
+    [SerializeField]
+    private bool useAi = false;
 
     [SerializeField]
     private float moveStep = 1;
@@ -22,22 +28,27 @@ public class RosDriving : MonoBehaviour
     private bool rotateFirst = false;
 
     private void Start()
-    {
-        //will only update the target position if we get a published message
+    { 
+        //Whenever the SubCallback function is called we want to update the target position
         PositionSubscriber.SubCallback += updateTargetPos;
+    }
+
+    private void OnDisable()
+    {
+        PositionSubscriber.SubCallback -= updateTargetPos;
     }
 
     private void Update()
     {
-        //just moves the robot to the position, nothing fancy
+        //Moves the gameobject to the tartget position
         MoveToPoint();
     }
 
     private void updateTargetPos(geom_msgs.Vector3 msg)
     {
-        Debug.Log("Updated Pos");
+        Debug.Log(string.Format("Updated Pos: {0}", targetPos));
+
         targetPos = new Vector3((float)msg.x, transform.position.y, (float)msg.z);
-        //im sanitizing the target position so we don't get any weird vertical movement
         if (rotateFirst)
         {
             rotate = true;
@@ -49,38 +60,37 @@ public class RosDriving : MonoBehaviour
         {
             move = true;
         }
-
     }
 
+
+    #region Move and Rotatation
     void MoveToPoint()
     {
-
-        //rotate towards the target before we start moving
+        //Rotate towards the target before moving towards the target position
         if (rotate)
         {
             RotateToTarget();
         }
-        //Debug.Log("Target Direction: "+targetDirection);
 
-        //move towards the target
+        //Move towards the target
         if (move)
         {
-            //Debug.Log("I am being called");
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveStep);//moves at movestep unit intervals
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveStep);
         }
 
-        //stop if we get close enough to the target position
+        //Stop if we get close enough to the target position
         if (Vector3.Distance(transform.position, targetPos) < 0.1f)
         {
             move = false;
-            //set the robots position to targetPos so we don't get any weird drift
+            //Set the robots position to the target position
             transform.position = targetPos;
 
-            //this is purely a callback to request a new position
+            //Callback to return the current position back to ROS
             PositionPublisher.PubCallback(new geom_msgs.Vector3(transform.position.x, transform.position.y, transform.position.z));
         }
     }
 
+    //Rotates the gameobject to point towards the target position
     void RotateToTarget()
     {
         if (Quaternion.Angle(transform.rotation, targetRotation) > 0.01f)
@@ -92,12 +102,5 @@ public class RosDriving : MonoBehaviour
         rotate = false;
         move = true;
     }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + (targetDirection * 10));
-        //Gizmos.color = Color.blue;
-        //Gizmos.DrawRay(transform.position,transform.forward);
-    }
+    #endregion
 }

@@ -1,15 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 using Debug = UnityEngine.Debug;
+
 struct Vector3Uint
 {
     public uint x, y, z;
     public Vector3Uint(uint x, uint y, uint z) { this.x = x; this.y = y; this.z = z; }
 };
 
+/// <summary>
+/// Can generate a farmland terrain based on parameters using compute shaders
+/// Author: Maurijn Besters, Glyn Leine, Robin Dittrich
+/// </summary>
 public class TerrainGenerator : MonoBehaviour
 {
     public static TerrainGenerator instance;
@@ -45,48 +52,78 @@ public class TerrainGenerator : MonoBehaviour
     public float sinPeriod = .1f;
     public float perlinNoiseWeight = 0.5f;
 
+    public GameObject chunkCullingRobotObject;
+    public float CullEveryXSeconds = 0.5f;
+    public int cullDistance = 15;
+
     // This needs to be serialized because otherwise it will get reset on script compile.
     [SerializeField]
     public List<TerrainChunk> chunks = new List<TerrainChunk>();
+    IEnumerator GenerateTerrain(int chunksPerFrame)
+    {
+        GameObject terrain = new GameObject("Terrain");
+        terrain.transform.SetParent(transform);
+        float tileLengthLeft = terrainLength;
 
-    public void buildTerrain()
+        int chunkCount = Mathf.CeilToInt(terrainLength / maximumChunkSize) * Mathf.CeilToInt(terrainWidth / maximumChunkSize);
+
+        int y = 0;
+
+        int progress = 0;
+
+        bool cancel = false;
+#if UNITY_EDITOR
+        cancel = EditorUtility.DisplayCancelableProgressBar("Busy generating terrain...", "Generating terrain " + progress + "/" + chunkCount, ((float)progress) / chunkCount);
+#endif
+        while (tileLengthLeft > 0 && !cancel)
+        {
+            float tileLength = tileLengthLeft < maximumChunkSize ? tileLengthLeft : maximumChunkSize;
+
+            float tileWidthLeft = terrainWidth;
+            int x = 0;
+            while (tileWidthLeft > 0 && !cancel)
+            {
+                float tileWidth = tileWidthLeft < maximumChunkSize ? tileWidthLeft : maximumChunkSize;
+
+                TerrainChunk newChunk = new TerrainChunk(position: new Vector2(tileWidthLeft - (terrainWidth / 2) - (0.5f * tileWidth), tileLengthLeft - (terrainLength / 2) - (0.5f * tileLength)), size: new Vector2(tileWidth, tileLength), index: new Vector2(x, y));
+                newChunk.chunkObject.transform.SetParent(terrain.transform);
+                chunks.Add(newChunk);
+
+                progress++;
+#if UNITY_EDITOR
+                cancel = EditorUtility.DisplayCancelableProgressBar("Busy generating terrain...", "Generating terrain " + progress + "/" + chunkCount, ((float)progress) / chunkCount);
+#endif
+
+                if (progress % chunksPerFrame == 0)
+                {
+                    System.GC.Collect();
+                    Resources.UnloadUnusedAssets();
+                    yield return null;
+                }
+
+                x++;
+                tileWidthLeft -= maximumChunkSize;
+            }
+            y++;
+            tileLengthLeft -= maximumChunkSize;
+        }
+#if UNITY_EDITOR
+        EditorUtility.ClearProgressBar();
+#endif
+        System.GC.Collect();
+        Resources.UnloadUnusedAssets();
+    }
+
+    public void buildTerrain(int chunksPerFrame)
     {
         if (transform.Find("Terrain") == null)
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            GameObject terrain = new GameObject("Terrain");
-            terrain.transform.SetParent(transform);
-            float tileLengthLeft = terrainLength;
-            int y = 0;
-            while (tileLengthLeft > 0)
-            {
-                float tileLength = tileLengthLeft < maximumChunkSize ? tileLengthLeft : maximumChunkSize;
-
-                float tileWidthLeft = terrainWidth;
-                int x = 0;
-                while (tileWidthLeft > 0)
-                {
-                    float tileWidth = tileWidthLeft < maximumChunkSize ? tileWidthLeft : maximumChunkSize;
-
-                    TerrainChunk newChunk = new TerrainChunk(position: new Vector2(tileWidthLeft - (terrainWidth / 2) - (0.5f * tileWidth), tileLengthLeft - (terrainLength / 2) - (0.5f * tileLength) ), size: new Vector2(tileWidth, tileLength), index: new Vector2(x, y));
-                    newChunk.chunkObject.transform.SetParent(terrain.transform);
-                    chunks.Add(newChunk);
-
-                    x++;
-                    tileWidthLeft -= maximumChunkSize;
-                }
-                y++;
-                tileLengthLeft -= maximumChunkSize;
-            }
-
-            Debug.Log("Total: " + stopwatch.Elapsed.TotalSeconds.ToString());
+            StartCoroutine(GenerateTerrain(chunksPerFrame));
         }
         else
         {
             deleteTerrain();
-            buildTerrain();
+            buildTerrain(chunksPerFrame);
         }
 
     }
@@ -111,11 +148,11 @@ public class TerrainGenerator : MonoBehaviour
     /// <returns>The chunk that was found covering the position or null if nothing is found</returns>
     public TerrainChunk GetTerrainChunk(Vector2 position)
     {
-        foreach(TerrainChunk chunk in chunks)
+        foreach (TerrainChunk chunk in chunks)
         {
-            if(chunk.gridXPos - (chunk.size.x / 2) <= position.x && chunk.gridXPos + (chunk.size.x / 2) >= position.x)
+            if (chunk.gridXPos - (chunk.size.x / 2) <= position.x && chunk.gridXPos + (chunk.size.x / 2) >= position.x)
             {
-                if(chunk.gridYPos - (chunk.size.y / 2) <= position.y && chunk.gridYPos + (chunk.size.y / 2) >= position.y)
+                if (chunk.gridYPos - (chunk.size.y / 2) <= position.y && chunk.gridYPos + (chunk.size.y / 2) >= position.y)
                 {
                     return chunk;
                 }
@@ -151,6 +188,8 @@ public class TerrainChunk
 
         heightMap = heightMap.Blend(TerrainGenerator.instance.baseHeightTexture, 0.5f, true);
         normalMap = normalMap.Blend(TerrainGenerator.instance.baseNormalTexture, 0.5f, true);
+        normalMap.Compress(false);
+
         chunkObject = createTerrain(size.x, size.y);
         SetActive(true);
     }
@@ -162,23 +201,17 @@ public class TerrainChunk
 
     public GameObject createTerrain(float width, float height)
     {
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
-
         GameObject plane = new GameObject("Chunk");
         plane.AddComponent<MeshFilter>().mesh = CreateTerrainMesh(width, height);
         plane.AddComponent<MeshRenderer>();
         plane.transform.position = new Vector3(gridXPos, 0, gridYPos);
 
         Material chunkMaterial = new Material(TerrainGenerator.instance.terrainMaterial);
-        //chunkMaterial.SetTexture("_BaseColorMap", this.heightMap);
         chunkMaterial.SetTexture("_HeightMap", this.heightMap);
         chunkMaterial.SetTexture("_NormalMap", this.normalMap);
 
 
         plane.GetComponent<Renderer>().material = chunkMaterial;
-
-        //Debug.Log("terrain: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return plane;
     }
 
@@ -190,8 +223,8 @@ public class TerrainChunk
         Mesh m = new Mesh();
         m.name = "chunk mesh";
         m.vertices = new Vector3[] {
-         new Vector3(-halfWidth, 0.01f,-halfHeight),
-         new Vector3(halfWidth, 0.01f,-halfHeight),
+         new Vector3(-halfWidth, 0.01f, -halfHeight),
+         new Vector3(halfWidth, 0.01f, -halfHeight),
          new Vector3(halfWidth, 0.01f, halfHeight),
          new Vector3(-halfWidth, 0.01f, halfHeight)
         };
@@ -210,6 +243,10 @@ public class TerrainChunk
         return m;
     }
 
+    /// <summary>
+    /// Generates a heightmap with fractal noise and a sine wave for farmland grooves, uses compute shaders.
+    /// Author: Glyn Marcus Leine & Maurijn Besters
+    /// </summary>
     public Texture2D CreateHeightmap(float gridX, float gridY)
     {
         if (!m_heightShader)
@@ -225,17 +262,19 @@ public class TerrainChunk
             m_heightShader.GetKernelThreadGroupSizes(m_heightKernel, out m_heightGlobal.x, out m_heightGlobal.y, out m_heightGlobal.z);
         }
 
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
-
         var generator = TerrainGenerator.instance;
 
         RenderTexture target = new RenderTexture(generator.textureWidth, generator.textureHeight, 1, RenderTextureFormat.ARGBFloat);
         target.enableRandomWrite = true;
         target.Create();
 
+        if (generator.includeSineWave)
+            m_heightShader.EnableKeyword("SINE_WAVE_ON");
+        else
+            m_heightShader.DisableKeyword("SINE_WAVE_ON");
+
         m_heightShader.SetTexture(m_heightKernel, "target", target);
-        m_heightShader.SetFloats("oneOverResolution", 1f / generator.textureWidth, 1f / generator.textureHeight);
+        m_heightShader.SetFloats("resolutionData", generator.textureWidth, generator.textureHeight, 1f / generator.textureWidth, 1f / generator.textureHeight);
         m_heightShader.SetFloat("chunkSize", generator.maximumChunkSize);
 
         m_heightShader.SetInt("octaves", generator.PerlinOctaves);
@@ -266,7 +305,6 @@ public class TerrainChunk
         m_heightShader.SetFloat("perlinScale", 1f / generator.PerlinScale);
         m_heightShader.SetFloat("normalizeScale", 1f / maxPossibleHeight);
 
-        m_heightShader.SetBool("includeSineWave", generator.includeSineWave);
         m_heightShader.SetFloat("halfSineAmplitude", generator.sinAmplitude * 0.5f);
         m_heightShader.SetFloat("sinePeriod", generator.sinPeriod);
         m_heightShader.SetFloat("chunkOffsetX", generator.xOffset - (generator.maximumChunkSize * gridX));
@@ -285,14 +323,15 @@ public class TerrainChunk
         heightMapTexture.Apply(false, false);
         RenderTexture.active = null;
         target.Release();
+        target.DiscardContents();
         octaveOffsetsBuffer.Release();
+        octaveOffsetsBuffer.Dispose();
 
         return heightMapTexture;
     }
 
     public float GetHeightFromPosition(Vector2 position)
     {
-
         Vector2 terrainPosition = new Vector2(this.gridXPos, this.gridYPos);
         Vector2 relativePlantPosition = (position - terrainPosition) / this.size;
         Vector2 plantUvPosition = new Vector2(0.5f, 0.5f) + relativePlantPosition;
@@ -317,11 +356,12 @@ public static class ColorUtils
     static Vector3Uint m_normalGlobal;
     static Vector3Uint m_blurGlobal;
 
+    /// <summary>
+    /// Blends 2 textures together using linear interpolation and compute shaders.
+    /// Author: Glyn Marcus Leine & Maurijn Besters
+    /// </summary>
     public static Texture2D Blend(this Texture2D texture, Texture2D otherTexture, float amount, bool genMips = false)
     {
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
-
         if (!m_blendShader)
         {
             m_blendShader = Resources.Load<ComputeShader>("Compute/Blend");
@@ -360,20 +400,22 @@ public static class ColorUtils
         result.wrapModeU = texture.wrapModeU;
         result.wrapModeV = texture.wrapModeV;
         result.wrapModeW = texture.wrapModeW;
+        result.wrapMode = TextureWrapMode.Clamp;
 
         result.Apply(genMips, !texture.isReadable);
         RenderTexture.active = null;
         rt.Release();
+        rt.DiscardContents();
 
-        //Debug.Log("blend tex: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return result;
     }
 
+    /// <summary>
+    /// Generate a normal map from a heightmap using compute shaders.
+    /// Author: Glyn Marcus Leine & Maurijn Besters
+    /// </summary>
     public static Texture2D CreateNormal(this Texture2D source, float strength)
     {
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
-
         if (!m_normalShader)
         {
             m_normalShader = Resources.Load<ComputeShader>("Compute/Normal");
@@ -435,13 +477,15 @@ public static class ColorUtils
         result.wrapModeU = source.wrapModeU;
         result.wrapModeV = source.wrapModeV;
         result.wrapModeW = source.wrapModeW;
+        result.wrapMode = TextureWrapMode.Clamp;
 
         result.Apply(source.mipmapCount > 1, !source.isReadable);
         RenderTexture.active = null;
         rt.Release();
+        rt.DiscardContents();
         blurRt.Release();
+        blurRt.DiscardContents();
 
-        //Debug.Log("normal tex: " + stopwatch.Elapsed.TotalSeconds.ToString());
         return result;
     }
 }

@@ -1,3 +1,8 @@
+/// <summary>
+/// This is a cheat-sheet and not made actual use. Including this file into any shader will likely cause errors.
+/// The definition of any commonly used unity shader data-structures are copied into this file for reference.
+/// Author: Glyn Marcus Leine
+/// </summary>
 
 struct AttributesMesh
 {

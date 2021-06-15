@@ -4,42 +4,31 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Terrain utility editor that calls different terrain / plant generator classes
+/// Author: Robin Dittrich
+/// </summary>
 [CanEditMultipleObjects]
 [CustomEditor(typeof(TerrainUtility))]
 public class TerrainUtilityEditor : Editor
 {
     SerializedProperty _plantsPerUnit;
+    SerializedProperty _chunksPerFrame;
+    SerializedProperty _plantsPerFrame;
+
 
     int plantsToSpawn;
 
-    IETACalculator eta = null;
 
     void OnEnable()
     {
         _plantsPerUnit = serializedObject.FindProperty("plantsPerUnit");
-    }
-
-    private void OnSceneGUI()
-    {
-        TerrainUtility terrainUtility = (TerrainUtility)target;
-        PlantGenerator plantGenerator = terrainUtility.GetComponent<PlantGenerator>();
-
-        if (plantGenerator.generatingPlants)
-        {
-            if (Event.current.type == EventType.Repaint)
-            {
-                SceneView.RepaintAll();
-            }
-        }
-
+        _chunksPerFrame = serializedObject.FindProperty("chunksPerFrame");
+        _plantsPerFrame = serializedObject.FindProperty("plantsPerFrame");
     }
 
     public override void OnInspectorGUI()
     {
-        if (eta == null)
-        {
-            eta = new ETACalculator(5, 15);
-        }
         serializedObject.Update();
         TerrainUtility terrainUtility = (TerrainUtility)target;
         TerrainGenerator terrainGenerator = terrainUtility.GetComponent<TerrainGenerator>();
@@ -60,18 +49,22 @@ public class TerrainUtilityEditor : Editor
 
         terrainGenerator.terrainLength = EditorGUILayout.FloatField(new GUIContent("Terrain size Z"), terrainGenerator.terrainLength);
 
+        EditorGUILayout.PropertyField(_chunksPerFrame);
 
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("Create terrain"))
         {
             TerrainGenerator.instance = terrainGenerator;
-            terrainGenerator.buildTerrain();
+            terrainGenerator.buildTerrain(_chunksPerFrame.intValue);
         }
 
         if (GUILayout.Button("Delete terrain"))
         {
             TerrainGenerator.instance = terrainGenerator;
             terrainGenerator.deleteTerrain();
+            EditorSceneManager.MarkAllScenesDirty();
+            System.GC.Collect();
+            Resources.UnloadUnusedAssets();
         }
 
         GUILayout.EndHorizontal();
@@ -86,6 +79,9 @@ public class TerrainUtilityEditor : Editor
         GUILayout.Label($"This will spawn {plantsToSpawn} plants");
         plantGenerator.amountOfPlantsToSpawn = plantsToSpawn;
 
+        EditorGUILayout.PropertyField(_plantsPerFrame);
+
+
         GUILayout.BeginHorizontal();
 
         if (GUILayout.Button("Generate plants"))
@@ -94,47 +90,18 @@ public class TerrainUtilityEditor : Editor
             //plantGenerator.StartCoroutine(plantGenerator.spawnPlantsInXZRange());
 
             //New logic ->
-            plantGenerator.StartCoroutine(plantGenerator.SpawnPlantsOnChunks(terrainGenerator));
-
-            eta.Reset();
+            plantGenerator.StartCoroutine(plantGenerator.SpawnPlantsOnChunks(terrainGenerator, _plantsPerFrame.intValue));
         }
 
         if (GUILayout.Button("Delete plants"))
         {
             plantGenerator.deleteAllPlants(terrainGenerator);
             EditorSceneManager.MarkAllScenesDirty();
+            System.GC.Collect();
+            Resources.UnloadUnusedAssets();
         }
 
         GUILayout.EndHorizontal();
-
-        if (GUILayout.Button("Stop generator"))
-        {
-            plantGenerator.StopAllCoroutines();
-            plantGenerator.generatingPlants = false;
-            Transform plantsHolder = plantGenerator.transform.Find("Plants");
-            plantsHolder.gameObject.SetActive(true);
-
-        }
-
-        if (plantGenerator.generatingPlants)
-        {
-            float percentageDone = (float) plantGenerator.currentPlant / (float) plantGenerator.amountOfPlantsToSpawn;
-            eta.Update(percentageDone);
-            EditorGUILayout.LabelField($"Generating plants... {plantGenerator.currentPlant} / {plantGenerator.amountOfPlantsToSpawn}");
-            if(eta.ETAIsAvailable)
-            {
-                EditorGUILayout.LabelField($"Estimated time left: {eta.ETR.Hours}:{eta.ETR.Minutes}:{eta.ETR.Seconds}");
-            } else
-            {
-                EditorGUILayout.LabelField($"Calculating time remaining...");
-
-            }
-            EditorGUILayout.LabelField("Don't click away from Unity, while clicked away the generator can't generate plants!");
-            EditorGUILayout.LabelField("Tip! Look away from the field with the scene view. The generation will go faster");
-
-        }
-
-
 
         serializedObject.ApplyModifiedProperties();
     }

@@ -7,6 +7,10 @@ using System.Collections.Generic;
 
 namespace FFmpegOut
 {
+    /// <summary>
+    /// Manages the FFmpeg session per camera. This was modified from recording to a file to streaming to a rtsp server.
+    /// Author: Robin Dittrich
+    /// </summary>
     public sealed class FFmpegSession : System.IDisposable
     {
         #region Factory methods

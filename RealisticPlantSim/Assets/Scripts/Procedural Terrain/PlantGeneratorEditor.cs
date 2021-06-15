@@ -3,6 +3,10 @@ using UnityEditor;
 using static PlantGenerator;
 using System;
 
+/// <summary>
+/// Inspector editor code for the plant generator
+/// Author: Robin dittrich
+/// </summary>
 [CanEditMultipleObjects]
 [CustomEditor(typeof(PlantGenerator))]
 public class PlantGeneratorEditor : Editor
@@ -43,7 +47,7 @@ public class PlantGeneratorEditor : Editor
             {
                 throw new Exception($"[PlantGenerator] The Random Placement script on plant #{plantGenerator.plantSpawnSettings.IndexOf(spawnSetting)} does not extend from AbstractPlacementStrategy!");
             }
-            placementStrategy.OnInspectorGUI();
+            placementStrategy.OnInspectorGUI(plantGenerator);
         }
 
 

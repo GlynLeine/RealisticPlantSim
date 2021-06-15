@@ -7,6 +7,11 @@ using System;
 using Random = UnityEngine.Random;
 using System.Linq;
 
+/// <summary>
+/// Can generate houdini plants based on many assignable variables.
+/// These plants can be generated at editor time.
+/// Author: Robin Dittrich, Maurijn Besters
+/// </summary>
 public class PlantGenerator : MonoBehaviour
 {
     [SerializeField]
@@ -21,9 +26,14 @@ public class PlantGenerator : MonoBehaviour
     [SerializeField]
     public int amountOfPlantsToSpawn = 100;
 
+    [SerializeField]
+    public SerializableDictionary<string, object> placementStrategyVars = new SerializableDictionary<string, object>();
+
     public int currentPlant = 0;
     public bool generatingPlants = false;
 
+    private bool cancel = false;
+    private IETACalculator eta = null;
 
     public static PlantGenerator instance;
     private void Awake()
@@ -31,6 +41,9 @@ public class PlantGenerator : MonoBehaviour
         instance = this;
     }
 
+    /// <summary>
+    /// Spawn settings for 1 type of plant
+    /// </summary>
     [System.Serializable]
     public class PlantSpawnSettings
     {
@@ -40,6 +53,10 @@ public class PlantGenerator : MonoBehaviour
         public List<PlantVariationSetting> randomizers;
     }
 
+    /// <summary>
+    /// Controls variables in houdini based on the Houdini key.
+    /// Can be a int or float
+    /// </summary>
     [System.Serializable]
     public class PlantVariationSetting
     {
@@ -59,11 +76,24 @@ public class PlantGenerator : MonoBehaviour
     [SerializeField]
     public List<PlantSpawnSettings> plantSpawnSettings = new List<PlantSpawnSettings>();
 
-    public IEnumerator SpawnPlantsOnChunks(TerrainGenerator terrainGenerator)
+    /// <summary>
+    /// Spawns plants on the current chunks that the terrain generator has generated, randomly picking spawn settings.
+    /// </summary>
+    /// <param name="terrainGenerator"></param>
+    /// <param name="plantsPerFrame">Plants that are generated before the editor updates 1 frame (Default 10)</param>
+    /// <returns></returns>
+    public IEnumerator SpawnPlantsOnChunks(TerrainGenerator terrainGenerator, int plantsPerFrame)
     {
         generatingPlants = true;
+        cancel = false;
         currentPlant = 0;
         int amountPerChunk = amountOfPlantsToSpawn / terrainGenerator.chunks.Count;
+
+        if (eta == null)
+        {
+            eta = new ETACalculator(5, 20);
+        }
+        eta.Reset();
 
         List<PlantSpawnSettings> enabledPlantSpawnSettings = plantSpawnSettings.Where(pss => pss.enabled).ToList();
 
@@ -100,17 +130,28 @@ public class PlantGenerator : MonoBehaviour
             chunk.SetActive(false);
         }
 
-        List<Coroutine> plantSpawnerCoroutines = new List<Coroutine>();
+        //We need all the terrainchunks copied to a new list
+        List<TerrainChunk> chunksToGenerateOn = terrainGenerator.chunks.ToList();
 
-        foreach (TerrainChunk chunk in terrainGenerator.chunks)
+        while (chunksToGenerateOn.Count > 0)
         {
-            plantSpawnerCoroutines.Add(StartCoroutine(SpawnPlantsOnChunk(chunk, enabledPlantSpawnSettings, amountPerChunk)));
+            List<Coroutine> plantSpawnerCoroutines = new List<Coroutine>();
+
+            foreach (TerrainChunk chunk in chunksToGenerateOn.RemoveAndGet(0, plantsPerFrame))
+            {
+                plantSpawnerCoroutines.Add(StartCoroutine(SpawnPlantsOnChunk(chunk, enabledPlantSpawnSettings, amountPerChunk, terrainGenerator.chunks)));
+            }
+
+            foreach (Coroutine coroutine in plantSpawnerCoroutines)
+            {
+                yield return coroutine;
+            }
+            GC.Collect();
+            Resources.UnloadUnusedAssets();
         }
 
-        foreach(Coroutine coroutine in plantSpawnerCoroutines)
-        {
-            yield return coroutine;
-        }
+
+
 
         //Turning chunks back on
         foreach (TerrainChunk chunk in terrainGenerator.chunks)
@@ -137,10 +178,19 @@ public class PlantGenerator : MonoBehaviour
 
         Debug.Log("[PlantGenerator] Plant generator finished!");
         generatingPlants = false;
+        EditorUtility.ClearProgressBar();
 
     }
 
-    public IEnumerator SpawnPlantsOnChunk(TerrainChunk chunk, List<PlantSpawnSettings> plantSpawnSettings, int amountOfPlants)
+    /// <summary>
+    /// Spawns the required amount of plants on the current chunk
+    /// </summary>
+    /// <param name="chunk"></param>
+    /// <param name="plantSpawnSettings"></param>
+    /// <param name="amountOfPlants"></param>
+    /// <param name="chunks"></param>
+    /// <returns></returns>
+    public IEnumerator SpawnPlantsOnChunk(TerrainChunk chunk, List<PlantSpawnSettings> plantSpawnSettings, int amountOfPlants, List<TerrainChunk> chunks)
     {
 
         for (int i = 0; i < amountOfPlants; i++)
@@ -159,6 +209,7 @@ public class PlantGenerator : MonoBehaviour
             {
                 throw new Exception($"[PlantGenerator] The Random Placement script on plant #{randomPlantIndex} does not extend from AbstractPlacementStrategy!");
             }
+
             float chunkX = chunk.chunkObject.transform.position.x;
             float chunkZ = chunk.chunkObject.transform.position.z;
             float chunkSizeXHalf = chunk.size.x/2;
@@ -176,13 +227,39 @@ public class PlantGenerator : MonoBehaviour
             newPlant.transform.position = position;
             newPlant.isStatic = true;
             currentPlant++;
+
+            float percentageDone = (float)currentPlant / (float)amountOfPlantsToSpawn;
+            eta.Update(percentageDone);
+            string extraText = "";
+            if (eta.ETAIsAvailable)
+            {
+                extraText += $"Estimated time left: {eta.ETR.Hours}:{eta.ETR.Minutes}:{eta.ETR.Seconds}";
+            }
+
+            cancel = EditorUtility.DisplayCancelableProgressBar("Busy generating plants...", $"Generating plants {currentPlant} / {amountOfPlantsToSpawn} {extraText}", percentageDone);
+            if (cancel)
+            {
+                StopAllCoroutines();
+                generatingPlants = false;
+                Transform plantsHolder = transform.Find("Plants");
+                plantsHolder.gameObject.SetActive(true);
+                EditorUtility.ClearProgressBar();
+                //Turning chunks back on
+                foreach (TerrainChunk terrainChunk in chunks)
+                {
+                    terrainChunk.SetActive(true);
+                }
+
+            }
             yield return newPlant;
-            EditorApplication.QueuePlayerLoopUpdate();
-            SceneView.RepaintAll();
         }
 
     }
 
+    /// <summary>
+    /// Deletes all plants that are spawned
+    /// </summary>
+    /// <param name="terrainGenerator"></param>
     public void deleteAllPlants(TerrainGenerator terrainGenerator)
     {
         Transform plantsHolder = transform.Find("Plants");
@@ -209,6 +286,11 @@ public class PlantGenerator : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Generates one plant by randomizing its variables and spawning it on terrainchunks
+    /// </summary>
+    /// <param name="spawnSettings"></param>
+    /// <returns></returns>
     private GameObject generateNewPlant(PlantSpawnSettings spawnSettings)
     {
         StartCoroutine(randomizeHoudiniVars(spawnSettings));
@@ -227,6 +309,11 @@ public class PlantGenerator : MonoBehaviour
         return newPlant;
     }
 
+    /// <summary>
+    /// Randomizes the houdini variables of one plant according to the randomizer settings
+    /// </summary>
+    /// <param name="spawnSettings"></param>
+    /// <returns></returns>
     private IEnumerator randomizeHoudiniVars(PlantSpawnSettings spawnSettings)
     {
         HEU_HoudiniAssetRoot assetRoot = spawnSettings.mainHoudiniPlant.GetComponent<HEU_HoudiniAssetRoot>();
@@ -245,5 +332,60 @@ public class PlantGenerator : MonoBehaviour
         assetRoot._houdiniAsset.RequestCook(bCheckParametersChanged: true, bAsync: false, bSkipCookCheck: true, bUploadParameters: true);
         yield return null;
     }
+
+    /// <summary>
+    /// Generic method that gets a variable from a dictionary as a specific type.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    public T getVarFromPlacementVarStorage<T>(string key)
+    {
+        if(!placementStrategyVars.ContainsKey(key))
+        {
+            return default(T);
+        }
+
+        object value = placementStrategyVars[key];
+        if(value.GetType() is T)
+        {
+            return (T)value;
+        } else
+        {
+            return default(T);
+        }
+    }
 }
 
+/// <summary>
+/// Extension class that adds a method to the IList class
+/// </summary>
+public static class Extensions
+{
+    /// <summary>
+    /// This method removes a set amount of items from a list and returns them.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="list"></param>
+    /// <param name="index"></param>
+    /// <param name="amount"></param>
+    /// <returns></returns>
+    public static IList<T> RemoveAndGet<T>(this IList<T> list, int index, int amount)
+    {
+        lock (list)
+        {
+            List<T> itemsTaken = new List<T>();
+            for(int i = 0; i < amount; i++)
+            {
+                int actualIndex = index + i;
+                if(list.ElementAtOrDefault(actualIndex) != null)
+                {
+                    itemsTaken.Add(list[actualIndex]);
+                    list.RemoveAt(actualIndex);
+
+                }
+            }
+            return itemsTaken;
+        }
+    }
+}

@@ -1,3 +1,7 @@
+/// <summary>
+/// Handles pushing the parsed color information, to the FFmpeg pipeline for streaming
+/// Author: Rowan Ramsey
+/// </summary>
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,34 +12,28 @@ using UnityEngine.UI;
 [AddComponentMenu("Sensors/Color Sensor")]
 public class ColorSensorCapture : CameraCapture
 {
+    //The render texture that holds the color information from the camera
     private RenderTexture outputColor;
-    [SerializeField]
-    private RawImage colorOutput;
-    StreamSettings settings;
+
+    CameraFrameParser frameParser;
 
     public ColorSensorCapture Initialize()
     {
-        settings = GetComponent<StreamSettings>();
+        frameParser = GetComponent<CameraFrameParser>();
         outputColor = new RenderTexture(streamWidth, streamHeight, 1, RenderTextureFormat.ARGBFloat);
         outputColor.enableRandomWrite = true;
         outputColor.Create();
         return this;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        if (settings.sendColorFrames)
+        //A check to see if the the frameParser has succesfully parsed the color frame information
+        if (frameParser.sendColorFrames)
         {
+            //Pushes the parsed frame to the FFmpeg pipeline
             PushToPipe(outputColor, streamURL, streamWidth, streamHeight);
-            settings.sendColorFrames = false;
-
-            colorOutput.texture = outputColor;
-            colorOutput.Rebuild(CanvasUpdate.MaxUpdateValue);
-
-            outputColor.enableRandomWrite = true;
-            outputColor.Create();
-
-            settings.OutputColor = outputColor;
+            frameParser.sendColorFrames = false;
         }
     }
 

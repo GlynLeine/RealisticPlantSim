@@ -1,51 +1,88 @@
+/// <summary>
+/// Compute shader for generating a heightmap using fractal noise and a sine wave for farmland grooves.
+/// Author: Glyn Marcus Leine
+/// </summary>
 #pragma kernel CSHeight
 
 #include "noise.hlsl"
 
-RWTexture2D<float4> target;
-const float2 oneOverResolution;
-const float chunkSize;
-const int octaves;
-float amplitude;
-const float persistence;
-const float lacunarity;
+///////////////////////////////////////////////////////////////////////////////////////////////
+///                                                                                         ///
+///   If you're wondering why certain code looks the way it does, and you don't know        ///
+///   what MAD instructions are. It's highly recommend trying to learn about them first     ///
+///   before trying to refactor this code.                                                  ///
+///                                                                                         ///
+///////////////////////////////////////////////////////////////////////////////////////////////
 
-StructuredBuffer<float2> octaveOffsets;
-const float perlinScale;
-const float normalizeScale;
+#pragma multi_compile_local SINE_WAVE_ON __
 
-const bool includeSineWave;
-const float halfSineAmplitude;
-const float sinePeriod;
-const float chunkOffsetX;
-const float perlinNoiseWeight;
+RWTexture2D<float4> target;                 // Target texture to write heightmap to
+const float4 resolutionData;                // Packed variable with layout { resolution.xy, oneOverResolution.xy }
+const float chunkSize;                      // World space units size of a chunk
+const int octaves;                          // Amount of fractal noise layers
+const float amplitude;                      // Base amplitude of the fractal noise
+const float persistence;                    // Persistence of the applitude throughout the fractal noise layers
+const float lacunarity;                     // Frequence increase throughout the fractal noise layers
+
+StructuredBuffer<float2> octaveOffsets;     // Sample offsets per fractal noise layer
+const float perlinScale;                    // Noise scale
+const float normalizeScale;                 // One over the maximum range of the noise. Multiplying the noise output with this number should normalize it to a range of 0-1
+
+
+/// Sine wave inputs ///
+const float halfSineAmplitude;              // Half of the amplitude the sine wave should have. Used for remapping sinewave range.
+const float sinePeriod;                     // Frequency of the sinewave.
+const float chunkOffsetX;                   // Offset of the current chunk on the X axis
+const float perlinNoiseWeight;              // Blend weight between the sine wave and the fractal noise.
 
 [numthreads(32, 32, 1)]
 void CSHeight(uint3 id : SV_DispatchThreadID)
 {
-    float freq = 1;
-    float noiseHeight = 0;
-
-    for (int i = 0; i < octaves; i++)
+    if (all(id.xy <= (uint2)resolutionData.xy))
     {
-        float2 pos = ((id.xy * oneOverResolution * chunkSize) + octaveOffsets[i]) * perlinScale * freq;
+        // Extract 1.0/resolution, dividing once on cpu and multiplying often on gpu is more efficient.
+        const float2 oneOverResolution = resolutionData.zw;
 
-        noiseHeight += (((SimplexNoise(pos) * 0.5) + 0.5) * amplitude);
+        // Fixing this takes about 20 minutes, but writing this comment took 10 seconds.
+        // We offset the first pixels so that they end up with the same value as the last pixels in the neighbouring chunk.
+        // A better solution would be to linearly interpolate them.
+        const int2 idx = id.xy - ((1).xx - saturate(id.xy));
 
-        amplitude *= persistence;
-        freq *= lacunarity;
-    }
+        // Fractal noise variables.
+        float frequency = 1;
+        float noiseHeight = 0;
+        float amp = amplitude;
 
-    noiseHeight = noiseHeight * normalizeScale;
+        // Fractal noise sampling.
+        for (int i = 0; i < octaves; i++)
+        {
+            // Get world space sample position
+            const float2 samplePosition = ((idx * oneOverResolution * chunkSize) + octaveOffsets[i]) * perlinScale * frequency;
 
-    if (includeSineWave)
-    {
-        float period = sinePeriod * ((id.x * oneOverResolution.x * chunkSize) + chunkOffsetX);
-        float sine = (sin(period) * halfSineAmplitude) + halfSineAmplitude;
+            // Sample and normalize noise to a range of 0-1
+            const float halfAmplitude = amp * 0.5;
+            noiseHeight += (SimplexNoise(samplePosition) * halfAmplitude) + halfAmplitude;
 
+            amp *= persistence;
+            frequency *= lacunarity;
+        }
+
+        // Normalize fractal noise to a range of 0-1. NormalizeScale is one devided by the sum of all maximum values of each noise layer.
+        noiseHeight *= normalizeScale;
+
+#if SINE_WAVE_ON
+        // Sample a sine wave to blend with the fractal noise if sine waves are enabled on this dispatch.
+        
+        // Get the world space position to sample the sine wave at
+        const float input = sinePeriod * ((idx.x * oneOverResolution.x * chunkSize) + chunkOffsetX);
+
+        // Sample and normalize the sine wave
+        const float sine = (sin(input) * halfSineAmplitude) + halfSineAmplitude;
+
+        // Blend the sine wave and the fractal noise
         noiseHeight = lerp(sine, noiseHeight, perlinNoiseWeight);
-    }
+#endif
 
-    noiseHeight = saturate(noiseHeight);
-    target[id.xy] = float4(noiseHeight, noiseHeight, noiseHeight, 1.0);
+        target[id.xy] = float4(noiseHeight.xxx, 1.0);
+    }
 }

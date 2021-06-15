@@ -1,15 +1,18 @@
-// Each #kernel tells which function to compile; you can have many kernels
+/// <summary>
+/// Compute shader for blending 2 textures together using linear interpolation.
+/// Author: Glyn Marcus Leine
+/// </summary>
+
 #pragma kernel CSBlend
+ 
+RWTexture2D<float4> target;     // Target texture to write result to (resolution must be the same as sourceA).
+Texture2D<float4> sourceA;      // First texture to use for the blend.
+Texture2D<float4> sourceB;      // Second texture to use for the blend.
+SamplerState samplersourceB;    // Sampler to use to sample the second texture with (can be lower or higher resolution than the first texture).
+float strength;                 // Interpolator value to use for the interpolation.
+int2 resolution;                // Resolution of sourceA and target.
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-RWTexture2D<float4> target;
-Texture2D<float4> sourceA;
-Texture2D<float4> sourceB;
-SamplerState samplersourceB;
-float strength;
-int2 resolution;
-
+// Convert from dispatch thread id to uv coordinate.
 float2 uvFromIdx(uint2 idx)
 {
     return (float2)(idx) / resolution;
@@ -18,7 +21,7 @@ float2 uvFromIdx(uint2 idx)
 [numthreads(32, 32, 1)]
 void CSBlend(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x <= (uint)resolution.x && id.y <= (uint)resolution.y)
+    if (all(id.xy <= (uint2)resolution))
     {
         float2 uv = uvFromIdx(id.xy);
 

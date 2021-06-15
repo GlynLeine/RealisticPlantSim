@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// Abstract class that any placement strategy needs to extend to be able to work.
+/// Author: Robin Dittrich
+/// </summary>
 public abstract class AbstractPlacementStrategy : MonoScript
 {
     /// <summary>
@@ -32,5 +36,6 @@ public abstract class AbstractPlacementStrategy : MonoScript
     /// <summary>
     /// Exposed Inspector GUI capability
     /// </summary>
-    public abstract void OnInspectorGUI();
+    /// <param name="plantGenerator"></param>
+    public abstract void OnInspectorGUI(PlantGenerator plantGenerator);
 }

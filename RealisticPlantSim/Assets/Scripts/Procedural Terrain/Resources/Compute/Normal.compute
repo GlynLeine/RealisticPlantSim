@@ -1,34 +1,43 @@
+/// <summary>
+/// Compute shader for generating a normal map from a heightmap, includes gaussian blur kernel to blur the normal map afterwards.
+/// Author: Glyn Marcus Leine
+/// </summary>
+
 #pragma kernel CSNormal
 #pragma kernel CSBlur
 
-RWTexture2D<float4> target;
-Texture2D<float4> source;
-float strength;
-int2 resolution;
-float2 texelSize;
+RWTexture2D<float4> target; // Target texture to create normal map in
+Texture2D<float4> source;   // Source heightmap to calculate normal map from
+float strength;             // Angularity of the normals. Higher strength means normals will deviate more from the surface normal.
+int2 resolution;            // Resolution of both the textures.
+float2 texelSize;           // World space size of a texel.
 
+/// Sampling normal from heightmap ///
 [numthreads(32, 32, 1)]
 void CSNormal(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x <= (uint)resolution.x && id.y <= (uint)resolution.y)
+    if (all(id.xy <= (uint2)resolution))
     {
+        // Get all texel id's of neighbouring texels
         uint2 northIdx = uint2(id.x, clamp(id.y - 1, 0, resolution.y));
         uint2 eastIdx = uint2(clamp(id.x + 1, 0, resolution.x), id.y);
         uint2 southIdx = uint2(id.x, clamp(id.y + 1, 0, resolution.y));
         uint2 westIdx = uint2(clamp(id.x - 1, 0, resolution.x), id.y);
 
-        float3 position = float3(id.x * texelSize.x, 0, id.y * texelSize.y);
+        // Get relative positions of all neighbouring texels
+        float3 north = float3(0, source[northIdx].x, -texelSize.y);
+        float3 east = float3(texelSize.x, source[eastIdx].x, 0);
+        float3 south = float3(0, source[southIdx].x, texelSize.y);
+        float3 west = float3(-texelSize.x, source[westIdx].x, 0);
 
-        float3 north = float3(position.x, source[northIdx].x, position.y - texelSize.y);
-        float3 east = float3(position.x + texelSize.x, source[eastIdx].x, position.y);
-        float3 south = float3(position.x, source[southIdx].x, position.y + texelSize.y);
-        float3 west = float3(position.x - texelSize.x, source[westIdx].x, position.y);
-
+        // Get horizontal and vertical pupendiculars
         float3 vertical = normalize(south - north);
         float3 horizontal = normalize(west - east);
 
+        // Calculate normal
         float3 normal = normalize(cross(horizontal, vertical));
 
+        // Remap normal to tangent space normal
         normal.xz = float2(1.0, 1.0) + normal.xz * strength;
         normal = normalize(normal);
 
@@ -36,12 +45,13 @@ void CSNormal(uint3 id : SV_DispatchThreadID)
     }
 }
 
-bool horizontal;
+bool horizontal;    // Whether this is the horizontal or vertical blur pass
 
+/// Gaussian blur kernel ///
 [numthreads(32, 32, 1)]
 void CSBlur(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x <= (uint)resolution.x && id.y <= (uint)resolution.y)
+    if (all(id.xy <= (uint2)resolution))
     {
         const float weights[16] = {
                                 0.08427471052401217,
