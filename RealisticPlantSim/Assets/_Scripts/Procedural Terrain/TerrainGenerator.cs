@@ -32,11 +32,7 @@ public class TerrainGenerator : MonoBehaviour
 
     public float maximumChunkSize = 5f;
 
-    [Header("noise settings")]
-    [Range(0, 100)]
-    public float noiseScale = 1f;
-
-
+    [Header("Noise settings")]
     public int Seed;
 
     public float PerlinScale = 100f;
