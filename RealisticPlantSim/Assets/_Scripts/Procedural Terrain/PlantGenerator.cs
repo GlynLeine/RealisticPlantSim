@@ -15,15 +15,20 @@ using System.Linq;
 public class PlantGenerator : MonoBehaviour
 {
     [SerializeField]
+    [HideInInspector]
     public float xMinVal = -10f;
     [SerializeField]
+    [HideInInspector]
     public float zMinVal = -10f;
     [SerializeField]
+    [HideInInspector]
     public float xMaxVal = 10f;
     [SerializeField]
+    [HideInInspector]
     public float zMaxVal = 10f;
 
     [SerializeField]
+    [HideInInspector]
     public int amountOfPlantsToSpawn = 100;
 
     [SerializeField]
