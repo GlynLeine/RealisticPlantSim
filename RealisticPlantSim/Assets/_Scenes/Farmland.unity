@@ -7083,7 +7083,6 @@ GameObject:
   - component: {fileID: 429488306}
   - component: {fileID: 429488309}
   - component: {fileID: 429488305}
-  - component: {fileID: 429488307}
   - component: {fileID: 429488308}
   m_Layer: 0
   m_Name: TerrainGenerator
@@ -7125,9 +7124,6 @@ MonoBehaviour:
   sinAmplitude: 0.35
   sinPeriod: 5
   perlinNoiseWeight: 0.25
-  chunkCullingRobotObject: {fileID: 595697607}
-  CullEveryXSeconds: 0.5
-  cullDistance: 15
   chunks: []
 --- !u!4 &429488306
 Transform:
@@ -7144,18 +7140,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &429488307
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 429488304}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 608089382d29c4947aa6fcc55527e13f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &429488308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8279,7 +8263,6 @@ GameObject:
   - component: {fileID: 818198178}
   - component: {fileID: 818198177}
   - component: {fileID: 818198176}
-  - component: {fileID: 818198175}
   m_Layer: 0
   m_Name: RosConnector
   m_TagString: Untagged
@@ -8287,20 +8270,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &818198175
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 818198174}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9bddc75c4794c0489e66f37dc68e31a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Topic: /camera_odometry
-  PublishedTransform: {fileID: 1001316811061720677}
 --- !u!114 &818198176
 MonoBehaviour:
   m_ObjectHideFlags: 0

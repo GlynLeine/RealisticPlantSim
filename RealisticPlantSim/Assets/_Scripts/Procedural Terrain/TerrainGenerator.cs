@@ -28,13 +28,13 @@ public class TerrainGenerator : MonoBehaviour
     public Texture2D baseHeightTexture;
     public Texture2D baseNormalTexture;
     public float normalStrength = 3;
+    [HideInInspector]
     public float terrainWidth, terrainLength;
 
     public float maximumChunkSize = 5f;
 
     [Header("Noise settings")]
     public int Seed;
-
     public float PerlinScale = 100f;
     public int PerlinOctaves = 5;
     public float persistence = 2f;
@@ -48,12 +48,9 @@ public class TerrainGenerator : MonoBehaviour
     public float sinPeriod = .1f;
     public float perlinNoiseWeight = 0.5f;
 
-    public GameObject chunkCullingRobotObject;
-    public float CullEveryXSeconds = 0.5f;
-    public int cullDistance = 15;
-
     // This needs to be serialized because otherwise it will get reset on script compile.
     [SerializeField]
+    [HideInInspector]
     public List<TerrainChunk> chunks = new List<TerrainChunk>();
     IEnumerator GenerateTerrain(int chunksPerFrame)
     {
