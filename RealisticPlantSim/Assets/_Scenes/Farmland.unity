@@ -7109,8 +7109,8 @@ MonoBehaviour:
   baseHeightTexture: {fileID: 2800000, guid: ff60ff54191dd1049a297f1383c1b04e, type: 3}
   baseNormalTexture: {fileID: 2800000, guid: 12051e9f650ec6d42a8cfc060e160a0a, type: 3}
   normalStrength: 3
-  terrainWidth: 100
-  terrainLength: 100
+  terrainWidth: 25
+  terrainLength: 25
   maximumChunkSize: 5
   Seed: 1234
   PerlinScale: 1.5
@@ -7152,11 +7152,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 516f070ae6ebb2643bb87a5e470e367d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xMinVal: -50
-  zMinVal: -50
-  xMaxVal: 50
-  zMaxVal: 50
-  amountOfPlantsToSpawn: 10000
+  xMinVal: -12.5
+  zMinVal: -12.5
+  xMaxVal: 12.5
+  zMaxVal: 12.5
+  amountOfPlantsToSpawn: 625
   placementStrategyVars:
     keys: []
   currentPlant: 10000
@@ -7502,8 +7502,8 @@ MonoBehaviour:
   taaAntiHistoryRinging: 0
   physicalParameters:
     m_Iso: 200
-    m_ShutterSpeed: 0.005
-    m_Aperture: 16
+    m_ShutterSpeed: 0.0005
+    m_Aperture: 2
     m_BladeCount: 5
     m_Curvature: {x: 2, y: 11}
     m_BarrelClipping: 0.25
@@ -7571,7 +7571,7 @@ Camera:
   m_FOVAxisMode: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
-  m_FocalLength: 50
+  m_FocalLength: 1.88
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -7749,8 +7749,8 @@ MonoBehaviour:
   taaAntiHistoryRinging: 0
   physicalParameters:
     m_Iso: 200
-    m_ShutterSpeed: 0.005
-    m_Aperture: 16
+    m_ShutterSpeed: 0.0005
+    m_Aperture: 2
     m_BladeCount: 5
     m_Curvature: {x: 2, y: 11}
     m_BarrelClipping: 0.25
@@ -7818,7 +7818,7 @@ Camera:
   m_FOVAxisMode: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
-  m_FocalLength: 50
+  m_FocalLength: 1.88
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -8202,8 +8202,20 @@ PrefabInstance:
       value: Main Camera
       objectReference: {fileID: 0}
     - target: {fileID: 7774858359248560379, guid: 972b2dd77e43bfd49b8a426bf46a483a, type: 3}
+      propertyPath: physicalParameters.m_Aperture
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7774858359248560379, guid: 972b2dd77e43bfd49b8a426bf46a483a, type: 3}
+      propertyPath: physicalParameters.m_ShutterSpeed
+      value: 0.0005
+      objectReference: {fileID: 0}
+    - target: {fileID: 7774858359248560379, guid: 972b2dd77e43bfd49b8a426bf46a483a, type: 3}
       propertyPath: renderingPathCustomFrameSettingsOverrideMask.mask.data1
       value: 493661347372910
+      objectReference: {fileID: 0}
+    - target: {fileID: 7774858359248560381, guid: 972b2dd77e43bfd49b8a426bf46a483a, type: 3}
+      propertyPath: m_FocalLength
+      value: 1.88
       objectReference: {fileID: 0}
     - target: {fileID: 7774858359248560382, guid: 972b2dd77e43bfd49b8a426bf46a483a, type: 3}
       propertyPath: m_RootOrder
@@ -15181,8 +15193,8 @@ MonoBehaviour:
   taaAntiHistoryRinging: 0
   physicalParameters:
     m_Iso: 200
-    m_ShutterSpeed: 0.005
-    m_Aperture: 16
+    m_ShutterSpeed: 0.0005
+    m_Aperture: 2
     m_BladeCount: 5
     m_Curvature: {x: 2, y: 11}
     m_BarrelClipping: 0.25
@@ -15250,7 +15262,7 @@ Camera:
   m_FOVAxisMode: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
-  m_FocalLength: 50
+  m_FocalLength: 1.88
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
