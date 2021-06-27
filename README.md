@@ -1,6 +1,5 @@
 [![dummy](https://github.com/GlynLeine/RealisticPlantSim/workflows/Build%20Action/badge.svg)](https://github.com/GlynLeine/RealisticPlantSim/actions?query=workflow%3ABuild%20Action)
 
-
 # Project IMT&S: Realistic Plant Simulation
 ## THE PROBLEM
 Simulation can significantly speed up the development of new robots. Simulation can for example be used to test hardware that is physically not available yet. It can also be used to generate sensor data that can be used during development. In this project we primarily focus on generating sensor data.
@@ -9,6 +8,9 @@ Eventually, we want to test agricultural robots in simulation. The robots need t
 
 ## OUR SOLUTION
 The Realistic Plant Simulation (RPS) application is built as a suite of editor tools within Unity. These tools offer the possibility to the ROS comunity to test their code within a virtualized environment inside of Unity. This is less time consuming and more graphically realistic than the current ways of testing their code using programs like Gazebo or going out to a field with an actual robot. 
+
+### Manual
+For a full manual to our project with instruction on how to set it up and how to use it. Including links to external parts of the project that aren't on this repository. Please refer to the user manual: [User Manual](https://docs.google.com/document/d/1ElO3Z174t5oolri0vyFrG4HCnSy8ZSZZBn0QKAvnmeU/edit?usp=sharing)
 
 ### DESIRED OUTCOME
 To address all of these issues an application needs to be created that can implement all of these requirements and possibly more in the future. 
@@ -41,4 +43,3 @@ During the process you will be guided by experts from Saxion and Aeres hogeschoo
 
 ##### LINKS
 [Saxion Mechatronica](https://www.saxion.nl/onderzoek/smart-industry/mechatronica)<br>
-[User Manual](https://docs.google.com/document/d/1ElO3Z174t5oolri0vyFrG4HCnSy8ZSZZBn0QKAvnmeU/edit?usp=sharing)<br>
