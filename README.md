@@ -41,3 +41,4 @@ During the process you will be guided by experts from Saxion and Aeres hogeschoo
 
 ##### LINKS
 [Saxion Mechatronica](https://www.saxion.nl/onderzoek/smart-industry/mechatronica)<br>
+[User Manual](https://docs.google.com/document/d/1ElO3Z174t5oolri0vyFrG4HCnSy8ZSZZBn0QKAvnmeU/edit?usp=sharing)<br>
