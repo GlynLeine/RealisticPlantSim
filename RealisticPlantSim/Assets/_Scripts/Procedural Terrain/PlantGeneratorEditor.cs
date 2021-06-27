@@ -51,13 +51,13 @@ public class PlantGeneratorEditor : Editor
         }
 
 
-        EditorGUILayout.PropertyField(_xMinVal, new GUIContent("Minimum X bound"));
-        EditorGUILayout.PropertyField(_xMaxVal, new GUIContent("Maximum X bound"));
+        //EditorGUILayout.PropertyField(_xMinVal, new GUIContent("Minimum X bound"));
+        //EditorGUILayout.PropertyField(_xMaxVal, new GUIContent("Maximum X bound"));
 
-        EditorGUILayout.PropertyField(_zMinVal, new GUIContent("Minimum Z bound"));
-        EditorGUILayout.PropertyField(_zMaxVal, new GUIContent("Maximum Z bound"));
+        //EditorGUILayout.PropertyField(_zMinVal, new GUIContent("Minimum Z bound"));
+        //EditorGUILayout.PropertyField(_zMaxVal, new GUIContent("Maximum Z bound"));
 
-        EditorGUILayout.PropertyField(_amountOfPlantsToSpawn, new GUIContent("Amount of plants to spawn"));
+        //EditorGUILayout.PropertyField(_amountOfPlantsToSpawn, new GUIContent("Amount of plants to spawn"));
 
         serializedObject.ApplyModifiedProperties();
 
