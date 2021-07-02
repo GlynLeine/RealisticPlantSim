@@ -1,0 +1,10 @@
+This is a care package with all the documentation for the Realistic Plant Simulation project.
+
+The project itself can be found here:
+https://github.com/GlynLeine/RealisticPlantSim
+
+The ROS Unity package
+https://github.com/Ragingram2/ros_unity_com-Package
+
+More miscellaneous docs can be found here:
+https://drive.google.com/drive/folders/1mOH5Ik-gBxTExWAmYTkXOS2Hzb66OiSC?usp=sharing
